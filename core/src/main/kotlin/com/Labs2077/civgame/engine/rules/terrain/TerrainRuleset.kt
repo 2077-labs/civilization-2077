@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.engine.rules.terrain
 
 import com.Labs2077.civgame.engine.rules.AbstractRuleset
+import com.Labs2077.civgame.engine.rules.TerrainId
 import com.Labs2077.civgame.engine.terrain.ProductionEffectMode
 import com.Labs2077.civgame.engine.terrain.TerrainDefinition
 import com.Labs2077.civgame.engine.terrain.TerrainProductionRule
@@ -15,7 +16,7 @@ import com.Labs2077.civgame.engine.terrain.TerrainProductionRule
 class TerrainRuleset private constructor(
     schemaVersion: Int,
     terrains: List<TerrainDefinition>
-) : AbstractRuleset<TerrainDefinition>(
+) : AbstractRuleset<TerrainId, TerrainDefinition>(
     schemaVersion = schemaVersion,
     definitions = terrains,
     typeName = "terrains"
@@ -30,16 +31,16 @@ class TerrainRuleset private constructor(
          * @param terrain definicja terenu, która podlega walidacji
          */
         private fun validateDefinition(terrain: TerrainDefinition) {
-            require(terrain.id.matches(Regex("[a-z][a-z0-9_]*"))) {
-                "Niepoprawne id terenu '${terrain.id}'"
+            require(terrain.id.value.matches(Regex("[a-z][a-z0-9_]*"))) {
+                "Niepoprawne id terenu '${terrain.id.value}'"
             }
 
             require(terrain.displayName.isNotBlank()) {
-                "${terrain.id}: displayName nie może być puste"
+                "${terrain.id.value}: displayName nie może być puste"
             }
 
             require(terrain.movementCost > 0) {
-                "${terrain.id}: movementCost musi być większy od 0"
+                "${terrain.id.value}: movementCost musi być większy od 0"
             }
 
             val production = terrain.production
@@ -47,11 +48,11 @@ class TerrainRuleset private constructor(
             if (production is TerrainProductionRule.BuildingModifiers) {
                 production.modifiers.forEach { modifier ->
                     require(
-                        modifier.buildingId.matches(
+                        modifier.buildingId.value.matches(
                             Regex("[a-z][a-z0-9_]*")
                         )
                     ) {
-                        "${terrain.id}: niepoprawne id budynku '${modifier.buildingId}'"
+                        "${terrain.id.value}: niepoprawne id budynku '${modifier.buildingId.value}'"
                     }
                 }
 
@@ -62,7 +63,7 @@ class TerrainRuleset private constructor(
                 require(
                     replacePriorities.distinct().size == replacePriorities.size
                 ) {
-                    "${terrain.id}: efekty REPLACE muszą mieć różne priorytety"
+                    "${terrain.id.value}: efekty REPLACE muszą mieć różne priorytety"
                 }
             }
         }

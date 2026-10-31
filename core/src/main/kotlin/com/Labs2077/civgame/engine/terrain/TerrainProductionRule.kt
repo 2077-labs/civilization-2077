@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.engine.terrain
 
 import com.Labs2077.civgame.engine.resources.ResourceBundle
+import com.Labs2077.civgame.engine.rules.units.BuildingId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,7 +21,8 @@ enum class ProductionEffectMode {
  */
 @Serializable
 sealed interface TerrainProductionRule {
-    fun calculateProduction(builtBuildings: Set<String>): ResourceBundle
+    fun calculateProduction(builtBuildings: Set<BuildingId>): ResourceBundle
+
     /**
      * Reprezentuje stałą produkcję terenu, niezależną od posiadanych budynków.
      *
@@ -31,13 +33,14 @@ sealed interface TerrainProductionRule {
     data class Fixed(
         val resources: ResourceBundle
     ) : TerrainProductionRule {
-        override fun calculateProduction(builtBuildings: Set<String>): ResourceBundle = resources
+        override fun calculateProduction(builtBuildings: Set<BuildingId>): ResourceBundle = resources
     }
+
     /**
      * Oblicza produkcję terenu z uwzględnieniem efektów posiadanych budynków
      *
      * Efekt REPLACE o najwyższym priorytecie zastępuje produkcję bazową,
-     * a aktywne efekty ADD są do niej dodawane
+     * a aktywne efekty ADD są do niej dodawane.
      *
      * @property baseResources bazowa produkcja terenu
      * @property modifiers lista efektów zależnych od budynków
@@ -56,7 +59,7 @@ sealed interface TerrainProductionRule {
          * @return zestaw wyprodukowanych zasobów
          */
         override fun calculateProduction(
-            builtBuildings: Set<String>
+            builtBuildings: Set<BuildingId>
         ): ResourceBundle {
             val activeModifiers = modifiers.filter {
                 it.buildingId in builtBuildings
@@ -73,6 +76,7 @@ sealed interface TerrainProductionRule {
                 .forEach { modifier ->
                     result += modifier.resources
                 }
+
             return result
         }
     }
