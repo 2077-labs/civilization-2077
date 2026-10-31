@@ -1,4 +1,4 @@
-package com.Labs2077.civgame.client.assets
+package com.Labs2077.civgame.client.units
 
 import com.Labs2077.civgame.engine.units.UnitAbility
 import com.Labs2077.civgame.engine.units.UnitDefinition
