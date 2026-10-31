@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.engine.terrain
 
 import com.Labs2077.civgame.engine.resources.ResourceBundle
+import com.Labs2077.civgame.engine.rules.units.BuildingId
 import kotlinx.serialization.Serializable
 
 /**
@@ -13,7 +14,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class BuildingProductionModifier(
-    val buildingId: String,
+    val buildingId: BuildingId,
     val mode: ProductionEffectMode,
     val resources: ResourceBundle,
     val priority: Int = 0

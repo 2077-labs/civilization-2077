@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.engine.terrain
 
 import com.Labs2077.civgame.engine.rules.RuleDefinition
+import com.Labs2077.civgame.engine.rules.TerrainId
 import kotlinx.serialization.Serializable
 /**
  * Opisuje rodzaj terenu i jego właściwości wykorzystywane w grze
@@ -13,9 +14,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class TerrainDefinition(
-    override val id: String,
+    override val id: TerrainId,
     val displayName: String,
     val passable: Boolean,
     val movementCost: Double,
     val production: TerrainProductionRule
-) : RuleDefinition
+) : RuleDefinition<TerrainId>
