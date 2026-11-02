@@ -2,6 +2,8 @@ package com.Labs2077.civgame.engine.units
 
 import com.Labs2077.civgame.engine.resources.ResourceBundle
 import com.Labs2077.civgame.engine.rules.RuleDefinition
+import com.Labs2077.civgame.engine.rules.UnitId
+import com.Labs2077.civgame.engine.rules.units.BuildingId
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,7 +12,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UnitDefinition(
-    override val id: String,
+    override val id: UnitId,
     val displayName: String,
     val maxHp: Int,
     val attack: Int,
@@ -23,7 +25,7 @@ data class UnitDefinition(
     val upkeep: ResourceBundle = ResourceBundle(),
     val abilities: Set<UnitAbility> = emptySet(),
     /** Identyfikatory budynków, które muszą być dostępne, aby odblokować rekrutację. */
-    val requiredBuildings: List<String> = emptyList(),
+    val requiredBuildings: List<BuildingId> = emptyList(),
     /** null oznacza brak limitu; limit dotyczy jednego gracza. */
     val limitPerPlayer: Int? = null
-) : RuleDefinition
+) : RuleDefinition<UnitId>

@@ -7,9 +7,30 @@ dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
+  // libKTX - zarządzanie aplikacją i ekranami
+  api "io.github.quillraven.libktx:ktx-app:$ktxVersion"
+
   implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
 
-  if(enableGraalNative == 'true') {
+  // Zarządzanie zasobami
+  api "io.github.quillraven.libktx:ktx-assets:$ktxVersion"
+
+  // Interfejs użytkownika
+  api "io.github.quillraven.libktx:ktx-scene2d:$ktxVersion"
+  api "io.github.quillraven.libktx:ktx-actors:$ktxVersion"
+  api "io.github.quillraven.libktx:ktx-style:$ktxVersion"
+
+  // Matematyka
+  api "io.github.quillraven.libktx:ktx-math:$ktxVersion"
+
+  // JSON i ustawienia
+  api "io.github.quillraven.libktx:ktx-json:$ktxVersion"
+  api "io.github.quillraven.libktx:ktx-preferences:$ktxVersion"
+
+  // Logowanie
+  api "io.github.quillraven.libktx:ktx-log:$ktxVersion"
+
+  if (enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }
@@ -17,3 +38,4 @@ dependencies {
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+

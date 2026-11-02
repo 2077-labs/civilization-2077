@@ -1,0 +1,116 @@
+
+{
+  "schemaVersion": 1,
+  "terrains": [
+    {
+      "id": "water",
+      "displayName": "Woda",
+      "passable": false,
+      "movementCost": 1.0,
+      "production": {
+        "type": "fixed",
+        "resources": {
+          "metals": 0,
+          "food": 0,
+          "crystals": 0
+        }
+      }
+    },
+    {
+      "id": "desert",
+      "displayName": "Pustynia",
+      "passable": true,
+      "movementCost": 1.0,
+      "production": {
+        "type": "fixed",
+        "resources": {
+          "metals": 0,
+          "food": 0,
+          "crystals": 0
+        }
+      }
+    },
+    {
+      "id": "scrapyard",
+      "displayName": "Złomowisko",
+      "passable": true,
+      "movementCost": 1.5,
+      "production": {
+        "type": "fixed",
+        "resources": {
+          "metals": 2,
+          "food": 0,
+          "crystals": 0
+        }
+      }
+    },
+    {
+      "id": "old_city_ruins",
+      "displayName": "Ruiny starego miasta",
+      "passable": true,
+      "movementCost": 1.5,
+      "production": {
+        "type": "fixed",
+        "resources": {
+          "metals": 1,
+          "food": 0,
+          "crystals": 1
+        }
+      }
+    },
+    {
+      "id": "crystal_mountains",
+      "displayName": "Kryształowe góry",
+      "passable": true,
+      "movementCost": 2.0,
+      "production": {
+        "type": "fixed",
+        "resources": {
+          "metals": 0,
+          "food": 0,
+          "crystals": 2
+        }
+      }
+    },
+    {
+      "id": "toxic_swamp",
+      "displayName": "Toksyczne bagna",
+      "passable": true,
+      "movementCost": 2.0,
+      "production": {
+        "type": "fixed",
+        "resources": {
+          "metals": 0,
+          "food": 1,
+          "crystals": 1
+        }
+      }
+    },
+    {
+      "id": "radiation_zone",
+      "displayName": "Strefa radiacji",
+      "passable": true,
+      "movementCost": 1.5,
+      "production": {
+        "type": "building_modifiers",
+        "baseResources": {
+          "metals": 0,
+          "food": -1,
+          "crystals": 0
+        },
+        "modifiers": [
+          {
+            "buildingId": "deep_vault",
+            "mode": "REPLACE",
+            "resources": {
+              "metals": 3,
+              "food": 0,
+              "crystals": 0
+            },
+            "priority": 10
+          }
+        ]
+      }
+    }
+  ]
+}
