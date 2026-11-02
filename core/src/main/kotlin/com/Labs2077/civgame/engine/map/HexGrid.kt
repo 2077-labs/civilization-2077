@@ -1,11 +1,9 @@
 package com.Labs2077.civgame.engine.map
 
-import kotlin.collections.Iterator as KIterator
-
 /**
  * Reprezentuje jednolitą mapę heksagonów na planie prostokąta o zadanym rozmiarze.
  */
-class HexGrid<Tile>(val width: Int, val height: Int, val tiles: Array<Tile>) : Iterable<Tile> {
+class HexGrid<Tile>(val width: Int, val height: Int, private val tiles: Array<Tile>) : Iterable<Tile> {
 
     init {
         require(width >= 0) { "Szerokość mapy musi być nieujemna." }
@@ -55,21 +53,21 @@ class HexGrid<Tile>(val width: Int, val height: Int, val tiles: Array<Tile>) : I
     /**
      * Zwraca iterator przechodzący przez wszystkie kafelki.
      */
-    override fun iterator(): KIterator<Tile> {
+    override fun iterator(): Iterator<Tile> {
         return tiles.iterator()
     }
 
     /**
      * Zwraca iterator, który do wartości kafelka dołącza jego współrzędne.
      */
-    fun withCoordinate(): Iterator {
-        return Iterator()
+    fun withCoordinate(): CoordinateIterator {
+        return CoordinateIterator()
     }
 
     /**
      * Reprezentuje iterator, który do wartości kafelka dołącza jego współrzędne.
      */
-    inner class Iterator : KIterator<Pair<HexCoordinate, Tile>> {
+    inner class CoordinateIterator : Iterator<Pair<HexCoordinate, Tile>> {
         private var index = -1
 
         override fun next(): Pair<HexCoordinate, Tile> {
