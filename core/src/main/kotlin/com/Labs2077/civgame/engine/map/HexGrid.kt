@@ -1,9 +1,11 @@
 package com.Labs2077.civgame.engine.map
 
+import kotlin.collections.Iterator as KIterator
+
 /**
  * Reprezentuje jednolitą mapę heksagonów na planie prostokąta o zadanym rozmiarze.
  */
-class HexGrid<Tile>(val width: Int, val height: Int, val tiles: Array<Tile>) {
+class HexGrid<Tile>(val width: Int, val height: Int, val tiles: Array<Tile>) : Iterable<Tile> {
 
     init {
         require(width >= 0) { "Szerokość mapy musi być nieujemna." }
@@ -48,5 +50,61 @@ class HexGrid<Tile>(val width: Int, val height: Int, val tiles: Array<Tile>) {
             throw IndexOutOfBoundsException("Współrzędna $this znajduje się poza obszarem mapy.")
         }
         return r * width + column
+    }
+
+    /**
+     * Zwraca iterator przechodzący przez wszystkie kafelki.
+     */
+    override fun iterator(): KIterator<Tile> {
+        return tiles.iterator()
+    }
+
+    /**
+     * Zwraca iterator, który do wartości kafelka dołącza jego współrzędne.
+     */
+    fun withCoordinate(): Iterator {
+        return Iterator()
+    }
+
+    /**
+     * Reprezentuje iterator, który do wartości kafelka dołącza jego współrzędne.
+     */
+    inner class Iterator : KIterator<Pair<HexCoordinate, Tile>> {
+        private var index = -1
+
+        override fun next(): Pair<HexCoordinate, Tile> {
+            if (!hasNext()) {
+                throw NoSuchElementException("Nie ma już więcej elementów mapy.")
+            }
+
+            index += 1
+
+            val coordinate = index.toHexCoordinate(width, height)
+            val tile: Tile = tiles[index]
+
+            return coordinate to tile
+        }
+
+        override fun hasNext(): Boolean {
+            return (index + 1) in tiles.indices
+        }
+    }
+
+    companion object {
+        /**
+         * Konwertuje indeks w tablicy jednowymiarowej na współrzędne kafelka.
+         */
+        private fun Int.toHexCoordinate(width: Int, height: Int): HexCoordinate {
+            if (this !in 0 until width * height) {
+                throw IndexOutOfBoundsException("Indeks $this znajduje się poza obszarem mapy.")
+            }
+
+            val row = this / width
+            val column = this % width
+
+            val q = column - row / 2
+
+            return HexCoordinate(q, row)
+        }
     }
 }
