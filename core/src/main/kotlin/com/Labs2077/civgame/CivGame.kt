@@ -1,14 +1,27 @@
 package com.Labs2077.civgame
 
+import com.Labs2077.civgame.client.assets.GameAssets
+import com.Labs2077.civgame.client.assets.audio.AudioCue
+import com.Labs2077.civgame.client.assets.audio.GameAudio
+import com.Labs2077.civgame.client.assets.audio.LoopCue
+import com.Labs2077.civgame.client.assets.audio.LoopKey
+import com.Labs2077.civgame.client.assets.audio.LoopRequest
+import com.Labs2077.civgame.client.assets.audio.LoopSlot
+import com.Labs2077.civgame.client.assets.audio.LoopSource
 import com.Labs2077.civgame.client.rules.RulesetRepository
-import com.Labs2077.civgame.engine.rules.units.UnitRuleset
-import com.Labs2077.civgame.engine.rules.units.UnitRulesetFile
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRuleset
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRulesetFile
+import com.Labs2077.civgame.engine.rules.units.UnitRuleset
+import com.Labs2077.civgame.engine.rules.units.UnitRulesetFile
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
 
 class CivGame : Game() {
     lateinit var unitRuleset: UnitRuleset
+        private set
+    lateinit var assets: GameAssets
+        private set
+    lateinit var gameAudio: GameAudio
         private set
     /**
      * Zestaw definicji wszystkich rodzajów terenu dostępnych w grze.
@@ -41,13 +54,48 @@ class CivGame : Game() {
             deserializer = TerrainRulesetFile.serializer(),
             createRuleset = TerrainRuleset.Companion::fromFile
         )
+        assets = GameAssets()
+        gameAudio = GameAudio(assets::sound)
+        assets.queueBase()
+        assets.finishLoading()
+        gameAudio.syncLoops(
+            desired = mapOf(
+                LoopKey(LoopSource.Ambient("ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.ENGINE, volume = 0.5f),
+                LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.GEIGER, volume = 0.5f)
+            )
+        )
+
+        println("other_ambient is playing: ${gameAudio.isLoopPlaying(LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE))}")
+
+
+        Thread.sleep(4000)
+        // Should disable the other_ambient loop, because it's not in the desired map anymore
+        gameAudio.syncLoops(
+            desired = mapOf(
+                LoopKey(LoopSource.Ambient("ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.ENGINE, volume = 0.5f)
+            )
+        )
+        println("other_ambient is playing: ${gameAudio.isLoopPlaying(LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE))}")
+        Thread.sleep(4000)
+        gameAudio.play(AudioCue.ROCKET_FIRE, volume = 0.8f)
+    }
+
+    override fun render() {
+        gameAudio.update(Gdx.graphics.deltaTime)
+
+        super.render()
     }
 
     override fun resume() {
         super.resume()
+        // Odbudowa wypieczonych atlasów po utracie kontekstu OpenGL
+        assets.onResume()
     }
 
     override fun dispose() {
         super.dispose()
+        gameAudio.dispose()
+        // Zwalnianie zasobów gry (atlasów, dźwięków) przy zamykaniu gry
+        assets.dispose()
     }
 }
