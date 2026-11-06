@@ -1,0 +1,244 @@
+
+common.png
+size: 2048, 256
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+fx_explosion
+  rotate: false
+  xy: 1, 51
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: 0
+fx_explosion
+  rotate: false
+  xy: 1171, 181
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: 1
+fx_explosion
+  rotate: false
+  xy: 67, 51
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: 2
+fx_explosion
+  rotate: false
+  xy: 1237, 181
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: 3
+fx_explosion
+  rotate: false
+  xy: 133, 51
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: 4
+fx_explosion
+  rotate: false
+  xy: 1303, 181
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: 5
+fx_impact_flash
+  rotate: false
+  xy: 249, 83
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+fx_impact_flash
+  rotate: false
+  xy: 1419, 213
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+fx_impact_flash
+  rotate: false
+  xy: 101, 17
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+fx_rocket
+  rotate: false
+  xy: 1271, 147
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_building_barracks
+  rotate: false
+  xy: 1, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+icon_building_factory
+  rotate: false
+  xy: 1171, 131
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+icon_building_fusion
+  rotate: false
+  xy: 199, 67
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+icon_building_lab
+  rotate: false
+  xy: 1369, 197
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+icon_building_radar
+  rotate: false
+  xy: 51, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+icon_building_vault
+  rotate: false
+  xy: 1221, 131
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+icon_resource_energy_crystals
+  rotate: false
+  xy: 283, 83
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_resource_hydroponic_food
+  rotate: false
+  xy: 1453, 213
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_resource_rare_metal
+  rotate: false
+  xy: 135, 17
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_ui_attack
+  rotate: false
+  xy: 1305, 147
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_ui_cursor
+  rotate: false
+  xy: 317, 83
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_ui_defense
+  rotate: false
+  xy: 1487, 213
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_ui_endturn
+  rotate: false
+  xy: 351, 83
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_ui_move
+  rotate: false
+  xy: 1521, 213
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+icon_ui_selection
+  rotate: false
+  xy: 385, 83
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+missing
+  rotate: false
+  xy: 1, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_city_ruins
+  rotate: false
+  xy: 131, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_crystal_mountains
+  rotate: false
+  xy: 261, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_deep_water
+  rotate: false
+  xy: 391, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_desert_terrain
+  rotate: false
+  xy: 521, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_radiation_zone
+  rotate: false
+  xy: 651, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_scrap_field
+  rotate: false
+  xy: 781, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_shallow_water
+  rotate: false
+  xy: 911, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+terrain_toxic_swamp
+  rotate: false
+  xy: 1041, 117
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
