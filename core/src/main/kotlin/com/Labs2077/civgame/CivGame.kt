@@ -9,6 +9,7 @@ import com.Labs2077.civgame.client.assets.audio.LoopRequest
 import com.Labs2077.civgame.client.assets.audio.LoopSlot
 import com.Labs2077.civgame.client.assets.audio.LoopSource
 import com.Labs2077.civgame.client.rules.RulesetRepository
+import com.Labs2077.civgame.client.screens.MenuLoadingScreen
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRuleset
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRulesetFile
 import com.Labs2077.civgame.engine.rules.units.UnitRuleset
@@ -57,27 +58,30 @@ class CivGame : Game() {
         assets = GameAssets()
         gameAudio = GameAudio(assets::sound)
         assets.queueBase()
-        assets.finishLoading()
-        gameAudio.syncLoops(
-            desired = mapOf(
-                LoopKey(LoopSource.Ambient("ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.ENGINE, volume = 0.5f),
-                LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.GEIGER, volume = 0.5f)
-            )
-        )
+        /** Test dźwięków i pętli audio. */
+//        assets.finishLoading()
+//        gameAudio.syncLoops(
+//            desired = mapOf(
+//                LoopKey(LoopSource.Ambient("ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.ENGINE, volume = 0.5f),
+//                LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.GEIGER, volume = 0.5f)
+//            )
+//        )
+//
+//        println("other_ambient is playing: ${gameAudio.isLoopPlaying(LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE))}")
+//
+//
+//        Thread.sleep(4000)
+//        // Should disable the other_ambient loop, because it's not in the desired map anymore
+//        gameAudio.syncLoops(
+//            desired = mapOf(
+//                LoopKey(LoopSource.Ambient("ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.ENGINE, volume = 0.5f)
+//            )
+//        )
+//        println("other_ambient is playing: ${gameAudio.isLoopPlaying(LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE))}")
+//        Thread.sleep(4000)
+//        gameAudio.play(AudioCue.ROCKET_FIRE, volume = 0.8f)
 
-        println("other_ambient is playing: ${gameAudio.isLoopPlaying(LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE))}")
-
-
-        Thread.sleep(4000)
-        // Should disable the other_ambient loop, because it's not in the desired map anymore
-        gameAudio.syncLoops(
-            desired = mapOf(
-                LoopKey(LoopSource.Ambient("ambient"), LoopSlot.AMBIENCE) to LoopRequest(LoopCue.ENGINE, volume = 0.5f)
-            )
-        )
-        println("other_ambient is playing: ${gameAudio.isLoopPlaying(LoopKey(LoopSource.Ambient("other_ambient"), LoopSlot.AMBIENCE))}")
-        Thread.sleep(4000)
-        gameAudio.play(AudioCue.ROCKET_FIRE, volume = 0.8f)
+        setScreen(MenuLoadingScreen(this))
     }
 
     override fun render() {

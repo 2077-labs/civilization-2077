@@ -6,8 +6,11 @@ import com.Labs2077.civgame.engine.rules.TerrainId
 import com.Labs2077.civgame.engine.rules.UnitId
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.loaders.BitmapFontLoader
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Array
@@ -23,6 +26,7 @@ class GameAssets() : Disposable, AssetProvider {
         const val UNITS_ATLAS = "atlas/units.atlas"
         // region zastępczy w common.atlas (szachownica magenta-czerń)
         const val MISSING = "missing"
+        const val UI_FONT = "fonts/ui.fnt"
         const val FRAME_TIME = 0.12f
     }
 
@@ -34,11 +38,28 @@ class GameAssets() : Disposable, AssetProvider {
         common.findRegion(MISSING) ?: error("Brak regionu '$MISSING' w $COMMON_ATLAS (dodaj raw/common/missing.png i spakuj atlas)")
     }
     private var baseReady = false
+    private var fallbackFont: BitmapFont? = null
 
-    /** ładowanie wspólnych zasobów (atlas common, dźwięki). Wywoływane w create() gry przed ekranem ładowania */
+    /** ładowanie wspólnych zasobów (atlas common, dźwięki, czcionka). Wywoływane w create() gry przed ekranem ładowania */
     fun queueBase() {
         am.load(COMMON_ATLAS, TextureAtlas::class.java)
         SfxId.ALL.forEach { am.load((it.path), Sound::class.java) }
+        queueFont()
+    }
+
+    private fun fallback(): BitmapFont =
+        fallbackFont ?: BitmapFont().apply { data.setScale(1.4f) }.also {fallbackFont = it}
+
+    private fun queueFont() {
+        if (!Gdx.files.internal(UI_FONT).exists()) {
+            Gdx.app.error("GameAssets", "Brak czcionki UI: $UI_FONT. Uzywanie domyslnej czcionki (bez polskich znakow)")
+            return
+        }
+        val params = BitmapFontLoader.BitmapFontParameter().apply {
+            minFilter = Texture.TextureFilter.Linear
+            magFilter = Texture.TextureFilter.Linear
+        }
+        am.load(UI_FONT, BitmapFont::class.java, params)
     }
 
     /** Wołać co klatkę na ekranie ładowania. Zwraca true, gdy wszystko gotowe. */
@@ -67,6 +88,9 @@ class GameAssets() : Disposable, AssetProvider {
     override fun cityFrames(playerId: Int, level: Int): Array<out TextureRegion> =
         framesOrMissing(skins.frames(playerId, "settlement_lvl$level"))
     override fun fxFrames(id: String): Array<out TextureRegion> = framesOrMissing(common.findRegions("fx_$id"))
+    /** Wspólna czcionka UI - jedna dla wszystkich ekranów. Odtwarza się po utracie kontekstu OpenGL oraz jest zwalniana razem z GameAssets. */
+    override val uiFont: BitmapFont
+        get() = if (am.isLoaded(UI_FONT)) am.get(UI_FONT, BitmapFont::class.java) else fallback()
 
     /** Animacje powinny być tworzone raz (np. w show() ekranu), a nie w render(). attack i efekty zwykle z PlayMode.NORMAL. */
     override fun unitAnimation(playerId: Int, unitId: UnitId, anim: String,
@@ -95,6 +119,7 @@ class GameAssets() : Disposable, AssetProvider {
 
     override fun dispose() {
         skins.dispose()
+        fallbackFont?.dispose()
         am.dispose()
     }
 }

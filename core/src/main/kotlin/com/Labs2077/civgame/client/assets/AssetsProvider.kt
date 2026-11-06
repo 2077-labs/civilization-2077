@@ -6,6 +6,7 @@ import com.Labs2077.civgame.engine.rules.UnitId
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
 interface AssetProvider {
@@ -40,4 +41,6 @@ interface AssetProvider {
     ): Animation<TextureRegion>
 
     fun sound(sound: SfxId): Sound
+
+    val uiFont: BitmapFont
 }
