@@ -1,0 +1,7 @@
+[versions]
+
+[libraries]
+
+[plugins]
+java-library = { id = "java-library" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm" }

@@ -1,11 +1,13 @@
 plugins {
-    id("java-library")
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.java.library)
+    alias(libs.plugins.kotlin.jvm)
 }
+
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
