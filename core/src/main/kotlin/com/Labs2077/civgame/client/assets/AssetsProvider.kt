@@ -3,11 +3,11 @@ package com.Labs2077.civgame.client.assets
 import com.Labs2077.civgame.client.assets.audio.SfxId
 import com.Labs2077.civgame.engine.rules.TerrainId
 import com.Labs2077.civgame.engine.rules.UnitId
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.utils.Array
 
 interface AssetProvider {
 

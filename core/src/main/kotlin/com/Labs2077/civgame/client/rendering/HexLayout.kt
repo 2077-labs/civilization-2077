@@ -64,6 +64,7 @@ object HexLayout {
             1.5f * hexSize * r
         )
     }
+
     /**
      * Konwertuje pozycję w świecie gry na współrzędne heksagonu w układzie axial
      * dla orientacji Pointy-Top.

@@ -18,6 +18,7 @@ class WorldRenderer(
 ) {
     private val batch = SpriteBatch()
     private val worldPosition = Vector2()
+
     /*
      * Cache animacji jednostek.
      *
@@ -116,6 +117,7 @@ class WorldRenderer(
             batch.end()
         }
     }
+
     /**
      * Rysuje na ekranie wszystkie żywe i widoczne jednostki.
      * @param units zbiór jednostek do wyrenderowania
@@ -222,6 +224,7 @@ class WorldRenderer(
             batch.end()
         }
     }
+
     /**
      * Sprawdza, czy prostokąt reprezentujący obiekt przecina się
      * z prostokątem widocznego obszaru kamery.
@@ -267,10 +270,11 @@ class WorldRenderer(
             z prostokątem widocznego obszaru kamery.
          */
         return objectRight >= cameraLeft &&
-            objectLeft <= cameraRight &&
-            objectTop >= cameraBottom &&
-            objectBottom <= cameraTop
+                objectLeft <= cameraRight &&
+                objectTop >= cameraBottom &&
+                objectBottom <= cameraTop
     }
+
     /**
      * Konwertuje współrzędne heksagonu z układu axial na pozycję w świecie gry
      * dla orientacji Pointy-Top.
@@ -313,9 +317,11 @@ class WorldRenderer(
     ): HexCoordinate {
         return HexLayout.worldToAxial(worldX, worldY, hexSize)
     }
+
     fun dispose() {
         batch.dispose()
     }
+
     /*
     * Czyści cache animacji po odbudowie atlasów przez GameAssets.
     *

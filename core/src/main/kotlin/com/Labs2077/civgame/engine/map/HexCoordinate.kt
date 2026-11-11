@@ -15,6 +15,7 @@ data class HexCoordinate(
 ) {
     val s: Int
         get() = -q - r
+
     /**
      * Zwraca sześć współrzędnych sąsiednich heksagonów.
      */
@@ -26,6 +27,7 @@ data class HexCoordinate(
         HexCoordinate(q - 1, r + 1),
         HexCoordinate(q, r + 1)
     )
+
     /**
      * Oblicza minimalną odległość geometryczną między dwoma heksagonami.
      *

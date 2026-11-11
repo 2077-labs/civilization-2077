@@ -2,6 +2,7 @@ package com.Labs2077.civgame.engine.rules.terrain
 
 import com.Labs2077.civgame.engine.terrain.TerrainDefinition
 import kotlinx.serialization.Serializable
+
 /**
  * Reprezentuje plik JSON zawierający konfigurację rodzajów terenu.
  *

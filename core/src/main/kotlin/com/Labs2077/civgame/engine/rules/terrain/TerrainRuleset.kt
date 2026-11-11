@@ -67,6 +67,7 @@ class TerrainRuleset private constructor(
                 }
             }
         }
+
         /**
          * Tworzy ruleset terenów na podstawie danych odczytanych z pliku JSON.
          *

@@ -1,6 +1,5 @@
 package com.Labs2077.civgame.client.assets.audio
 
-import com.Labs2077.civgame.client.assets.GameAssets
 import com.badlogic.gdx.audio.Sound
 
 /**
@@ -51,7 +50,10 @@ class GameAudio(
 
     /** Uruchamia dźwięk jednorazowy. */
     fun play(cue: AudioCue, volume: Float = 1f) {
-        soundOf(sounds.getValue(cue).random()).play(volume * this.volume)
+        soundOf(
+            sounds.getValue(cue)
+                .random()
+        ).play(volume * this.volume)
     }
 
     /** Zapętlone dźwięki sterowane zdarzeniami */
@@ -62,7 +64,8 @@ class GameAudio(
     fun stopLoop(key: LoopKey, fadeSeconds: Float = 0f) = loops.stop(key, fadeSeconds)
 
     /** Zatrzymuje wszystkie pętle jednego źródła (np. jednostki, która zginęła). */
-    fun stopLoopsOf(source: LoopSource, fadeSeconds: Float = 0f) = loops.stopSource(source, fadeSeconds)
+    fun stopLoopsOf(source: LoopSource, fadeSeconds: Float = 0f) =
+        loops.stopSource(source, fadeSeconds)
 
     fun stopAllLoops() = loops.stopAll()
 

@@ -1,11 +1,10 @@
-
 buildscript {
   repositories {
     gradlePluginPortal()
   }
   dependencies {
     classpath "io.github.fourlastor:construo:2.2.2"
-    if(enableGraalNative == 'true') {
+    if (enableGraalNative == 'true') {
       classpath "org.graalvm.buildtools.native:org.graalvm.buildtools.native.gradle.plugin:0.9.28"
     }
   }
@@ -19,14 +18,14 @@ apply plugin: 'org.jetbrains.kotlin.jvm'
 
 import io.github.fourlastor.construo.Target
 
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+sourceSets.main.resources.srcDirs += [rootProject.file('assets').path]
 application.mainClass = 'com.Labs2077.civgame.lwjgl3.Lwjgl3Launcher'
 application.applicationName = appName
 eclipse.project.name = appName + '-lwjgl3'
 java.sourceCompatibility = 8
 java.targetCompatibility = 8
 if (JavaVersion.current().isJava9Compatible()) {
-        compileJava.options.release.set(8)
+  compileJava.options.release.set(8)
 }
 kotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
 
@@ -38,14 +37,14 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
   implementation project(':core')
 
-  if(enableGraalNative == 'true') {
+  if (enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
-      implementation "io.github.berstanio:gdx-svmhelper-extension-box2d:$graalHelperVersion"
-      implementation "io.github.berstanio:gdx-svmhelper-extension-freetype:$graalHelperVersion"
+    implementation "io.github.berstanio:gdx-svmhelper-extension-box2d:$graalHelperVersion"
+    implementation "io.github.berstanio:gdx-svmhelper-extension-freetype:$graalHelperVersion"
 
   }
   // Forces LWJGL3 to use at least $lwjgl3Version, currently 3.4.3, to avoid warnings on Java 25 and up.
-  constraints{
+  constraints {
     implementation("org.lwjgl:lwjgl:$lwjgl3Version")
     implementation("org.lwjgl:lwjgl-glfw:$lwjgl3Version")
     implementation("org.lwjgl:lwjgl-jemalloc:$lwjgl3Version")
@@ -100,10 +99,10 @@ tasks.register("jarMac") {
   group("build")
   jar.archiveFileName.set("${appName}-${projectVersion}-mac.jar")
   jar.exclude("windows/x86/**", "windows/x64/**", "linux/arm32/**", "linux/arm64/**", "linux/x64/**", "**/*.dll", "**/*.so",
-    'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+          'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
   dependencies {
     jar.exclude("windows/x86/**", "windows/x64/**", "linux/arm32/**", "linux/arm64/**", "linux/x64/**",
-      'META-INF/INDEX.LIST', 'META-INF/maven/**')
+            'META-INF/INDEX.LIST', 'META-INF/maven/**')
   }
 }
 
@@ -114,10 +113,10 @@ tasks.register("jarLinux") {
   group("build")
   jar.archiveFileName.set("${appName}-${projectVersion}-linux.jar")
   jar.exclude("windows/x86/**", "windows/x64/**", "macos/arm64/**", "macos/x64/**", "**/*.dll", "**/*.dylib",
-    'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+          'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
   dependencies {
     jar.exclude("windows/x86/**", "windows/x64/**", "macos/arm64/**", "macos/x64/**",
-      'META-INF/INDEX.LIST', 'META-INF/maven/**')
+            'META-INF/INDEX.LIST', 'META-INF/maven/**')
   }
 }
 
@@ -128,10 +127,10 @@ tasks.register("jarWin") {
   group("build")
   jar.archiveFileName.set("${appName}-${projectVersion}-win.jar")
   jar.exclude("macos/arm64/**", "macos/x64/**", "linux/arm32/**", "linux/arm64/**", "linux/x64/**", "**/*.dylib", "**/*.so",
-    'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+          'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
   dependencies {
     jar.exclude("macos/arm64/**", "macos/x64/**", "linux/arm32/**", "linux/arm64/**", "linux/x64/**",
-      'META-INF/INDEX.LIST', 'META-INF/maven/**')
+            'META-INF/INDEX.LIST', 'META-INF/maven/**')
   }
 }
 
@@ -213,7 +212,7 @@ tasks.withType(JavaExec.class).configureEach {
   environment("__GL_THREADED_OPTIMIZATIONS", 0)
 }
 
-if(enableGraalNative == 'true') {
+if (enableGraalNative == 'true') {
   apply from: file("nativeimage.gradle")
 }
 

@@ -34,7 +34,7 @@ abstract class AbstractRuleset<ID : RuleId, T : RuleDefinition<ID>>(
 
         require(duplicates.isEmpty()) {
             "Powtórzone ID w rulesecie '$typeName': " +
-                duplicates.joinToString { it.value }
+                    duplicates.joinToString { it.value }
         }
     }
 

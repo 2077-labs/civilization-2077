@@ -90,8 +90,10 @@ abstract class UiScreen(protected val game: CivGame) : ScreenAdapter() {
         stage.viewport.update(width, height, true)
         onResize(width, height)
     }
+
     protected open fun onResize(width: Int, height: Int) {}
     protected open fun configureInputProcessors() {}
+
     /*
      * Callback pozwalający ekranom potomnym wykonać dodatkowe operacje
      * po wznowieniu aplikacji, np. odświeżenie referencji do animacji.
@@ -105,6 +107,7 @@ abstract class UiScreen(protected val game: CivGame) : ScreenAdapter() {
         super.resume()
         onResume()
     }
+
     override fun hide() {
         if (Gdx.input.inputProcessor === inputs) Gdx.input.inputProcessor = null
         stage.dispose()

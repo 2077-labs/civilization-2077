@@ -2,25 +2,21 @@ package com.Labs2077.civgame.client.screens
 
 import com.Labs2077.civgame.CivGame
 import com.Labs2077.civgame.client.input.MapInputController
+import com.Labs2077.civgame.client.rendering.WorldRenderer
+import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.Labs2077.civgame.client.units.UnitAnimation
 import com.Labs2077.civgame.engine.PlayerSetup
-import com.Labs2077.civgame.engine.rules.UnitId
-import com.badlogic.gdx.graphics.g2d.Animation
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.Labs2077.civgame.client.rendering.WorldRenderer
-import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.engine.map.HexCoordinate
 import com.Labs2077.civgame.engine.map.HexGrid
 import com.Labs2077.civgame.engine.map.MapTile
 import com.Labs2077.civgame.engine.rules.TerrainId
+import com.Labs2077.civgame.engine.rules.UnitId
 import com.Labs2077.civgame.engine.units.UnitInstance
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputAdapter
-import com.badlogic.gdx.input.GestureDetector
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 
 /**
  * MOCK gry na UiScreen: pokazuje, że wypieczone tekstury działają. Dla gracza rysuje jego czołg i miasto
@@ -68,20 +64,34 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
             )
         }
     }
+
     override fun build(root: Table) {
         // animacje tworzymy raz, nie w render()
-        tanks = players.associate { it.id to game.assets.unitAnimation(it.id, UnitId("tank"), UnitAnimation.IDLE.id) }
+        tanks = players.associate {
+            it.id to game.assets.unitAnimation(
+                it.id,
+                UnitId("tank"),
+                UnitAnimation.IDLE.id
+            )
+        }
         cities = players.associate { it.id to game.assets.cityAnimation(it.id, 1) }
 
         val menuButton = TextButton("Menu", skin).apply {
             pad(10f, 30f, 10f, 30f)
             onClick { switchTo(MenuScreen(game)) }
         }
-        root.pad(30f).top()
-        root.add(label("GameScreen (mock). Tu będzie HexMapScreen.")).expandX().left()
-        root.add(menuButton).right().row()
+        root.pad(30f)
+            .top()
+        root.add(label("GameScreen (mock). Tu będzie HexMapScreen."))
+            .expandX()
+            .left()
+        root.add(menuButton)
+            .right()
+            .row()
         // Wypełnia resztę ekranu, resztę rysuje drawBackground() (czołgi i miasta).
-        root.add().expand().row()
+        root.add()
+            .expand()
+            .row()
 
         // nazwy graczy pod czołgami (współrzędne Stage'a, y rośnie w górę)
         players.forEachIndexed { i, p ->
@@ -94,13 +104,14 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
     }
 
     override fun onResize(width: Int, height: Int) {
-        if(width == 0 || height == 0) return
+        if (width == 0 || height == 0) return
 
         worldCamera.viewportWidth = 40f
         worldCamera.viewportHeight =
             worldCamera.viewportWidth * height.toFloat() / width.toFloat()
         worldCamera.update()
     }
+
     override fun onResume() {
         worldRenderer.onAssetsRebuilt()
 
@@ -108,9 +119,11 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
             it.id to game.assets.cityAnimation(it.id, 1)
         }
     }
+
     override fun configureInputProcessors() {
         inputs.addProcessor(MapInputController(worldCamera))
     }
+
     override fun drawBackground(delta: Float) {
         /*
          * Zachowujemy kolejność warstw:
@@ -133,9 +146,11 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
         drawWorld { batch ->
             players.forEachIndexed { i, p ->
                 val x = 140f + i * 560f
-                val tank = tanks.getValue(p.id).getKeyFrame(time)
+                val tank = tanks.getValue(p.id)
+                    .getKeyFrame(time)
                 batch.draw(tank, x, 300f, tank.regionWidth * 3f, tank.regionHeight * 3f)
-                val city = cities.getValue(p.id).getKeyFrame(time)
+                val city = cities.getValue(p.id)
+                    .getKeyFrame(time)
                 batch.draw(city, x, 20f, city.regionWidth * 2f, city.regionHeight * 2f)
             }
         }

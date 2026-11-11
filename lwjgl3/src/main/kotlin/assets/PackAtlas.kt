@@ -26,31 +26,38 @@ private const val MAX_HEIGHT = 2048
 private const val PADDING_X = 2
 private const val PADDING_Y = 2
 
-private class AtlasSpec(val name: String, val folders: List<String>, val checkUnits: Boolean = false)
+private class AtlasSpec(
+    val name: String,
+    val folders: List<String>,
+    val checkUnits: Boolean = false
+)
 
 private val ATLASES = listOf(
     AtlasSpec("common", listOf("terrain", "icons", "fx", "common")),
     // miasta mają sztandar w magencie, więc razem z jednostkami przechodzą wypiekanie kolorów graczy
     AtlasSpec("units", listOf("units", "cities"), checkUnits = true)
 )
-private val UNIT_ANIM = Regex("^(.+)_(${UnitAnimation.entries.joinToString("|") { it.id }})_\\d+\\.png$")
+private val UNIT_ANIM =
+    Regex("^(.+)_(${UnitAnimation.entries.joinToString("|") { it.id }})_\\d+\\.png$")
 private val FRAME = Regex("^(.+)_\\d+\\.png$")
+
 // Dla uproszczenia walidacji zakładam, że wszystkie jednostki muszą mieć dokładnie wszystkie rodzaje animacji, aby nie
 // komplikować, a komunikaty można zignorować dla jednostek cywilnych
 private val UNIT_REQUIRED_ANIMATIONS = UnitAnimation.ALL.toList()
 
 fun main() {
-    val settings = TexturePacker.Settings().apply {
-        maxWidth = MAX_WIDTH
-        maxHeight = MAX_HEIGHT
-        paddingX = PADDING_X
-        paddingY = PADDING_Y
-        duplicatePadding = true
-        filterMin = Texture.TextureFilter.Nearest
-        filterMag = Texture.TextureFilter.Nearest
-        stripWhitespaceX = false
-        stripWhitespaceY = false
-    }
+    val settings = TexturePacker.Settings()
+        .apply {
+            maxWidth = MAX_WIDTH
+            maxHeight = MAX_HEIGHT
+            paddingX = PADDING_X
+            paddingY = PADDING_Y
+            duplicatePadding = true
+            filterMin = Texture.TextureFilter.Nearest
+            filterMag = Texture.TextureFilter.Nearest
+            stripWhitespaceX = false
+            stripWhitespaceY = false
+        }
     File(OUT).mkdirs()
     for (spec in ATLASES) {
         val dir = stage(spec)
@@ -73,7 +80,8 @@ private fun stage(spec: AtlasSpec): File {
     for (folder in spec.folders) {
         val src = File(RAW, folder)
         require(src.isDirectory) { "Brak folderu ${src.path}" }
-        for (f in src.walkTopDown().filter { it.isFile && it.extension.equals("png", ignoreCase = true) }) {
+        for (f in src.walkTopDown()
+            .filter { it.isFile && it.extension.equals("png", ignoreCase = true) }) {
             val previous = seen.put(f.name, f.path)
             require(previous == null) { "Duplikat nazwy pliku ${f.name}: $previous oraz ${f.path}" }
             f.copyTo(File(dir, f.name))
@@ -84,26 +92,38 @@ private fun stage(spec: AtlasSpec): File {
 
 /** Tylko ostrzeżenia, niczego nie blokuje. Łapie typowe błędy w nazwach i rozmiarach klatek. */
 private fun validate(dir: File, units: Boolean) {
-    val pngs = dir.listFiles { f -> f.extension.equals("png", ignoreCase = true) }!!.sortedBy { it.name }
-    val sizes = pngs.associateWith { f -> ImageIO.read(f).let { it.width to it.height } }
+    val pngs = dir.listFiles { f -> f.extension.equals("png", ignoreCase = true) }!!
+        .sortedBy { it.name }
+    val sizes = pngs.associateWith { f ->
+        ImageIO.read(f)
+            .let { it.width to it.height }
+    }
 
     // wszystkie klatki jednej animacji muszą mieć ten sam rozmiar
     pngs.groupBy { FRAME.matchEntire(it.name)?.groupValues?.get(1) ?: it.nameWithoutExtension }
         .forEach { (region, files) ->
-            val s = files.map { sizes.getValue(it) }.toSet()
+            val s = files.map { sizes.getValue(it) }
+                .toSet()
             if (s.size > 1) println("UWAGA [$region]: klatki mają różne rozmiary: $s")
         }
     if (!units) return
 
     // jednostka: obowiązkowe animacje i ten sam rozmiar płótna we wszystkich animacjach
-    val byUnit = pngs.mapNotNull { f -> UNIT_ANIM.matchEntire(f.name)?.let { Triple(it.groupValues[1], it.groupValues[2], f) } }
+    val byUnit = pngs.mapNotNull { f ->
+        UNIT_ANIM.matchEntire(f.name)
+            ?.let { Triple(it.groupValues[1], it.groupValues[2], f) }
+    }
         .groupBy { it.first }
     for ((unit, items) in byUnit) {
-        val anims = items.map { it.second }.toSet()
+        val anims = items.map { it.second }
+            .toSet()
         for (unitRequiredAnim in UNIT_REQUIRED_ANIMATIONS) {
-            if (unitRequiredAnim.toString().lowercase() !in anims) println("UWAGA [$unit]: brak animacji $unitRequiredAnim (sa: $anims)")
+            if (unitRequiredAnim.toString()
+                    .lowercase() !in anims
+            ) println("UWAGA [$unit]: brak animacji $unitRequiredAnim (sa: $anims)")
         }
-        val s = items.map { sizes.getValue(it.third) }.toSet()
+        val s = items.map { sizes.getValue(it.third) }
+            .toSet()
         if (s.size > 1) println("UWAGA [$unit]: animacje mają różne rozmiary płótna: $s")
     }
 }

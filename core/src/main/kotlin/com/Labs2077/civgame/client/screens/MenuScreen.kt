@@ -19,7 +19,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
  */
 class MenuScreen(game: CivGame) : UiScreen(game) {
     companion object {
-        private val PALETTE = intArrayOf(0x00E5FF, 0xFFB000, 0x50FF78, 0xFF3B3B, 0xF2F2F2, 0x9B5CFF, 0xFF7A00, 0x14141C)
+        private val PALETTE = intArrayOf(
+            0x00E5FF,
+            0xFFB000,
+            0x50FF78,
+            0xFF3B3B,
+            0xF2F2F2,
+            0x9B5CFF,
+            0xFF7A00,
+            0x14141C
+        )
     }
 
     // wybrany kolor (indeks w PALETTE) gracza 1 i 2
@@ -34,23 +43,48 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
             onClick { startGame() }
         }
 
-        root.pad(60f).top().left()
-        root.add(label("CYWILIZACJA 2077 - mock menu")).colspan(2).left().padBottom(40f).row()
+        root.pad(60f)
+            .top()
+            .left()
+        root.add(label("CYWILIZACJA 2077 - mock menu"))
+            .colspan(2)
+            .left()
+            .padBottom(40f)
+            .row()
         for (player in 0..1) {
-            root.add(label("Gracz ${player + 1} - kolor")).left().padRight(40f)
-            root.add(colorRow(player)).left().padBottom(30f).row()
+            root.add(label("Gracz ${player + 1} - kolor"))
+                .left()
+                .padRight(40f)
+            root.add(colorRow(player))
+                .left()
+                .padBottom(30f)
+                .row()
         }
-        root.add(startButton).colspan(2).left().padTop(20f).row()
-        root.add(messageLabel).colspan(2).left().width(780f).padTop(20f).row()
+        root.add(startButton)
+            .colspan(2)
+            .left()
+            .padTop(20f)
+            .row()
+        root.add(messageLabel)
+            .colspan(2)
+            .left()
+            .width(780f)
+            .padTop(20f)
+            .row()
 
         refreshStart()
     }
 
     private fun colorRow(player: Int): Table {
-        val group = ButtonGroup<ColorSwatchButton>().apply { setMinCheckCount(1); setMaxCheckCount(1) }
+        val group =
+            ButtonGroup<ColorSwatchButton>().apply { setMinCheckCount(1); setMaxCheckCount(1) }
         val swatches = PALETTE.map { ColorSwatchButton(skin, it) }
         val row = Table()
-        swatches.forEach { group.add(it); row.add(it).size(56f).pad(7f) }
+        swatches.forEach {
+            group.add(it); row.add(it)
+            .size(56f)
+            .pad(7f)
+        }
 
         // początkowe zaznaczenie, zanim podpięte są listenery
         swatches[picks[player]].isChecked = true
@@ -81,7 +115,9 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
         game.assets.startGame(players)
         // czy każda jednostka z reguł gry ma grafike? (po wypieczeniu, bo sprawdza wypieczone atlasy)
         val missing = game.assets.missingArt(game.unitRuleset.units.associate { unit ->
-            unit.id to unit.requiredAnimations().map { it.id } })
+            unit.id to unit.requiredAnimations()
+                .map { it.id }
+        })
         if (missing.isNotEmpty()) {
             val text = "Brak grafik: " + missing.joinToString(", ")
             messageLabel.setText(text)
