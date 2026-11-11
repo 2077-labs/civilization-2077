@@ -30,20 +30,24 @@ object UiSkinFactory {
         val skin = Skin()
 
         // jeden piksel w bieli: wszystkie potrzebne ramki to ten sam region barwiony na potrzebny kolor
-        val pixel = Texture(Pixmap(1, 1, Pixmap.Format.RGBA8888).apply { setColor(Color.WHITE); fill() })
+        val pixel =
+            Texture(Pixmap(1, 1, Pixmap.Format.RGBA8888).apply { setColor(Color.WHITE); fill() })
         skin.add("pixel", pixel)
         skin.add("white", TextureRegionDrawable(TextureRegion(pixel)), Drawable::class.java)
 
         skin.add("default", Label.LabelStyle(font, Color.WHITE))
-        skin.add("default", TextButton.TextButtonStyle().apply {
-            this.font = font
-            up = skin.newDrawable("white", BLUE)
-            down = skin.newDrawable("white", BLUE_DOWN)
-            over = skin.newDrawable("white", BLUE_OVER)
-            disabled = skin.newDrawable("white", DISABLED)
-            fontColor = Color.WHITE
-            disabledFontColor = DISABLED_TEXT
-        })
+        skin.add(
+            "default",
+            TextButton.TextButtonStyle()
+                .apply {
+                    this.font = font
+                    up = skin.newDrawable("white", BLUE)
+                    down = skin.newDrawable("white", BLUE_DOWN)
+                    over = skin.newDrawable("white", BLUE_OVER)
+                    disabled = skin.newDrawable("white", DISABLED)
+                    fontColor = Color.WHITE
+                    disabledFontColor = DISABLED_TEXT
+                })
         return skin
     }
 
@@ -51,17 +55,25 @@ object UiSkinFactory {
     fun swatchStyle(skin: Skin, rgb: Int): Button.ButtonStyle {
         // Utworzone style zapisujemy w skinie pod nazwą "swatch-0xRRGGBB", żeby nie tworzyć duplikatów.
         val name = "swatch-$rgb"
-        if (skin.has(name, Button.ButtonStyle::class.java)) return skin.get(name, Button.ButtonStyle::class.java)
+        if (skin.has(name, Button.ButtonStyle::class.java)) return skin.get(
+            name,
+            Button.ButtonStyle::class.java
+        )
 
         val color = Color((rgb shl 8) or 0xFF)
         val checkedTexture = borderedTexture(color)
         skin.add("$name-checked", checkedTexture)
-        val style = Button.ButtonStyle().apply {
-            up = skin.newDrawable("white", color)
-            over = skin.newDrawable("white", color.cpy().lerp(Color.WHITE, 0.25f))
-            // Jedynie zaznaczony wariant ma białą ramkę (borderedTexture). Warianty up/over są jednokolorowe.
-            checked = TextureRegionDrawable(TextureRegion(checkedTexture))
-        }
+        val style = Button.ButtonStyle()
+            .apply {
+                up = skin.newDrawable("white", color)
+                over = skin.newDrawable(
+                    "white",
+                    color.cpy()
+                        .lerp(Color.WHITE, 0.25f)
+                )
+                // Jedynie zaznaczony wariant ma białą ramkę (borderedTexture). Warianty up/over są jednokolorowe.
+                checked = TextureRegionDrawable(TextureRegion(checkedTexture))
+            }
         skin.add(name, style)
         return style
     }

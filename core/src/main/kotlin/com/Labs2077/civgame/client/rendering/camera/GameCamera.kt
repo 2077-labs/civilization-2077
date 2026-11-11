@@ -27,18 +27,22 @@ class GameCamera(
 
         update()
     }
+
     fun moveBy(deltaX: Float, deltaY: Float) {
         position.add(deltaX, deltaY, 0f)
         update()
     }
+
     fun changeZoom(newZoom: Float) {
         zoom = newZoom
         update()
     }
+
     fun moveTo(x: Float, y: Float) {
         position.set(x, y, position.z)
         update()
     }
+
     override fun update() {
         update(true)
     }

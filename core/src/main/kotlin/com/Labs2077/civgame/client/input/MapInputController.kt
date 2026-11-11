@@ -25,11 +25,11 @@ class MapInputController(
     private var previousPinchDistance = 0f
 
     /**
-    * Oblicza aktualną odległość między dwoma punktami dotyku.
-    *
-    * Wykorzystuje twierdzenie Pitagorasa do obliczenia długości
-    * odcinka łączącego pozycje obu palców na ekranie.
-    **/
+     * Oblicza aktualną odległość między dwoma punktami dotyku.
+     *
+     * Wykorzystuje twierdzenie Pitagorasa do obliczenia długości
+     * odcinka łączącego pozycje obu palców na ekranie.
+     **/
     private fun distanceBetweenPointers(): Float {
         val dx = pointerX[1] - pointerX[0]
         val dy = pointerY[1] - pointerY[0]
@@ -82,8 +82,8 @@ class MapInputController(
 
             if (previousPinchDistance > 0f && currentDistance > 0f) {
                 val newZoom = (
-                    camera.zoom * previousPinchDistance / currentDistance
-                    ).coerceIn(0.5f, 3f)
+                        camera.zoom * previousPinchDistance / currentDistance
+                        ).coerceIn(0.5f, 3f)
 
                 camera.changeZoom(newZoom)
             }
@@ -111,11 +111,11 @@ class MapInputController(
              */
             val worldDeltaX =
                 deltaX * camera.viewportWidth *
-                    camera.zoom / screenWidth
+                        camera.zoom / screenWidth
 
             val worldDeltaY =
                 deltaY * camera.viewportHeight *
-                    camera.zoom / screenHeight
+                        camera.zoom / screenHeight
 
             camera.moveBy(-worldDeltaX, worldDeltaY)
         }

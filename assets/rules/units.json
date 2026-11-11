@@ -10,9 +10,19 @@
       "movement": 4,
       "vision": 4,
       "attackRange": 1,
-      "cost": { "metals": 10, "food": 0, "crystals": 0 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 0 },
-      "abilities": [ "ATTACK_MELEE" ],
+      "cost": {
+        "metals": 10,
+        "food": 0,
+        "crystals": 0
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 0
+      },
+      "abilities": [
+        "ATTACK_MELEE"
+      ],
       "requiredBuildings": []
     },
     {
@@ -24,9 +34,19 @@
       "movement": 2,
       "vision": 2,
       "attackRange": 1,
-      "cost": { "metals": 25, "food": 0, "crystals": 0 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 0 },
-      "abilities": [ "ATTACK_MELEE" ],
+      "cost": {
+        "metals": 25,
+        "food": 0,
+        "crystals": 0
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 0
+      },
+      "abilities": [
+        "ATTACK_MELEE"
+      ],
       "requiredBuildings": []
     },
     {
@@ -38,10 +58,22 @@
       "movement": 2,
       "vision": 2,
       "attackRange": 2,
-      "cost": { "metals": 25, "food": 0, "crystals": 5 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 0 },
-      "abilities": [ "ATTACK_RANGED" ],
-      "requiredBuildings": [ "barracks" ]
+      "cost": {
+        "metals": 25,
+        "food": 0,
+        "crystals": 5
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 0
+      },
+      "abilities": [
+        "ATTACK_RANGED"
+      ],
+      "requiredBuildings": [
+        "barracks"
+      ]
     },
     {
       "id": "apc",
@@ -52,10 +84,22 @@
       "movement": 4,
       "vision": 2,
       "attackRange": 1,
-      "cost": { "metals": 35, "food": 0, "crystals": 5 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 0 },
-      "abilities": [ "ATTACK_MELEE" ],
-      "requiredBuildings": [ "fabricator" ]
+      "cost": {
+        "metals": 35,
+        "food": 0,
+        "crystals": 5
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 0
+      },
+      "abilities": [
+        "ATTACK_MELEE"
+      ],
+      "requiredBuildings": [
+        "fabricator"
+      ]
     },
     {
       "id": "mlrs",
@@ -66,10 +110,24 @@
       "movement": 2,
       "vision": 2,
       "attackRange": 3,
-      "cost": { "metals": 40, "food": 0, "crystals": 15 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 1 },
-      "abilities": [ "ATTACK_RANGED", "CANNOT_ATTACK_AFTER_MOVING" ],
-      "requiredBuildings": [ "fabricator", "radar" ]
+      "cost": {
+        "metals": 40,
+        "food": 0,
+        "crystals": 15
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 1
+      },
+      "abilities": [
+        "ATTACK_RANGED",
+        "CANNOT_ATTACK_AFTER_MOVING"
+      ],
+      "requiredBuildings": [
+        "fabricator",
+        "radar"
+      ]
     },
     {
       "id": "tank",
@@ -80,10 +138,23 @@
       "movement": 3,
       "vision": 2,
       "attackRange": 1,
-      "cost": { "metals": 55, "food": 0, "crystals": 20 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 1 },
-      "abilities": [ "ATTACK_MELEE" ],
-      "requiredBuildings": [ "fabricator", "laboratory" ]
+      "cost": {
+        "metals": 55,
+        "food": 0,
+        "crystals": 20
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 1
+      },
+      "abilities": [
+        "ATTACK_MELEE"
+      ],
+      "requiredBuildings": [
+        "fabricator",
+        "laboratory"
+      ]
     },
     {
       "id": "mech",
@@ -94,10 +165,22 @@
       "movement": 2,
       "vision": 3,
       "attackRange": 1,
-      "cost": { "metals": 120, "food": 0, "crystals": 60 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 2 },
-      "abilities": [ "ATTACK_MELEE" ],
-      "requiredBuildings": [ "fusion_generator" ],
+      "cost": {
+        "metals": 120,
+        "food": 0,
+        "crystals": 60
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 2
+      },
+      "abilities": [
+        "ATTACK_MELEE"
+      ],
+      "requiredBuildings": [
+        "fusion_generator"
+      ],
       "limitPerPlayer": 2
     },
     {
@@ -109,9 +192,19 @@
       "movement": 2,
       "vision": 2,
       "attackRange": 1,
-      "cost": { "metals": 25, "food": 15, "crystals": 0 },
-      "upkeep": { "metals": 0, "food": 0, "crystals": 0 },
-      "abilities": [ "FOUND_CITY" ],
+      "cost": {
+        "metals": 25,
+        "food": 15,
+        "crystals": 0
+      },
+      "upkeep": {
+        "metals": 0,
+        "food": 0,
+        "crystals": 0
+      },
+      "abilities": [
+        "FOUND_CITY"
+      ],
       "requiredBuildings": []
     }
   ]

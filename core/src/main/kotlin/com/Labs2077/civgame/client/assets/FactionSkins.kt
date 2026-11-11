@@ -50,13 +50,20 @@ class FactionSkins(private val packFile: FileHandle) : Disposable {
 
             for (y in 0 until src.height) for (x in 0 until src.width) {
                 val pixel = src.getPixel(x, y)
-                out.drawPixel(x, y, when (pixel) {
-                    MAGENTA -> main
-                    MAGENTA_DARK -> dark
-                    else -> pixel
-                })
+                out.drawPixel(
+                    x, y, when (pixel) {
+                        MAGENTA -> main
+                        MAGENTA_DARK -> dark
+                        else -> pixel
+                    }
+                )
             }
-            page.texture = Texture(out).apply { setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest) }
+            page.texture = Texture(out).apply {
+                setFilter(
+                    Texture.TextureFilter.Nearest,
+                    Texture.TextureFilter.Nearest
+                )
+            }
             src.dispose()
             out.dispose()
         }
@@ -64,10 +71,13 @@ class FactionSkins(private val packFile: FileHandle) : Disposable {
     }
 
     fun frames(playerId: Int, name: String): Array<TextureAtlas.AtlasRegion> =
-        atlases.getValue(playerId).findRegions(name)
+        atlases.getValue(playerId)
+            .findRegions(name)
 
     fun hasFrames(name: String): Boolean =
-        atlases.values.firstOrNull()?.findRegions(name)?.let { it.size > 0 } ?: false
+        atlases.values.firstOrNull()
+            ?.findRegions(name)
+            ?.let { it.size > 0 } ?: false
 
     override fun dispose() {
         atlases.values.forEach { it.dispose() }

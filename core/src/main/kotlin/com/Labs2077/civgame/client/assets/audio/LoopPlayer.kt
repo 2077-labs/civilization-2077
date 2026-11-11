@@ -1,6 +1,5 @@
 package com.Labs2077.civgame.client.assets.audio
 
-import com.Labs2077.civgame.client.assets.GameAssets
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Sound
 
@@ -16,10 +15,18 @@ data class LoopRequest(val cue: LoopCue, val volume: Float = 1f)
  *    Ten drugi sposób użycia może uodpornić grę na błędy w logice, bo nie trzeba pamiętać, co już gra, a LoopPlayer sam zatrzyma to, czego nie ma w sync.
  */
 class LoopPlayer(private val soundOf: (SfxId) -> Sound, private val maxLoops: Int = 12) {
-    private companion object { const val TAG = "LoopPlayer" }
+    private companion object {
+        const val TAG = "LoopPlayer"
+    }
 
     private class Active(val cue: LoopCue, val instanceId: Long, var volume: Float)
-    private class Fade(val loopKey: LoopKey, val cue: LoopCue, val instanceId: Long, val startVolume: Float, val duration: Float) {
+    private class Fade(
+        val loopKey: LoopKey,
+        val cue: LoopCue,
+        val instanceId: Long,
+        val startVolume: Float,
+        val duration: Float
+    ) {
         var elapsed = 0f
     }
 
@@ -40,7 +47,9 @@ class LoopPlayer(private val soundOf: (SfxId) -> Sound, private val maxLoops: In
     fun start(key: LoopKey, cue: LoopCue, volume: Float = 1f) {
         val current = active[key]
         if (current != null) {
-            if (current.cue == cue) { setVolume(key, volume); return }
+            if (current.cue == cue) {
+                setVolume(key, volume); return
+            }
             // inny dźwięk pod tym kluczem, więc zatrzymujemy stary i uruchamiamy nowy
             stop(key)
         }
@@ -74,11 +83,13 @@ class LoopPlayer(private val soundOf: (SfxId) -> Sound, private val maxLoops: In
 
     /** Zatrzymuje wszystkie pętle jednego źródła (np. jednostki, która zginęła). */
     fun stopSource(source: LoopSource, fadeSeconds: Float = 0f) {
-        active.keys.filter { it.source == source }.forEach { stop(it, fadeSeconds) }
+        active.keys.filter { it.source == source }
+            .forEach { stop(it, fadeSeconds) }
     }
 
     fun stopAll() {
-        active.keys.toList().forEach { stop(it) }
+        active.keys.toList()
+            .forEach { stop(it) }
         fading.forEach { soundOf(it.cue.sfx).stop(it.instanceId) }
         fading.clear()
     }
@@ -87,9 +98,14 @@ class LoopPlayer(private val soundOf: (SfxId) -> Sound, private val maxLoops: In
      * Uruchamia (lub aktualizuje) wszystko z [desired], a pętle z zakresu [scope],
      * których tam nie ma, zatrzymuje. Zakres pozwala niezależnym systemom (jednostki, pogoda) nie zatrzymywać swoich pętli.
      */
-    fun sync(desired: Map<LoopKey, LoopRequest>, scope: (LoopKey) -> Boolean = { true }, fadeSeconds: Float = 0.15f) {
+    fun sync(
+        desired: Map<LoopKey, LoopRequest>,
+        scope: (LoopKey) -> Boolean = { true },
+        fadeSeconds: Float = 0.15f
+    ) {
         for ((key, request) in desired) start(key, request.cue, request.volume)
-        active.keys.filter { scope(it) && it !in desired }.forEach { stop(it, fadeSeconds) }
+        active.keys.filter { scope(it) && it !in desired }
+            .forEach { stop(it, fadeSeconds) }
     }
 
     fun pauseAll() {

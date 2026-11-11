@@ -10,7 +10,8 @@ class RulesetRepository {
         deserializer: DeserializationStrategy<F>,
         createRuleset: (F) -> R
     ): R {
-        val source = Gdx.files.internal(path).readString("UTF-8")
+        val source = Gdx.files.internal(path)
+            .readString("UTF-8")
         val file = RulesetJson.decode(source, deserializer)
 
         return createRuleset(file)

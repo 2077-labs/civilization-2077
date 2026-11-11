@@ -4,7 +4,6 @@ import com.Labs2077.civgame.engine.rules.AbstractRuleset
 import com.Labs2077.civgame.engine.rules.UnitId
 import com.Labs2077.civgame.engine.units.UnitAbility
 import com.Labs2077.civgame.engine.units.UnitDefinition
-import kotlin.collections.forEach
 
 /**
  * Ruleset jednostek, który zawiera wszystkie definicje jednostek w grze.
@@ -25,7 +24,7 @@ class UnitRuleset private constructor(
         fun fromFile(file: UnitRulesetFile): UnitRuleset {
             require(file.schemaVersion == 1) {
                 "Nieobsługiwana wersja units.json: " +
-                    file.schemaVersion
+                        file.schemaVersion
             }
 
             file.units.forEach(::validateDefinition)

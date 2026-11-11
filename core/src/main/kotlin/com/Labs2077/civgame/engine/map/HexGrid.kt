@@ -3,7 +3,8 @@ package com.Labs2077.civgame.engine.map
 /**
  * Reprezentuje jednolitą mapę heksagonów na planie prostokąta o zadanym rozmiarze.
  */
-class HexGrid<Tile>(val width: Int, val height: Int, private val tiles: Array<Tile>) : Iterable<Tile> {
+class HexGrid<Tile>(val width: Int, val height: Int, private val tiles: Array<Tile>) :
+    Iterable<Tile> {
 
     init {
         require(width >= 0) { "Szerokość mapy musi być nieujemna." }

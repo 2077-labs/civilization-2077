@@ -22,8 +22,10 @@ import com.badlogic.gdx.utils.Disposable
 class GameAssets() : Disposable, AssetProvider {
     private companion object {
         const val COMMON_ATLAS = "atlas/common.atlas"
+
         // Jednostki i miasta są w jednym atlasie, bo miasta mają sztandar w magencie, więc razem z jednostkami przechodzą wypiekanie kolorów graczy.
         const val UNITS_ATLAS = "atlas/units.atlas"
+
         // region zastępczy w common.atlas (szachownica magenta-czerń)
         const val MISSING = "missing"
         const val UI_FONT = "fonts/ui.fnt"
@@ -35,7 +37,8 @@ class GameAssets() : Disposable, AssetProvider {
 
     private lateinit var common: TextureAtlas
     private val missing: TextureAtlas.AtlasRegion by lazy {
-        common.findRegion(MISSING) ?: error("Brak regionu '$MISSING' w $COMMON_ATLAS (dodaj raw/common/missing.png i spakuj atlas)")
+        common.findRegion(MISSING)
+            ?: error("Brak regionu '$MISSING' w $COMMON_ATLAS (dodaj raw/common/missing.png i spakuj atlas)")
     }
     private var baseReady = false
     private var fallbackFont: BitmapFont? = null
@@ -48,17 +51,24 @@ class GameAssets() : Disposable, AssetProvider {
     }
 
     private fun fallback(): BitmapFont =
-        fallbackFont ?: BitmapFont().apply { data.setScale(1.4f) }.also {fallbackFont = it}
+        fallbackFont ?: BitmapFont().apply { data.setScale(1.4f) }
+            .also { fallbackFont = it }
 
     private fun queueFont() {
-        if (!Gdx.files.internal(UI_FONT).exists()) {
-            Gdx.app.error("GameAssets", "Brak czcionki UI: $UI_FONT. Uzywanie domyslnej czcionki (bez polskich znakow)")
+        if (!Gdx.files.internal(UI_FONT)
+                .exists()
+        ) {
+            Gdx.app.error(
+                "GameAssets",
+                "Brak czcionki UI: $UI_FONT. Uzywanie domyslnej czcionki (bez polskich znakow)"
+            )
             return
         }
-        val params = BitmapFontLoader.BitmapFontParameter().apply {
-            minFilter = Texture.TextureFilter.Linear
-            magFilter = Texture.TextureFilter.Linear
-        }
+        val params = BitmapFontLoader.BitmapFontParameter()
+            .apply {
+                minFilter = Texture.TextureFilter.Linear
+                magFilter = Texture.TextureFilter.Linear
+            }
         am.load(UI_FONT, BitmapFont::class.java, params)
     }
 
@@ -81,23 +91,33 @@ class GameAssets() : Disposable, AssetProvider {
     fun onResume() = skins.rebuild()
 
     /** Dostęp dla renderera (zawsze po id). Brak grafiki daje region "missing" */
-    override fun terrain(id: TerrainId): TextureRegion = common.findRegion("terrain_${id.value}") ?: missing
+    override fun terrain(id: TerrainId): TextureRegion =
+        common.findRegion("terrain_${id.value}") ?: missing
+
     override fun icon(id: String): TextureRegion = common.findRegion("icon_$id") ?: missing
     override fun unitFrames(playerId: Int, unitId: UnitId, anim: String): Array<out TextureRegion> =
         framesOrMissing(skins.frames(playerId, "${unitId.value}_$anim"))
+
     override fun cityFrames(playerId: Int, level: Int): Array<out TextureRegion> =
         framesOrMissing(skins.frames(playerId, "settlement_lvl$level"))
-    override fun fxFrames(id: String): Array<out TextureRegion> = framesOrMissing(common.findRegions("fx_$id"))
+
+    override fun fxFrames(id: String): Array<out TextureRegion> =
+        framesOrMissing(common.findRegions("fx_$id"))
+
     /** Wspólna czcionka UI - jedna dla wszystkich ekranów. Odtwarza się po utracie kontekstu OpenGL oraz jest zwalniana razem z GameAssets. */
     override val uiFont: BitmapFont
         get() = if (am.isLoaded(UI_FONT)) am.get(UI_FONT, BitmapFont::class.java) else fallback()
 
     /** Animacje powinny być tworzone raz (np. w show() ekranu), a nie w render(). attack i efekty zwykle z PlayMode.NORMAL. */
-    override fun unitAnimation(playerId: Int, unitId: UnitId, anim: String,
-                      mode: Animation.PlayMode): Animation<TextureRegion> =
+    override fun unitAnimation(
+        playerId: Int, unitId: UnitId, anim: String,
+        mode: Animation.PlayMode
+    ): Animation<TextureRegion> =
         Animation<TextureRegion>(FRAME_TIME, unitFrames(playerId, unitId, anim), mode)
+
     override fun cityAnimation(playerId: Int, level: Int): Animation<TextureRegion> =
         Animation<TextureRegion>(FRAME_TIME, cityFrames(playerId, level), Animation.PlayMode.LOOP)
+
     override fun sound(sound: SfxId): Sound = am.get(sound.path, Sound::class.java)
 
 
@@ -107,7 +127,8 @@ class GameAssets() : Disposable, AssetProvider {
      * Zwraca nazwy brakujących regionów. Do wywołania po startGame() przed rozpoczęciem rozgrywki.
      */
     fun missingArt(required: Map<UnitId, Collection<String>>): List<String> =
-        required.flatMap { (unit, anims) -> anims.map { "${unit.value}_$it" } }.filterNot { skins.hasFrames(it) }
+        required.flatMap { (unit, anims) -> anims.map { "${unit.value}_$it" } }
+            .filterNot { skins.hasFrames(it) }
 
     // TODO: To be removed
     fun finishLoading() {
