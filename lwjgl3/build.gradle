@@ -216,3 +216,23 @@ tasks.withType(JavaExec.class).configureEach {
 if(enableGraalNative == 'true') {
   apply from: file("nativeimage.gradle")
 }
+
+configurations {
+  hiero {
+    canBeConsumed = false
+    canBeResolved = true
+  }
+}
+
+dependencies {
+  hiero "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+  hiero "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+tasks.register('hiero', JavaExec) {
+  group = 'tools'
+  description = 'Uruchamia edytor bitmap fonts Hiero'
+
+  classpath = configurations.hiero
+  mainClass = 'com.badlogic.gdx.tools.hiero.Hiero'
+}
