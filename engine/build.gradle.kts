@@ -15,6 +15,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(projects.core0)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)

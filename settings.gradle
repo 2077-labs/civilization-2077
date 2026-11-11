@@ -7,7 +7,9 @@ plugins {
 // if you want to temporarily disable a subproject.
 include 'lwjgl3', 'core', 'android'
 
-rootProject.name = "Civilization 2077"
+rootProject.name = "civilization"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include ':core0'
 include ':engine'
