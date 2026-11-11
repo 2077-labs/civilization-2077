@@ -9,6 +9,6 @@ include 'lwjgl3', 'core', 'android'
 
 rootProject.name = "Civilization 2077"
 
+include ':core0'
 include ':engine'
 include ':client'
-// TODO: include ':core'
