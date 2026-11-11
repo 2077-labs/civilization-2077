@@ -91,6 +91,8 @@ class CivGame : Game() {
     }
 
     override fun resume() {
+        // Odbudowa wypieczonych atlasów po utracie kontekstu OpenGL
+        assets.onResume()
         super.resume()
         // Odbudowa wypieczonych atlasów po utracie kontekstu OpenGL
         assets.onResume()

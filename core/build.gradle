@@ -11,6 +11,7 @@ dependencies {
   api "io.github.quillraven.libktx:ktx-app:$ktxVersion"
 
   implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
+  testImplementation "junit:junit:4.13.2"
 
   // Zarządzanie zasobami
   api "io.github.quillraven.libktx:ktx-assets:$ktxVersion"

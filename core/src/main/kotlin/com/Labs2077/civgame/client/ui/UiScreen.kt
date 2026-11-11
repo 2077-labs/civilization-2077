@@ -66,8 +66,14 @@ abstract class UiScreen(protected val game: CivGame) : ScreenAdapter() {
         // animacja wejścia całego ekranu
         stage.root.addAction(Actions.fadeIn(0.25f))
 
+        /*
+         * Stage jest dodawany jako pierwszy procesor wejścia,
+         * aby elementy interfejsu Scene2D miały pierwszeństwo
+         * przed dodatkowymi kontrolerami wejścia, np. sterowaniem mapą.
+         */
         inputs.clear()
         inputs.addProcessor(stage)
+        configureInputProcessors()
         Gdx.input.inputProcessor = inputs
     }
 
@@ -82,8 +88,23 @@ abstract class UiScreen(protected val game: CivGame) : ScreenAdapter() {
 
     final override fun resize(width: Int, height: Int) {
         stage.viewport.update(width, height, true)
+        onResize(width, height)
     }
+    protected open fun onResize(width: Int, height: Int) {}
+    protected open fun configureInputProcessors() {}
+    /*
+     * Callback pozwalający ekranom potomnym wykonać dodatkowe operacje
+     * po wznowieniu aplikacji, np. odświeżenie referencji do animacji.
+     *
+     * Metoda resume jest final, aby wspólna obsługa wznowienia
+     * była wykonywana w każdym ekranie pochodnym.
+     */
+    protected open fun onResume() {}
 
+    final override fun resume() {
+        super.resume()
+        onResume()
+    }
     override fun hide() {
         if (Gdx.input.inputProcessor === inputs) Gdx.input.inputProcessor = null
         stage.dispose()
