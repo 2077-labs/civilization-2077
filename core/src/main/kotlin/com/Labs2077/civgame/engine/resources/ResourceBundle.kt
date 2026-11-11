@@ -15,6 +15,7 @@ data class ResourceBundle(
             food = food + other.food,
             crystals = crystals + other.crystals
         )
+
     fun isNonNegative(): Boolean = metals >= 0 && food >= 0 && crystals >= 0
     val isEmpty: Boolean get() = metals == 0 && food == 0 && crystals == 0
 }

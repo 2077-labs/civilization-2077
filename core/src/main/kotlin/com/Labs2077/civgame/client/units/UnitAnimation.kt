@@ -8,10 +8,14 @@ enum class UnitAnimation {
     IDLE, ATTACK, MOVE;
 
     val id: String = name.lowercase()
+
+    companion object {
+        val ALL: Set<UnitAnimation> = entries.toSet()
+    }
 }
 
 /**
- * Wymagane animacje wyliczamy ze statystyk/umiejętności, a nie z UnitKind.
+ * Wymagane animacje wyliczamy ze statystyk/umiejętności.
  * Dzięki temu osadnik i robotnik nie wymagają animacji ataku.
  */
 fun UnitDefinition.requiredAnimations(): Set<UnitAnimation> = buildSet {

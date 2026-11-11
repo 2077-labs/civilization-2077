@@ -3,6 +3,7 @@ package com.Labs2077.civgame.engine.terrain
 import com.Labs2077.civgame.engine.rules.RuleDefinition
 import com.Labs2077.civgame.engine.rules.TerrainId
 import kotlinx.serialization.Serializable
+
 /**
  * Opisuje rodzaj terenu i jego właściwości wykorzystywane w grze
  *

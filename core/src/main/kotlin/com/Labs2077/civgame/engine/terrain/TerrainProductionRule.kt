@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 enum class ProductionEffectMode {
     /** Dodaje zasoby do aktualnej produkcji */
     ADD,
+
     /** Zastępuje produkcję bazową terenu */
     REPLACE
 }
@@ -33,7 +34,8 @@ sealed interface TerrainProductionRule {
     data class Fixed(
         val resources: ResourceBundle
     ) : TerrainProductionRule {
-        override fun calculateProduction(builtBuildings: Set<BuildingId>): ResourceBundle = resources
+        override fun calculateProduction(builtBuildings: Set<BuildingId>): ResourceBundle =
+            resources
     }
 
     /**
