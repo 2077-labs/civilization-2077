@@ -28,6 +28,7 @@ import com.badlogic.gdx.math.Vector2
  * Docelowo w tym miejscu stoi HexMapScreen, a ta klasa znika.
  */
 class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScreen(game) {
+    private lateinit var tanks: Map<Int, Animation<TextureRegion>>
     private lateinit var cities: Map<Int, Animation<TextureRegion>>
     private var time = 0f
     private val worldCamera = GameCamera(
@@ -69,6 +70,7 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
     }
     override fun build(root: Table) {
         // animacje tworzymy raz, nie w render()
+        tanks = players.associate { it.id to game.assets.unitAnimation(it.id, UnitId("tank"), UnitAnimation.IDLE.id) }
         cities = players.associate { it.id to game.assets.cityAnimation(it.id, 1) }
 
         val menuButton = TextButton("Menu", skin).apply {
@@ -131,6 +133,8 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
         drawWorld { batch ->
             players.forEachIndexed { i, p ->
                 val x = 140f + i * 560f
+                val tank = tanks.getValue(p.id).getKeyFrame(time)
+                batch.draw(tank, x, 300f, tank.regionWidth * 3f, tank.regionHeight * 3f)
                 val city = cities.getValue(p.id).getKeyFrame(time)
                 batch.draw(city, x, 20f, city.regionWidth * 2f, city.regionHeight * 2f)
             }
