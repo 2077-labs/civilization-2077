@@ -1,9 +1,17 @@
 package com.Labs2077.civgame
 
 import com.Labs2077.civgame.client.assets.GameAssets
+import com.Labs2077.civgame.client.assets.audio.AudioCue
 import com.Labs2077.civgame.client.assets.audio.GameAudio
+import com.Labs2077.civgame.client.assets.audio.LoopCue
+import com.Labs2077.civgame.client.assets.audio.LoopKey
+import com.Labs2077.civgame.client.assets.audio.LoopRequest
+import com.Labs2077.civgame.client.assets.audio.LoopSlot
+import com.Labs2077.civgame.client.assets.audio.LoopSource
 import com.Labs2077.civgame.client.rules.RulesetRepository
 import com.Labs2077.civgame.client.screens.MenuLoadingScreen
+import com.Labs2077.civgame.engine.rules.buildings.BuildingRuleset
+import com.Labs2077.civgame.engine.rules.buildings.BuildingRulesetFile
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRuleset
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRulesetFile
 import com.Labs2077.civgame.engine.rules.units.UnitRuleset
@@ -18,7 +26,8 @@ class CivGame : Game() {
         private set
     lateinit var gameAudio: GameAudio
         private set
-
+    lateinit var buildingRuleset: BuildingRuleset
+        private set
     /**
      * Zestaw definicji wszystkich rodzajów terenu dostępnych w grze.
      *
@@ -31,7 +40,6 @@ class CivGame : Game() {
      */
     lateinit var terrainRuleset: TerrainRuleset
         private set
-
     /**
      * Odpowiada za wczytywanie plików konfiguracyjnych z assets
      * i przekształcanie ich w obiekty wykorzystywane przez grę
@@ -51,6 +59,12 @@ class CivGame : Game() {
             deserializer = TerrainRulesetFile.serializer(),
             createRuleset = TerrainRuleset.Companion::fromFile
         )
+        buildingRuleset = repository.load(
+            path = "rules/buildings.json",
+            deserializer = BuildingRulesetFile.serializer(),
+            createRuleset = BuildingRuleset.Companion::fromFile
+        )
+
         assets = GameAssets()
         gameAudio = GameAudio(assets::sound)
         assets.queueBase()
@@ -87,8 +101,6 @@ class CivGame : Game() {
     }
 
     override fun resume() {
-        // Odbudowa wypieczonych atlasów po utracie kontekstu OpenGL
-        assets.onResume()
         super.resume()
         // Odbudowa wypieczonych atlasów po utracie kontekstu OpenGL
         assets.onResume()
