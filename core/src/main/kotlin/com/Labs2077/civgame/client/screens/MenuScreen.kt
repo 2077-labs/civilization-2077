@@ -5,6 +5,7 @@ import com.Labs2077.civgame.client.ui.ColorSwatchButton
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.Labs2077.civgame.client.units.requiredAnimations
 import com.Labs2077.civgame.engine.PlayerSetup
+import com.Labs2077.civgame.engine.player.Player
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup
@@ -106,13 +107,13 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
     }
 
     private fun startGame() {
-        val players = listOf(
+        val playerSetups = listOf(
             PlayerSetup(0, "Gracz 1", PALETTE[picks[0]]),
             PlayerSetup(1, "Gracz 2", PALETTE[picks[1]])
         )
 
         // wypieczenie atlasu jednostek i miast dla każdego gracza (tworzy tekstury na GPU, więc musi być w wątku renderowania)
-        game.assets.startGame(players)
+        game.assets.startGame(playerSetups)
         // czy każda jednostka z reguł gry ma grafike? (po wypieczeniu, bo sprawdza wypieczone atlasy)
         val missing = game.assets.missingArt(game.unitRuleset.units.associate { unit ->
             unit.id to unit.requiredAnimations()
@@ -125,8 +126,8 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
             return
         }
 
-        // TODO: tu powstanie silnik: Engine(ruleset z JSON, players, seed). Silnik dostaje tylko PlayerSetup.
-        // przejście do gry (docelowo HexMapScreen(engine, game.assets) zamiast GameScreen)
+        // TODO: tu powstanie silnik: Engine(ruleset z JSON, players, seed).
+        val players = playerSetups.mapIndexed { index, setup -> Player.fromSetup(setup, index == 1) }
         switchTo(GameScreen(game, players))
     }
 }
