@@ -5,10 +5,18 @@ value class TerrainDefinitionId(
     val value: String,
 ) {
     init {
-        require(value.isNotBlank()) { "Identyfikator definicji terenu nie może być pusty." }
+        require(value.isNotBlank()) {
+            "Identyfikator definicji terenu nie może być pusty."
+        }
     }
 }
 
 data class TerrainDefinition(
     val id: TerrainDefinitionId,
+    val displayName: String,
+
+    val passable: Boolean,
+    val movementCost: Double,
+
+    val production: TerrainProduction,
 )
