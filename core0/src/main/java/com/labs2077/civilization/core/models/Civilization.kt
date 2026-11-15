@@ -23,8 +23,8 @@ class Civilization(
     private val _cities = mutableMapOf<CityId, City>()
     private val _units = mutableMapOf<UnitId, Unit>()
 
-    val cities: Collection<City> get() = _cities.values.toList()
-    val units: Collection<Unit> get() = _units.values.toList()
+    val cities: List<City> get() = _cities.values.toList()
+    val units: List<Unit> get() = _units.values.toList()
 
     /** Cywilizacja upada, gdy straci wszystkie miasta i jednostki. */
     val isAlive: Boolean
@@ -36,25 +36,25 @@ class Civilization(
             accumulated + unit.definition.upkeep
         }
 
-    // TODO: Implement `income` which returns a sum of all generated resources.
+    // TODO: Implement `production` which returns a sum of all generated resources.
     //       This requires cities to have the same kind of mechanism present.
 
     fun add(city: City) {
-        require(city.id !in _cities) {
-            "Miasto należy już do cywilizacji: ${city.id}."
-        }
         require(city.civilization.id == this.id) {
             "Miasto należy do innej cywilizacji: ${city.civilization.id}."
+        }
+        require(city.id !in _cities) {
+            "Miasto należy już do cywilizacji: ${city.id}."
         }
         _cities[city.id] = city
     }
 
     fun add(unit: Unit) {
-        require(unit.id !in _units) {
-            "Jednostka należy już do cywilizacji: ${unit.id}."
-        }
         require(unit.civilization.id == this.id) {
             "Jednostka należy do innej cywilizacji: ${unit.civilization.id}."
+        }
+        require(unit.id !in _units) {
+            "Jednostka należy już do cywilizacji: ${unit.id}."
         }
         _units[unit.id] = unit
     }
