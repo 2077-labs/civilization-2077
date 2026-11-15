@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "buildings": [
+    {
+      "id": "barracks",
+      "displayName": "Koszary",
+      "cost": { "metals": 30 }
+    },
+    {
+      "id": "radar",
+      "displayName": "Radar",
+      "cost": { "metals": 25, "crystals": 5 },
+      "features": ["RADAR"]
+    },
+    {
+      "id": "fabricator",
+      "displayName": "Fabrykator",
+      "cost": { "metals": 70, "crystals": 10 },
+      "requiredBuildings": ["barracks"]
+    },
+    {
+      "id": "laboratory",
+      "displayName": "Laboratorium",
+      "cost": { "metals": 60, "crystals": 25 },
+      "requiredBuildings": ["radar"]
+    },
+    {
+      "id": "fusion_generator",
+      "displayName": "Generator fuzyjny",
+      "cost": { "metals": 140, "crystals": 70 },
+      "requiredBuildings": ["fabricator", "laboratory"]
+    },
+    {
+      "id": "deep_vault",
+      "displayName": "Schron deep-vault",
+      "cost": { "metals": 50, "crystals": 30 },
+      "requiredBuildings": ["laboratory"]
+    }
+  ]
+}

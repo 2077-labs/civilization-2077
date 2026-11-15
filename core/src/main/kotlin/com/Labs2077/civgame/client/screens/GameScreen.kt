@@ -7,12 +7,15 @@ import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.Labs2077.civgame.client.units.UnitAnimation
 import com.Labs2077.civgame.engine.PlayerSetup
+import com.Labs2077.civgame.engine.city.City
 import com.Labs2077.civgame.engine.map.HexCoordinate
 import com.Labs2077.civgame.engine.map.HexGrid
 import com.Labs2077.civgame.engine.map.MapTile
+import com.Labs2077.civgame.engine.player.Player
 import com.Labs2077.civgame.engine.rules.TerrainId
 import com.Labs2077.civgame.engine.rules.UnitId
 import com.Labs2077.civgame.engine.units.UnitInstance
+import com.Labs2077.civgame.engine.units.createInstance
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -23,7 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
  * w jego kolorze (sprite'y w drawBackground, nazwy graczy i przycisk Menu to widgety Scene2D).
  * Docelowo w tym miejscu stoi HexMapScreen, a ta klasa znika.
  */
-class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScreen(game) {
+class GameScreen(game: CivGame, private val initialPlayers: List<Player>) : UiScreen(game) {
     private lateinit var tanks: Map<Int, Animation<TextureRegion>>
     private lateinit var cities: Map<Int, Animation<TextureRegion>>
     private var time = 0f
@@ -52,17 +55,20 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
     )
 
     private val demoTiles = demoMap.toList()
-    private val demoUnits: List<UnitInstance> by lazy {
-        players.mapIndexed { index, player ->
-            UnitInstance(
-                instanceId = index.toLong(),
-                definitionId = UnitId("tank"),
-                ownerId = player.id,
-                position = demoTiles[index % demoTiles.size].position,
-                currentHp = 100,
-                movementRemaining = 2
-            )
-        }
+
+    private var players: List<Player> = initialPlayers.mapIndexed { index, player ->
+        val position = demoTiles[index % demoTiles.size].position
+        val tank = game.unitRuleset[UnitId("tank")]
+            .createInstance(instanceId = index.toLong(), ownerId = player.id, position = position)
+        val city = City(
+            id = index.toLong(),
+            name = "Miasto ${player.name}",
+            ownerId = player.id,
+            position = demoTiles[(index + 4) % demoTiles.size].position
+        )
+        player
+            .withUnit(tank)
+            .withCity(city)
     }
 
     override fun build(root: Table) {
@@ -138,11 +144,12 @@ class GameScreen(game: CivGame, private val players: List<PlayerSetup>) : UiScre
             hexSize = hexSize
         )
         worldRenderer.renderUnits(
-            units = demoUnits,
+            units = players.flatMap { it.units },
             camera = worldCamera,
             hexSize = hexSize,
             stateTime = time
         )
+        // TODO: dodać rysowanie miast
         drawWorld { batch ->
             players.forEachIndexed { i, p ->
                 val x = 140f + i * 560f
