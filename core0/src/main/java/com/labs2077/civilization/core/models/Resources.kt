@@ -4,4 +4,10 @@ data class Resources(
     val food: Int = 0,
     val crystals: Int = 0,
     val metals: Int = 0,
-)
+) {
+    operator fun plus(other: Resources) = Resources(
+        food = food + other.food,
+        crystals = crystals + other.crystals,
+        metals = metals + other.metals,
+    )
+}

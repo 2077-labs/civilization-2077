@@ -9,4 +9,5 @@ value class CityId(
 
 class City(
     val id: CityId = CityId(value = Uuid.random()),
+    val civilization: Civilization,
 )

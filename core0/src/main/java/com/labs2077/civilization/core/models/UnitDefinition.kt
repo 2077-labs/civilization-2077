@@ -11,4 +11,5 @@ value class UnitDefinitionId(
 
 data class UnitDefinition(
     val id: UnitDefinitionId,
+    val upkeep: Resources,
 )

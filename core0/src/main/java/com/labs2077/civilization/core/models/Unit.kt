@@ -10,4 +10,5 @@ value class UnitId(
 class Unit(
     val id: UnitId = UnitId(value = Uuid.random()),
     val definition: UnitDefinition,
+    val civilization: Civilization,
 )
