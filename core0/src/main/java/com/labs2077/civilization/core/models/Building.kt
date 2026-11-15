@@ -9,4 +9,5 @@ value class BuildingId(
 
 class Building(
     val id: BuildingId = BuildingId(value = Uuid.random()),
+    val definition: BuildingDefinition,
 )
