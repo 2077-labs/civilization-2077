@@ -1,3 +1,5 @@
 package com.labs2077.civilization.core.models
 
-class Terrain
+class Terrain(
+    val definition: TerrainDefinition,
+)
