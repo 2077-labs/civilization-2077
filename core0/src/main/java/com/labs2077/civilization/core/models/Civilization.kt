@@ -15,13 +15,13 @@ class Civilization(
     cities: List<City> = emptyList(),
     units: List<Unit> = emptyList(),
 ) {
+    private val _cities = mutableMapOf<CityId, City>()
+    private val _units = mutableMapOf<UnitId, Unit>()
+
     init {
         cities.forEach(::add)
         units.forEach(::add)
     }
-
-    private val _cities = mutableMapOf<CityId, City>()
-    private val _units = mutableMapOf<UnitId, Unit>()
 
     val cities: List<City> get() = _cities.values.toList()
     val units: List<Unit> get() = _units.values.toList()

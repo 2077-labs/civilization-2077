@@ -13,20 +13,23 @@ class Unit(
     val civilization: Civilization,
     var position: Hexagon,
     health: Int = definition.health,
-    movementPoints: Int = definition.movement,
+    movement: Int = definition.movement,
 ) {
-    var health: Int = health
+    var health: Int = 0
         set(value) {
             field = value.coerceIn(0..definition.health)
         }
 
-    val isAlive: Boolean
-        get() = health > 0
-
-    var movementPoints: Int = movementPoints
+    var movement: Int = 0
         set(value) {
             field = value.coerceIn(0..definition.movement)
         }
 
-    companion object
+    init {
+        this.health = health
+        this.movement = movement
+    }
+
+    val isAlive: Boolean
+        get() = health > 0
 }

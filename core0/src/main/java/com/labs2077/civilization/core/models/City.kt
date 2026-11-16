@@ -17,12 +17,7 @@ class City(
     territory: Set<Hexagon> = emptySet(),
     var automaticallyClaimTiles: Boolean = true,
 ) {
-    init {
-        buildings.forEach(::add)
-        // TODO: Add territory validation (fields should be their neighbors).
-    }
-
-    var name: String = name
+    var name: String = ""
         set(value) {
             require(value.isNotBlank()) {
                 "Nazwa miasta nie może być pusta."
@@ -30,8 +25,17 @@ class City(
             field = value
         }
 
+    init {
+        this.name = name
+    }
+
     private val _buildings = mutableMapOf<BuildingId, Building>()
     private val _territory = (territory + position).toMutableSet()
+
+    init {
+        buildings.forEach(::add)
+        // TODO: Add territory validation (fields should be their neighbors).
+    }
 
     val buildings: List<Building> = _buildings.values.toList()
     val territory: Set<Hexagon> = _territory.toSet()
@@ -63,14 +67,17 @@ class City(
         _buildings.remove(buildingId)
     }
 
+    /** Sprawdza, czy miasto zawiera budynki danego typu. */
     fun hasBuildingOfType(type: BuildingDefinitionId): Boolean {
-        return _buildings.values.none { it.definition.id == type }
+        return _buildings.values.any { it.definition.id == type }
     }
 
+    /** Sprawdza, czy miasto zawiera budynki posiadające daną funkcjonalność. */
     fun hasBuildingWithFeature(feature: BuildingFeature): Boolean {
         return _buildings.values.any { feature in it.definition.features }
     }
 
+    /** Sprawdza, czy wskazany kawałek ziemi graniczy z terytorium miasta. */
     private fun checkLandBordersTerritory(land: Hexagon): Boolean {
         return territory.any { land in it.neighbors() }
     }
