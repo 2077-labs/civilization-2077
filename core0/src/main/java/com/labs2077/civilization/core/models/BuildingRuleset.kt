@@ -6,28 +6,45 @@ package com.labs2077.civilization.core.models
 class BuildingRuleset(definitions: List<BuildingDefinition>) :
     AbstractRuleset<BuildingDefinitionId, BuildingDefinition>(definitions, { it.id }) {
 
+    init {
+        ensureAcyclicBuildingRequirements()
+    }
+
     /** Odszukuje wszystkie rodzaje budynków, które posiadają wskazaną funkcjonalność. */
-    fun findAllWithFeature(feature: BuildingFeature): List<BuildingDefinition> {
+    fun findAllWithFeature(feature: BuildingFeature): Collection<BuildingDefinition> {
         return definitions.values.filter { feature in it.features }
     }
 
     /** Sprawdza, czy zależności budynków nie mają cykli. */
     private fun ensureAcyclicBuildingRequirements() {
-        // wykrywanie cykli w grafie zależności budynków
-        val visiting = HashSet<BuildingDefinitionId>()
-        val done = HashSet<BuildingDefinitionId>()
+        val path = LinkedHashSet<BuildingDefinitionId>()
+        val checked = HashSet<BuildingDefinitionId>()
 
-        fun visit(id: BuildingDefinitionId, path: List<BuildingDefinitionId>) {
-            if (id in done) return
-            require(id !in visiting) {
-                "Cykliczne wymagania budynków: " + (path + id).joinToString(" -> ") { it.value }
-            }
-            visiting += id
-            definitions.getValue(id).requiredBuildingTypes.forEach { visit(it.id, path + id) }
-            visiting -= id
-            done += id
+        fun HashSet<BuildingDefinitionId>.joinToPath(): String {
+            return joinToString(separator = " -> ") { it.value }
         }
 
-        definitions.forEach { visit(it.key, emptyList()) }
+        fun visit(id: BuildingDefinitionId) {
+            if (id in checked) {
+                return
+            }
+
+            require(path.add(id)) {
+                "Cykliczne wymagania typów budynków: ${path.joinToPath()} -> $id."
+            }
+
+            val definition = definitions[id]
+
+            require(definition != null) {
+                "Wymagany typ budynku nie istnieje: ${path.joinToPath()} -> $id."
+            }
+
+            definition.requiredBuildingTypeIds.forEach(::visit)
+
+            path.remove(id)
+            checked.add(id)
+        }
+
+        definitions.keys.forEach(::visit)
     }
 }

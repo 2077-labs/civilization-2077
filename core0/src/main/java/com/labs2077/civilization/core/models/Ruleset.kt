@@ -12,7 +12,7 @@ abstract class AbstractRuleset<K, V>(
 
     init {
         require(definitions.isNotEmpty()) {
-            "Ruleset musi zawierać definicje: $definitions."
+            "Ruleset musi zawierać przynajmniej jedną definicję."
         }
         require(definitions.allUniqueBy(keySelector)) {
             "Ruleset zawiera zduplikowane definicje: $definitions."

@@ -21,23 +21,23 @@ enum class ProductionEffectMode {
 /**
  * Opisuje pojedynczy efekt budynku wpływający na produkcję terenu
  *
- * @property buildingId identyfikator budynku aktywującego efekt
+ * @property buildingTypeId identyfikator budynku aktywującego efekt
  * @property mode określa, czy efekt dodaje zasoby, czy zastępuje produkcję bazową.
  * @property resources wartości zasobów związane z efektem.
  * @property priority priorytet efektu REPLACE; większa wartość oznacza pierwszeństwo.
  */
 data class BuildingProductionModifier(
-    val buildingId: BuildingId,
+    val buildingTypeId: BuildingDefinitionId,
     val mode: ProductionEffectMode,
     val resources: Resources,
-    val priority: Int = 0,
+    val priority: Int,
 )
 
 /**
- * Określa sposób obliczania produkcji zasobów przez dany teren
+ * Określa sposób obliczania produkcji zasobów przez dany teren.
  */
 sealed interface TerrainProduction {
-    fun calculateProduction(builtBuildings: Set<BuildingId>): Resources
+    fun calculateProduction(buildingTypeIds: Set<BuildingDefinitionId>): Resources
 
     /**
      * Reprezentuje stałą produkcję terenu, niezależną od posiadanych budynków.
@@ -45,7 +45,9 @@ sealed interface TerrainProduction {
      * @property resources zasoby produkowane przez teren
      */
     data class Fixed(val resources: Resources) : TerrainProduction {
-        override fun calculateProduction(builtBuildings: Set<BuildingId>): Resources = resources
+        override fun calculateProduction(buildingTypeIds: Set<BuildingDefinitionId>): Resources {
+            return resources
+        }
     }
 
     /**
@@ -70,12 +72,12 @@ sealed interface TerrainProduction {
         /**
          * Oblicza produkcję terenu na podstawie posiadanych budynków.
          *
-         * @param builtBuildings identyfikatory budynków dostępnych w mieście
+         * @param buildingTypeIds budynki dostępne w mieście
          * @return zestaw wyprodukowanych zasobów
          */
-        override fun calculateProduction(builtBuildings: Set<BuildingId>): Resources {
+        override fun calculateProduction(buildingTypeIds: Set<BuildingDefinitionId>): Resources {
             val activeModifiers = modifiers.filter {
-                it.buildingId in builtBuildings
+                it.buildingTypeId in buildingTypeIds
             }
 
             val replacement = activeModifiers //

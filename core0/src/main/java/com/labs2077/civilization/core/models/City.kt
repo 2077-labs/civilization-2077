@@ -40,10 +40,7 @@ class City(
         this.name = name
         this.resources = resources
 
-        require(isTerritoryConsistent()) {
-            "Terytorium miasta musi być spójne: $_territory"
-        }
-
+        // TODO: Check if city territory is consistent (does not have gaps).
         buildings.forEach(::add)
     }
 
@@ -73,6 +70,11 @@ class City(
         _buildings[building.id] = building
     }
 
+    /** Pobiera typy budynków w mieście. */
+    fun getBuildingTypes(): Set<BuildingDefinitionId> {
+        return _buildings.values.mapTo(HashSet()) { it.definition.id }
+    }
+
     /** Sprawdza, czy miasto zawiera budynki danego typu. */
     fun hasBuildingOfType(type: BuildingDefinitionId): Boolean {
         return _buildings.values.any { it.definition.id == type }
@@ -83,14 +85,6 @@ class City(
         return _buildings.values.any { feature in it.definition.features }
     }
 
-    /** Sprawdza, czy terytorium jest spójne (nie zawiera przerw). */
-    private fun isTerritoryConsistent(): Boolean {
-        // Terytorium jest niespójne wtedy i tylko wtedy, gdy którykolwiek kawałek ziemi nie sąsiaduje z żadnym innym.
-        val adjacentLand = _territory.flatMap { it.neighbors() }
-            .toSet()
-        return _territory.all { it in adjacentLand }
-    }
-
     /** Sprawdza, czy wskazany kawałek ziemi graniczy z terytorium miasta. */
     private fun checkLandBordersTerritory(land: Hexagon): Boolean {
         return _territory.any { land in it.neighbors() }
@@ -99,6 +93,6 @@ class City(
 
 // TODO: Move to the right command handler.
 fun BuildingDefinition.canBeConstructedIn(city: City): Boolean {
-    val buildingTypes = city.buildings.map { it.definition }
-    return requiredBuildingTypes.all { it in buildingTypes }
+    val buildingTypeIds = city.getBuildingTypes()
+    return requiredBuildingTypeIds.all { it in buildingTypeIds }
 }

@@ -3,14 +3,15 @@ package com.labs2077.civilization.core.models
 /**
  * Reprezentuje jednolitą mapę heksagonów na planie prostokąta o zadanym rozmiarze.
  */
-class HexagonGrid<Cell>(val width: Int, val height: Int, private val tiles: Array<Cell>) :
-    Iterable<Cell> {
+class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : Iterable<Cell> {
 
     init {
-        require(width >= 0) { "Szerokość mapy musi być nieujemna." }
-        require(height >= 0) { "Wysokość mapy musi być nieujemna." }
+        require(width > 0) { "Szerokość mapy musi być dodatnia." }
+        require(height > 0) { "Wysokość mapy musi być dodatnia." }
         require(tiles.size == width * height) { "Ilość kafelków musi być równa iloczynowi szerokości i wysokości." }
     }
+
+    private val tiles: Array<Cell> = tiles.copyOf()
 
     /**
      * Pobiera wartość komórki na wskazanych współrzędnych.

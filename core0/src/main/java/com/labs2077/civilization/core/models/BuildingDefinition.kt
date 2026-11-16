@@ -19,7 +19,7 @@ data class BuildingDefinition(
 
     val cost: Resources,
     /** Lista rodzajów budynków, które są wymagane do odblokowania budynku danego typu. */
-    val requiredBuildingTypes: Set<BuildingDefinition> = emptySet(),
+    val requiredBuildingTypeIds: Set<BuildingDefinitionId> = emptySet(),
 ) {
     init {
         require(displayName.isNotBlank()) {
