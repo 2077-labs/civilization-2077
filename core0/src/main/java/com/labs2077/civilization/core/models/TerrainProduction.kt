@@ -1,5 +1,7 @@
 package com.labs2077.civilization.core.models
 
+import com.labs2077.civilization.core.polyfill.allUniqueBy
+
 // TODO: Zastanowić się, czy nie warto uprościć tego systemu - istnieje on tylko ze względu na pole radiacji i budynek deep-vault.
 //       Efektywnie jest to mechanizm ulepszeń terenu, tylko że wprowadzony na potrzeby budynków.
 //       Czy nie byłoby dobrze dla każdego pola radiacji wymagać deep-vault jako ulepszenia (a nie jednego budynku w mieście)?
@@ -93,8 +95,8 @@ sealed interface TerrainProduction {
 
         /** Sprawdza, czy wszystkie modyfikatory typu REPLACE mają unikatowe priorytety. */
         private fun hasUniqueReplacePriorities(): Boolean {
-            val priorities = mutableSetOf<Int>()
-            return modifiers.all { priorities.add(it.priority) }
+            val replaceModifiers = modifiers.filter { it.mode == ProductionEffectMode.REPLACE }
+            return replaceModifiers.allUniqueBy { it.priority }
         }
     }
 }
