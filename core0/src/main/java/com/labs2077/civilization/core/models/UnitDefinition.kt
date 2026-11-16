@@ -30,7 +30,7 @@ data class UnitDefinition(
 
     val cost: Resources,
     /** Koszt utrzymania ponoszony przez cywilizację na początku każdej tury. */
-    val upkeep: Resources,
+    val upkeep: CivilizationResources,
     /** Lista rodzajów budynków, które są wymagane do odblokowania rekrutacji jednostki danego typu. */
     val requiredBuildingTypeIds: Set<BuildingDefinitionId> = emptySet(),
     /** Limit jednostek danego typu w jednej cywilizacji. Wartość `null` oznacza brak limitu. */

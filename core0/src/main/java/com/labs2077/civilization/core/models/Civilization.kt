@@ -41,8 +41,8 @@ class Civilization(
         get() = units.isNotEmpty() || cities.isNotEmpty()
 
     /** Koszt utrzymania wszystkich jednostek na turę. */
-    val upkeep: Resources
-        get() = units.fold(Resources()) { accumulated, unit ->
+    val upkeep: CivilizationResources
+        get() = units.fold(CivilizationResources()) { accumulated, unit ->
             accumulated + unit.definition.upkeep
         }
 

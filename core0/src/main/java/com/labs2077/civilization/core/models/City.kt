@@ -72,7 +72,7 @@ class City(
 
     /** Pobiera typy budynków w mieście. */
     fun getBuildingTypes(): Set<BuildingDefinitionId> {
-        return _buildings.values.mapTo(HashSet()) { it.definition.id }
+        return _buildings.values.mapTo(mutableSetOf()) { it.definition.id }
     }
 
     /** Sprawdza, czy miasto zawiera budynki danego typu. */
