@@ -5,7 +5,9 @@ value class UnitDefinitionId(
     val value: String,
 ) {
     init {
-        require(value.isNotBlank()) { "Identyfikator definicji jednostki nie może być pusty." }
+        require(value.isNotBlank()) {
+            "Identyfikator definicji jednostki nie może być pusty."
+        }
     }
 }
 
@@ -25,6 +27,7 @@ data class UnitDefinition(
     val abilities: Set<UnitAbility> = emptySet(),
 
     val cost: Resources,
+    /** Koszt utrzymania ponoszony przez cywilizację na początku każdej tury. */
     val upkeep: Resources,
     /** Lista rodzajów budynków, które są wymagane do odblokowania rekrutacji jednostki danego typu. */
     val requiredBuildingTypes: List<BuildingDefinition> = emptyList(),
@@ -81,4 +84,3 @@ data class UnitDefinition(
 
 private val Resources.isNegative: Boolean
     get() = food < 0 || crystals < 0 || metals < 0
-

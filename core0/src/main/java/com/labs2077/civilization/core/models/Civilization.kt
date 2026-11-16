@@ -67,7 +67,3 @@ class Civilization(
         _units.remove(unitId)
     }
 }
-
-private fun <K, V> List<V>.associateMutableBy(keySelector: (V) -> K): MutableMap<K, V> {
-    return associateBy(keySelector).toMutableMap()
-}
