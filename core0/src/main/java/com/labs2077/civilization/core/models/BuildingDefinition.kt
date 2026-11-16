@@ -30,6 +30,3 @@ data class BuildingDefinition(
         }
     }
 }
-
-private val Resources.isNegative: Boolean
-    get() = food < 0 || crystals < 0 || metals < 0

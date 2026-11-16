@@ -59,6 +59,12 @@ sealed interface TerrainProduction {
         val baseResources: Resources, val modifiers: List<BuildingProductionModifier>
     ) : TerrainProduction {
 
+        init {
+            require(hasUniqueReplacePriorities()) {
+                "Efekty typu REPLACE muszą mieć różne priorytety: $modifiers"
+            }
+        }
+
         /**
          * Oblicza produkcję terenu na podstawie posiadanych budynków.
          *
@@ -83,6 +89,12 @@ sealed interface TerrainProduction {
                 }
 
             return result
+        }
+
+        /** Sprawdza, czy wszystkie modyfikatory typu REPLACE mają unikatowe priorytety. */
+        private fun hasUniqueReplacePriorities(): Boolean {
+            val priorities = mutableSetOf<Int>()
+            return modifiers.all { priorities.add(it.priority) }
         }
     }
 }

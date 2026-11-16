@@ -14,6 +14,8 @@ class Unit(
     var position: Hexagon,
     health: Int = definition.health,
     movement: Int = definition.movement,
+    var hasMovedThisTurn: Boolean = false,
+    var hasAttackedThisTurn: Boolean = false,
 ) {
     var health: Int = 0
         set(value) {

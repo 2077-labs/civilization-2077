@@ -11,10 +11,10 @@ class City(
     val id: CityId = CityId(value = Uuid.random()),
     val civilization: Civilization,
     name: String,
-    var position: Hexagon,
-    // TODO: Implement stockpile.
-    buildings: List<Building> = emptyList(),
+    val position: Hexagon,
+    resources: CityResources = CityResources(),
     territory: Set<Hexagon> = emptySet(),
+    buildings: List<Building> = emptyList(),
     var automaticallyClaimTiles: Boolean = true,
 ) {
     var name: String = ""
@@ -25,20 +25,40 @@ class City(
             field = value
         }
 
+    var resources: CityResources = CityResources()
+        set(value) {
+            require(!value.isNegative) {
+                "Zasoby miasta muszą być nieujemne: $value."
+            }
+            field = value
+        }
+
+    private val _territory = (territory + position).toMutableSet()
+    private val _buildings = mutableMapOf<BuildingId, Building>()
+
     init {
         this.name = name
-    }
+        this.resources = resources
 
-    private val _buildings = mutableMapOf<BuildingId, Building>()
-    private val _territory = (territory + position).toMutableSet()
+        require(isTerritoryConsistent()) {
+            "Terytorium miasta musi być spójne: $_territory"
+        }
 
-    init {
         buildings.forEach(::add)
-        // TODO: Add territory validation (fields should be their neighbors).
     }
 
-    val buildings: List<Building> = _buildings.values.toList()
-    val territory: Set<Hexagon> = _territory.toSet()
+    val territory: Set<Hexagon> get() = _territory.toSet()
+    val buildings: List<Building> get() = _buildings.values.toList()
+
+    fun add(land: Hexagon) {
+        require(land !in territory) {
+            "Ziemia należy już do terytorium miasta: $land."
+        }
+        require(checkLandBordersTerritory(land)) {
+            "Ziemia musi przylegać do terytorium miasta: $land."
+        }
+        _territory.add(land)
+    }
 
     fun add(building: Building) {
         require(building.city.id == this.id) {
@@ -53,20 +73,6 @@ class City(
         _buildings[building.id] = building
     }
 
-    fun add(land: Hexagon) {
-        require(land !in territory) {
-            "Ziemia należy już do terytorium miasta: $land."
-        }
-        require(checkLandBordersTerritory(land)) {
-            "Ziemia musi przylegać do terytorium miasta: $land."
-        }
-        _territory.add(land)
-    }
-
-    fun remove(buildingId: BuildingId) {
-        _buildings.remove(buildingId)
-    }
-
     /** Sprawdza, czy miasto zawiera budynki danego typu. */
     fun hasBuildingOfType(type: BuildingDefinitionId): Boolean {
         return _buildings.values.any { it.definition.id == type }
@@ -77,9 +83,17 @@ class City(
         return _buildings.values.any { feature in it.definition.features }
     }
 
+    /** Sprawdza, czy terytorium jest spójne (nie zawiera przerw). */
+    private fun isTerritoryConsistent(): Boolean {
+        // Terytorium jest niespójne wtedy i tylko wtedy, gdy którykolwiek kawałek ziemi nie sąsiaduje z żadnym innym.
+        val adjacentLand = _territory.flatMap { it.neighbors() }
+            .toSet()
+        return _territory.all { it in adjacentLand }
+    }
+
     /** Sprawdza, czy wskazany kawałek ziemi graniczy z terytorium miasta. */
     private fun checkLandBordersTerritory(land: Hexagon): Boolean {
-        return territory.any { land in it.neighbors() }
+        return _territory.any { land in it.neighbors() }
     }
 }
 

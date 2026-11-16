@@ -19,4 +19,13 @@ data class TerrainDefinition(
     val movementCost: Double,
 
     val production: TerrainProduction,
-)
+) {
+    init {
+        require(displayName.isNotBlank()) {
+            "Nazwa terenu (displayName) nie może być pusta: $displayName."
+        }
+        require(movementCost > 0) {
+            "Koszt ruchu (movementCost) musi być dodatni: $movementCost."
+        }
+    }
+}

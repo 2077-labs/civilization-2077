@@ -11,16 +11,26 @@ class Civilization(
     val id: CivilizationId = CivilizationId(value = Uuid.random()),
     val player: Player,
     val color: Color,
-    // TODO: Implement stockpile.
     cities: List<City> = emptyList(),
     units: List<Unit> = emptyList(),
+    resources: CivilizationResources,
 ) {
     private val _cities = mutableMapOf<CityId, City>()
     private val _units = mutableMapOf<UnitId, Unit>()
 
+    var resources: CivilizationResources = CivilizationResources()
+        set(value) {
+            require(!value.isNegative) {
+                "Zasoby cywilizacji muszą być nieujemne: $value."
+            }
+            field = value
+        }
+
     init {
         cities.forEach(::add)
         units.forEach(::add)
+
+        this.resources = resources
     }
 
     val cities: List<City> get() = _cities.values.toList()
@@ -28,16 +38,13 @@ class Civilization(
 
     /** Cywilizacja upada, gdy straci wszystkie miasta i jednostki. */
     val isAlive: Boolean
-        get() = units.isEmpty() && cities.isEmpty()
+        get() = units.isNotEmpty() || cities.isNotEmpty()
 
     /** Koszt utrzymania wszystkich jednostek na turę. */
     val upkeep: Resources
         get() = units.fold(Resources()) { accumulated, unit ->
             accumulated + unit.definition.upkeep
         }
-
-    // TODO: Implement `production` which returns a sum of all generated resources.
-    //       This requires cities to have the same kind of mechanism present.
 
     fun add(city: City) {
         require(city.civilization.id == this.id) {

@@ -9,4 +9,5 @@ value class PlayerId(
 
 class Player(
     val id: PlayerId = PlayerId(value = Uuid.random()),
+    val isComputer: Boolean = false,
 )

@@ -18,6 +18,8 @@ data class UnitDefinition(
     val attack: Int,
     /** Zasięg ataku określa rodzaj walczącej jednostki i wynosi 1 dla jednostek walczących wręcz, &gt;1 dla jednostek dystansowych lub 0 dla jednostek nieposiadających zdolności ataku. */
     val attackRange: Int = 0,
+    /** Niektóre jednostki (np. artyleria rakietowa) nie mogą atakować w turze, w której się wcześniej poruszyły. */
+    val canAttackAfterMoving: Boolean = true,
     val defense: Int,
 
     val health: Int,
@@ -47,14 +49,14 @@ data class UnitDefinition(
             }
         } else {
             require(attackRange == 0) {
-                "Zasięg ataku (attackRange) musi być zerowy dla jednostek nieposiadających zdolności ataku: $attackRange."
+                "Zasięg ataku (attackRange) musi wynosić 0 dla jednostek nieposiadających zdolności ataku: $attackRange."
             }
         }
         require(defense >= 0) {
             "Obrona (defense) musi być nieujemna: $defense."
         }
-        require(health >= 0) {
-            "Ilość punktów życia (health) musi być nieujemna: $health."
+        require(health > 0) {
+            "Ilość punktów życia (health) musi być dodatnia: $health."
         }
         require(movement >= 0) {
             "Ilość punktów ruchu (movement) musi być nieujemna: $movement."
@@ -69,7 +71,7 @@ data class UnitDefinition(
             "Koszt utrzymania jednostki (upkeep) musi być nieujemny: $upkeep."
         }
         require(limitPerCivilization == null || limitPerCivilization > 0) {
-            "Limit ilości jednostek (limit) musi być dodatni lub pusty (dowolna ilość jednostek: $limitPerCivilization."
+            "Limit ilości jednostek (limitPerCivilization) musi być dodatni lub pusty: $limitPerCivilization."
         }
     }
 
@@ -79,8 +81,3 @@ data class UnitDefinition(
     val isRanged: Boolean
         get() = attackRange > 1
 }
-
-// TODO: Implement alternative representation of UnitAbility.CANNOT_ATTACK_AFTER_MOVING.
-
-private val Resources.isNegative: Boolean
-    get() = food < 0 || crystals < 0 || metals < 0

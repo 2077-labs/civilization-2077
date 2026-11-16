@@ -10,4 +10,7 @@ data class Resources(
         crystals = crystals + other.crystals,
         metals = metals + other.metals,
     )
+
+    val isNegative: Boolean
+        get() = food < 0 || crystals < 0 || metals < 0
 }
