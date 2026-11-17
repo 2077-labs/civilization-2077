@@ -66,11 +66,12 @@ class GameScreen(game: CivGame, private val initialPlayers: List<Player>) : UiSc
         val position = demoTiles[index % demoTiles.size].position
         val tank = game.unitRuleset[UnitId("tank")]
             .createInstance(instanceId = index.toLong(), ownerId = player.id, position = position)
-        val city = City(
+        val city = City.found(
             id = index.toLong(),
             name = "Miasto ${player.name}",
             ownerId = player.id,
-            position = demoTiles[(index + 4) % demoTiles.size].position
+            position = demoTiles[(index + 4) % demoTiles.size].position,
+            cityLevelRuleset = game.cityLevelRuleset
         )
         player
             .withUnit(tank)
