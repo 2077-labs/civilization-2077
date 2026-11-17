@@ -2,6 +2,9 @@ package com.Labs2077.civgame.data.repository.rulesets
 
 import com.Labs2077.civgame.data.UnitDefinitionRepository
 import com.Labs2077.civgame.data.repository.AbstractGdxRepository
+import com.Labs2077.civgame.data.repository.rulesets.dto.UnitDefinitionFileDto
+import com.Labs2077.civgame.data.repository.rulesets.dto.UnitDefinitionFileV1Dto
+import com.Labs2077.civgame.data.repository.rulesets.dto.toDomain
 import com.labs2077.civilization.core.models.UnitDefinition
 import kotlinx.serialization.json.Json
 

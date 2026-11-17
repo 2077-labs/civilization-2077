@@ -1,4 +1,4 @@
-package com.Labs2077.civgame.data.repository.rulesets
+package com.Labs2077.civgame.data.repository.rulesets.dto
 
 import com.labs2077.civilization.core.models.CivilizationResources
 import com.labs2077.civilization.core.models.Resources
