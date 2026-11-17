@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class ResourcesV1Dto(
-    val metals: Int,
-    val food: Int,
-    val crystals: Int,
+    val metals: Int = 0,
+    val food: Int = 0,
+    val crystals: Int = 0,
 )
 
 internal fun ResourcesV1Dto.toDomain() = Resources(
@@ -19,8 +19,8 @@ internal fun ResourcesV1Dto.toDomain() = Resources(
 
 @Serializable
 internal data class CivilizationResourcesV1Dto(
-    val metals: Int,
-    val crystals: Int,
+    val metals: Int = 0,
+    val crystals: Int = 0,
 )
 
 internal fun CivilizationResourcesV1Dto.toDomain() = CivilizationResources(
