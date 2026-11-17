@@ -20,7 +20,8 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 /**
  * MOCK gry na UiScreen: pokazuje, że wypieczone tekstury działają. Dla gracza rysuje jego czołg i miasto
  * w jego kolorze (sprite'y w drawBackground, nazwy graczy i przycisk Menu to widgety Scene2D).
@@ -28,6 +29,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
  */
 class GameScreen(game: CivGame, private val initialPlayers: List<Player>) : UiScreen(game) {
     private lateinit var tanks: Map<Int, Animation<TextureRegion>>
+    // Jednostka aktualnie zaznaczona przez gracza.
+    private var selectedUnit: UnitInstance? = null
+
+    // Etykieta wyświetlająca informację o zaznaczonej jednostce.
+    private lateinit var selectionLabel: Label
     private lateinit var cities: Map<Int, Animation<TextureRegion>>
     private var time = 0f
     private val worldCamera = GameCamera(
@@ -103,6 +109,11 @@ class GameScreen(game: CivGame, private val initialPlayers: List<Player>) : UiSc
         players.forEachIndexed { i, p ->
             stage.addActor(label(p.name).apply { setPosition(140f + i * 560f, 270f) })
         }
+        selectionLabel = label("Nie wybrano jednostki").apply {
+            setPosition(30f, 30f)
+        }
+
+        stage.addActor(selectionLabel)
     }
 
     override fun update(delta: Float) {
@@ -127,7 +138,53 @@ class GameScreen(game: CivGame, private val initialPlayers: List<Player>) : UiSc
     }
 
     override fun configureInputProcessors() {
-        inputs.addProcessor(MapInputController(worldCamera))
+        inputs.addProcessor(
+            MapInputController(worldCamera) { screenX, screenY ->
+                selectUnitAt(screenX, screenY)
+            }
+        )
+    }
+    /**
+     * Sprawdza, czy na wskazanym przez gracza polu znajduje się jednostka.
+     *
+     * Najpierw przelicza współrzędne ekranu na współrzędne świata gry,
+     * następnie znajduje najbliższy heks i sprawdza obecność jednostki.
+     */
+    private fun selectUnitAt(screenX: Int, screenY: Int) {
+
+        // Zamieniamy współrzędne ekranu na współrzędne świata gry.
+        val worldPosition = worldCamera.unproject(
+            Vector3(
+                screenX.toFloat(),
+                screenY.toFloat(),
+                0f
+            )
+        )
+
+        // Zamieniamy pozycję świata na współrzędne heksagonu.
+        val hexCoordinate = worldRenderer.worldToAxial(
+            worldPosition.x,
+            worldPosition.y,
+            hexSize
+        )
+
+        // Sprawdzamy, czy na wskazanym heksie znajduje się jednostka.
+        selectedUnit = players
+            .flatMap { it.units }
+            .firstOrNull {
+                it.position == hexCoordinate
+            }
+
+        // Aktualizujemy informację wyświetlaną na ekranie.
+        val unit = selectedUnit
+
+        selectionLabel.setText(
+            if (unit != null) {
+                "Wybrano jednostke ${unit.instanceId} (gracz ${unit.ownerId})"
+            } else {
+                "Brak jednostki na tym polu (${hexCoordinate.q}, ${hexCoordinate.r})"
+            }
+        )
     }
 
     override fun drawBackground(delta: Float) {
