@@ -12,6 +12,8 @@ import com.Labs2077.civgame.client.rules.RulesetRepository
 import com.Labs2077.civgame.client.screens.MenuLoadingScreen
 import com.Labs2077.civgame.engine.rules.buildings.BuildingRuleset
 import com.Labs2077.civgame.engine.rules.buildings.BuildingRulesetFile
+import com.Labs2077.civgame.engine.rules.city.CityLevelRuleset
+import com.Labs2077.civgame.engine.rules.city.CityLevelRulesetFile
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRuleset
 import com.Labs2077.civgame.engine.rules.terrain.TerrainRulesetFile
 import com.Labs2077.civgame.engine.rules.units.UnitRuleset
@@ -20,13 +22,16 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 
 class CivGame : Game() {
-    lateinit var unitRuleset: UnitRuleset
-        private set
     lateinit var assets: GameAssets
         private set
     lateinit var gameAudio: GameAudio
         private set
+
+    lateinit var unitRuleset: UnitRuleset
+        private set
     lateinit var buildingRuleset: BuildingRuleset
+        private set
+    lateinit var cityLevelRuleset: CityLevelRuleset
         private set
     /**
      * Zestaw definicji wszystkich rodzajów terenu dostępnych w grze.
@@ -63,6 +68,11 @@ class CivGame : Game() {
             path = "rules/buildings.json",
             deserializer = BuildingRulesetFile.serializer(),
             createRuleset = BuildingRuleset.Companion::fromFile
+        )
+        cityLevelRuleset = repository.load(
+            path = "rules/city_levels.json",
+            deserializer = CityLevelRulesetFile.serializer(),
+            createRuleset = CityLevelRuleset.Companion::fromFile
         )
 
         assets = GameAssets()

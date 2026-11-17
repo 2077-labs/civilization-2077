@@ -3,7 +3,9 @@ package com.Labs2077.civgame.engine.city
 import com.Labs2077.civgame.engine.buildings.BuildingDefinition
 import com.Labs2077.civgame.engine.buildings.BuildingFeature
 import com.Labs2077.civgame.engine.map.HexCoordinate
+import com.Labs2077.civgame.engine.rules.CityLevelId
 import com.Labs2077.civgame.engine.rules.buildings.BuildingRuleset
+import com.Labs2077.civgame.engine.rules.city.CityLevelRuleset
 import com.Labs2077.civgame.engine.rules.units.BuildingId
 
 /**
@@ -26,8 +28,8 @@ data class City(
     val buildings: Set<BuildingId> = emptySet(),
     val ownedTiles: List<HexCoordinate> = emptyList(),
     val food: Int = 0,
-    val autoClaimTiles: Boolean = true
-    // TODO: dodać poziom miasta
+    val autoClaimTiles: Boolean = true,
+    val level: CityLevelId
 ) {
     init {
         require(id >= 0) { "id miasta nie może być ujemne" }
@@ -50,6 +52,22 @@ data class City(
 
     // Zajmowanie pól
 
+    /**
+     * Sprawdza zasięg i limit, aby określić, czy miasto może przejąć dane pole.
+     * Nie sprawdza natomiast, czy pole zawiera teren możliwy do przejęcia lub czy pole nie jest już zajęte przez inne miasto.
+     */
+    fun canClaimTile(tile: HexCoordinate, levelDef: CityLevelDefinition): Boolean {
+        requireMatches(levelDef)
+        return !owns(tile) &&
+                position.distanceTo(tile) <= levelDef.radius &&
+                ownedTiles.size < levelDef.maxTiles
+    }
+
+    fun withClaimedTile(tile: HexCoordinate, levelDef: CityLevelDefinition): City {
+        require(canClaimTile(tile, levelDef)) { "Miasto '$name' nie może przejąć pola $tile" }
+        return copy(ownedTiles = ownedTiles + tile)
+    }
+
     fun withoutTile(tile: HexCoordinate): City {
         require(tile in ownedTiles) { "Pole $tile nie należy do miasta (albo jest centrum)" }
         return copy(ownedTiles = ownedTiles - tile)
@@ -71,5 +89,45 @@ data class City(
     fun withFood(newFood: Int): City {
         require(newFood >= 0) { "zapas żywności nie może być ujemny" }
         return copy(food = newFood)
+    }
+
+    /** Sprawdza, czy możliwy jest awans na kolejny poziom miasta na podstwie zgromadzonej żywności */
+    fun canLevelUp(levelRuleset: CityLevelRuleset): Boolean {
+        val requirement = levelRuleset[level].levelUpRequirement ?: return false
+        return food >= requirement.food
+    }
+
+    /** Awans na kolejny poziom */
+    fun withLevelUp(levelRuleset: CityLevelRuleset): City {
+        require(canLevelUp(levelRuleset)) { "Miasto '$name' nie może awansować na kolejny poziom (niewystarczająca ilość żywności)" }
+        val next = checkNotNull(levelRuleset.next(level)) { "Miasto '$name' jest już na maksymalnym poziomie" }
+        return copy(level = next.id)
+    }
+
+    private fun requireMatches(levelDef: CityLevelDefinition) {
+        require(level == levelDef.id) {
+            "Definicja poziomu ${levelDef.id.value} nie odpowiada poziomowi miasta ${level.value}"
+        }
+    }
+
+    companion object {
+        fun found(
+            id: Long,
+            name: String,
+            ownerId: Int,
+            position: HexCoordinate,
+            cityLevelRuleset: CityLevelRuleset,
+            autoClaimTiles: Boolean = true
+        ): City = City(
+            id = id,
+            name = name,
+            ownerId = ownerId,
+            position = position,
+            buildings = emptySet(),
+            ownedTiles = emptyList(),
+            food = 0,
+            autoClaimTiles = autoClaimTiles,
+            level = cityLevelRuleset.initial.id
+        )
     }
 }
