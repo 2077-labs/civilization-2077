@@ -1,19 +1,24 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.Labs2077.civgame.data.repository.rulesets.dto
 
 import com.labs2077.civilization.core.models.BuildingDefinitionId
 import com.labs2077.civilization.core.models.UnitAbility
 import com.labs2077.civilization.core.models.UnitDefinition
 import com.labs2077.civilization.core.models.UnitDefinitionId
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 
 @Serializable
+@JsonClassDiscriminator("schemaVersion")
 internal sealed class UnitDefinitionFileDto
 
 @Serializable
 @SerialName("1")
 internal data class UnitDefinitionFileV1Dto(
-    @SerialName("units") val units: List<UnitDefinitionV1Dto>,
+    val units: List<UnitDefinitionV1Dto>,
 ) : UnitDefinitionFileDto()
 
 @Serializable
@@ -34,7 +39,7 @@ internal data class UnitDefinitionV1Dto(
     val limitPerPlayer: Int? = null,
 )
 
-private fun UnitDefinitionV1Dto.toDomain() = UnitDefinition(
+private fun UnitDefinitionV1Dto.toDomainUnitDefinition() = UnitDefinition(
     id = UnitDefinitionId(id),
     displayName = displayName,
     attack = attack,
@@ -44,15 +49,15 @@ private fun UnitDefinitionV1Dto.toDomain() = UnitDefinition(
     health = maxHp,
     movement = movement,
     vision = vision,
-    abilities = abilities.toDomain(),
-    cost = cost.toDomain(),
-    upkeep = upkeep.toDomain(),
+    abilities = abilities.toDomainUnitAbilities(),
+    cost = cost.toDomainResources(),
+    upkeep = upkeep.toDomainCivilizationResources(),
     requiredBuildingTypeIds = requiredBuildings.toDomainBuildingDefinitionIds(),
     limitPerCivilization = limitPerPlayer,
 )
 
-internal fun List<UnitDefinitionV1Dto>.toDomain(): List<UnitDefinition> {
-    return map { it.toDomain() }
+internal fun List<UnitDefinitionV1Dto>.toDomainUnitDefinitions(): List<UnitDefinition> {
+    return map { it.toDomainUnitDefinition() }
 }
 
 @Serializable
@@ -60,15 +65,17 @@ internal enum class UnitAbilityV1Dto {
     ATTACK, FOUND_CITY,
 }
 
-private fun UnitAbilityV1Dto.toDomain() = when (this) {
+private fun UnitAbilityV1Dto.toDomainUnitAbility() = when (this) {
     UnitAbilityV1Dto.ATTACK -> UnitAbility.ATTACK
     UnitAbilityV1Dto.FOUND_CITY -> UnitAbility.FOUND_CITY
 }
 
-private fun List<UnitAbilityV1Dto>.toDomain(): Set<UnitAbility> {
-    return mapTo(mutableSetOf()) { it.toDomain() }
+private fun List<UnitAbilityV1Dto>.toDomainUnitAbilities(): Set<UnitAbility> {
+    return mapTo(mutableSetOf()) { it.toDomainUnitAbility() }
 }
 
-private fun List<String>.toDomainBuildingDefinitionIds() = mapTo(mutableSetOf()) {
-    BuildingDefinitionId(it)
+private fun List<String>.toDomainBuildingDefinitionIds(): MutableSet<BuildingDefinitionId> {
+    return mapTo(mutableSetOf()) {
+        BuildingDefinitionId(it)
+    }
 }

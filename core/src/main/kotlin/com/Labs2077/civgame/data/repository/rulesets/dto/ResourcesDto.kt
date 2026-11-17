@@ -11,7 +11,7 @@ internal data class ResourcesV1Dto(
     val crystals: Int = 0,
 )
 
-internal fun ResourcesV1Dto.toDomain() = Resources(
+internal fun ResourcesV1Dto.toDomainResources() = Resources(
     food = food,
     crystals = crystals,
     metals = metals,
@@ -23,7 +23,7 @@ internal data class CivilizationResourcesV1Dto(
     val crystals: Int = 0,
 )
 
-internal fun CivilizationResourcesV1Dto.toDomain() = CivilizationResources(
+internal fun CivilizationResourcesV1Dto.toDomainCivilizationResources() = CivilizationResources(
     crystals = crystals,
     metals = metals,
 )

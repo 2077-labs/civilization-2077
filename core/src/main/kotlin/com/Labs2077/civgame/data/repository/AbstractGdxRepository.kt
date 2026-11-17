@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 
 abstract class AbstractGdxRepository {
 
-    protected abstract val configuration: Json
+    protected open val configuration: Json = RulesetJson
 
     protected inline fun <reified T> decode(path: String): T {
         val source = Gdx.files.internal(path)

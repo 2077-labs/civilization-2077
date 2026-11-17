@@ -14,12 +14,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
 @Serializable
+@JsonClassDiscriminator("schemaVersion")
 internal sealed class TerrainDefinitionFileDto
 
 @Serializable
 @SerialName("1")
 internal data class TerrainDefinitionFileV1Dto(
-    @SerialName("terrains") val terrains: List<TerrainDefinitionV1Dto>
+    val terrains: List<TerrainDefinitionV1Dto>
 ) : TerrainDefinitionFileDto()
 
 @Serializable
@@ -31,16 +32,16 @@ internal data class TerrainDefinitionV1Dto(
     val production: TerrainProductionV1Dto,
 )
 
-private fun TerrainDefinitionV1Dto.toDomain() = TerrainDefinition(
+private fun TerrainDefinitionV1Dto.toDomainTerrainDefinition() = TerrainDefinition(
     id = TerrainDefinitionId(id),
     displayName = displayName,
     passable = passable,
     movementCost = movementCost,
-    production = production.toDomain(),
+    production = production.toDomainTerrainProduction(),
 )
 
-internal fun List<TerrainDefinitionV1Dto>.toDomainTerrains(): List<TerrainDefinition> {
-    return map { it.toDomain() }
+internal fun List<TerrainDefinitionV1Dto>.toDomainTerrainDefinitions(): List<TerrainDefinition> {
+    return map { it.toDomainTerrainDefinition() }
 }
 
 @Serializable
@@ -61,19 +62,19 @@ internal sealed interface TerrainProductionV1Dto {
     ) : TerrainProductionV1Dto
 }
 
-private fun TerrainProductionV1Dto.Fixed.toDomain() = TerrainProduction.Fixed(
-    resources = resources.toDomain(),
+private fun TerrainProductionV1Dto.Fixed.toDomainFixedTerrainProduction() = TerrainProduction.Fixed(
+    resources = resources.toDomainResources(),
 )
 
-private fun TerrainProductionV1Dto.BuildingModifiers.toDomain() =
+private fun TerrainProductionV1Dto.BuildingModifiers.toDomainBuildingModifiersTerrainProduction() =
     TerrainProduction.BuildingModifiers(
-        baseResources = baseResources.toDomain(),
-        modifiers = modifiers.toDomainModifiers(),
+        baseResources = baseResources.toDomainResources(),
+        modifiers = modifiers.toDomainBuildingProductionModifiers(),
     )
 
-private fun TerrainProductionV1Dto.toDomain() = when (this) {
-    is TerrainProductionV1Dto.Fixed -> toDomain()
-    is TerrainProductionV1Dto.BuildingModifiers -> toDomain()
+private fun TerrainProductionV1Dto.toDomainTerrainProduction() = when (this) {
+    is TerrainProductionV1Dto.Fixed -> toDomainFixedTerrainProduction()
+    is TerrainProductionV1Dto.BuildingModifiers -> toDomainBuildingModifiersTerrainProduction()
 }
 
 @Serializable
@@ -84,15 +85,16 @@ internal data class BuildingProductionModifierV1Dto(
     val priority: Int,
 )
 
-private fun BuildingProductionModifierV1Dto.toDomain() = BuildingProductionModifier(
-    buildingTypeId = BuildingDefinitionId(buildingId),
-    mode = mode.toDomain(),
-    resources = resources.toDomain(),
-    priority = priority,
-)
+private fun BuildingProductionModifierV1Dto.toDomainBuildingProductionModifier() =
+    BuildingProductionModifier(
+        buildingTypeId = BuildingDefinitionId(buildingId),
+        mode = mode.toDomainProductionEffectMode(),
+        resources = resources.toDomainResources(),
+        priority = priority,
+    )
 
-private fun List<BuildingProductionModifierV1Dto>.toDomainModifiers(): List<BuildingProductionModifier> {
-    return map { it.toDomain() }
+private fun List<BuildingProductionModifierV1Dto>.toDomainBuildingProductionModifiers(): List<BuildingProductionModifier> {
+    return map { it.toDomainBuildingProductionModifier() }
 }
 
 @Serializable
@@ -100,7 +102,7 @@ internal enum class ProductionEffectModeV1Dto {
     ADD, REPLACE,
 }
 
-private fun ProductionEffectModeV1Dto.toDomain() = when (this) {
+private fun ProductionEffectModeV1Dto.toDomainProductionEffectMode() = when (this) {
     ProductionEffectModeV1Dto.ADD -> ProductionEffectMode.ADD
     ProductionEffectModeV1Dto.REPLACE -> ProductionEffectMode.REPLACE
 }
