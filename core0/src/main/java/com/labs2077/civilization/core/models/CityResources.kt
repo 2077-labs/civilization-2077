@@ -7,6 +7,10 @@ data class CityResources(
         food = food + other.food,
     )
 
+    operator fun compareTo(other: CityResources): Int {
+        return food - other.food
+    }
+
     val isNegative: Boolean
         get() = food < 0
 }

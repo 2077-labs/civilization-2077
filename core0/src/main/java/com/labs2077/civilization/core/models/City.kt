@@ -11,6 +11,7 @@ class City(
     val id: CityId = CityId(value = Uuid.random()),
     val civilization: Civilization,
     name: String,
+    level: CityLevelDefinition,
     val position: Hexagon,
     resources: CityResources = CityResources(),
     territory: Set<Hexagon> = emptySet(),
@@ -21,6 +22,20 @@ class City(
         set(value) {
             require(value.isNotBlank()) {
                 "Nazwa miasta nie może być pusta."
+            }
+            field = value
+        }
+
+    var level: CityLevelDefinition = level
+        set(value) {
+            require(value.level >= field.level) {
+                "Miasto nie może awansować na niższy poziom: ${value.level} (obecnie ${field.level})."
+            }
+            require(value.level <= field.level + 1) {
+                "Miasto może awansować jedynie na poziom o 1 większy: ${value.level} (obecnie ${field.level})."
+            }
+            require(canLevelUp()) {
+                "Miasto nie posiada wymaganej ilości zasobów do awansu na kolejny poziom: ${field.levelUpRequirement} (obecnie ${resources})."
             }
             field = value
         }
@@ -51,6 +66,12 @@ class City(
         require(land !in territory) {
             "Ziemia należy już do terytorium miasta: $land."
         }
+        require(territory.size < level.maximumTerritorySize) {
+            "Miasto posiada już maksymalną ilość ziemi dla swojego poziomu."
+        }
+        require(land.isWithinAllowedDistanceFromCityCenter()) {
+            "Odległość ziemi od środka miasta nie może przekraczać jego promienia: ${level.maximumCityRadius}."
+        }
         require(checkLandBordersTerritory(land)) {
             "Ziemia musi przylegać do terytorium miasta: $land."
         }
@@ -68,6 +89,11 @@ class City(
             "Budynek tego typu należy już do miasta: ${building.definition.id}."
         }
         _buildings[building.id] = building
+    }
+
+    /** Sprawdza, czy możliwy jest awans na kolejny poziom miasta na postawie zgromadzonej żywności. */
+    fun canLevelUp(): Boolean {
+        return (level.levelUpRequirement ?: return false) < resources
     }
 
     /** Pobiera typy budynków w mieście. */
@@ -88,6 +114,29 @@ class City(
     /** Sprawdza, czy wskazany kawałek ziemi graniczy z terytorium miasta. */
     private fun checkLandBordersTerritory(land: Hexagon): Boolean {
         return _territory.any { land in it.neighbors() }
+    }
+
+    /** Oblicza terytorium, które może zostać przez miasto zajęte.
+     * Nie sprawdza natomiast, czy ziemia jest już zajęta przez innego gracza, lub czy jej przejęcie jest w ogóle możliwe. */
+    private fun getClaimableLand(): Set<Hexagon> {
+        val claimable = mutableSetOf<Hexagon>()
+
+        if (territory.size >= level.maximumTerritorySize) {
+            return claimable
+        }
+
+        // Dostępne terytorium może zawierać jedynie ziemię bezpośrednio przyległą do obszaru zajętego przez miasto.
+        _territory.forEach { claimable.addAll(it.neighbors()) }
+        // Dostępne terytorium nie może zawierać obszaru zajętego już przez miasto.
+        _territory.forEach { claimable.remove(it) }
+
+        claimable.removeIf { !it.isWithinAllowedDistanceFromCityCenter() }
+
+        return claimable
+    }
+
+    private fun Hexagon.isWithinAllowedDistanceFromCityCenter(): Boolean {
+        return distanceTo(position) <= level.maximumCityRadius
     }
 }
 
