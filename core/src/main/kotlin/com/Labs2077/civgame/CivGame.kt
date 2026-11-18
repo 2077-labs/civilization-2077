@@ -1,25 +1,18 @@
 package com.Labs2077.civgame
 
 import com.Labs2077.civgame.client.assets.GameAssets
-import com.Labs2077.civgame.client.assets.audio.AudioCue
 import com.Labs2077.civgame.client.assets.audio.GameAudio
-import com.Labs2077.civgame.client.assets.audio.LoopCue
-import com.Labs2077.civgame.client.assets.audio.LoopKey
-import com.Labs2077.civgame.client.assets.audio.LoopRequest
-import com.Labs2077.civgame.client.assets.audio.LoopSlot
-import com.Labs2077.civgame.client.assets.audio.LoopSource
-import com.Labs2077.civgame.client.rules.RulesetRepository
 import com.Labs2077.civgame.client.screens.MenuLoadingScreen
-import com.Labs2077.civgame.engine.rules.buildings.BuildingRuleset
-import com.Labs2077.civgame.engine.rules.buildings.BuildingRulesetFile
-import com.Labs2077.civgame.engine.rules.city.CityLevelRuleset
-import com.Labs2077.civgame.engine.rules.city.CityLevelRulesetFile
-import com.Labs2077.civgame.engine.rules.terrain.TerrainRuleset
-import com.Labs2077.civgame.engine.rules.terrain.TerrainRulesetFile
-import com.Labs2077.civgame.engine.rules.units.UnitRuleset
-import com.Labs2077.civgame.engine.rules.units.UnitRulesetFile
+import com.Labs2077.civgame.data.repository.rulesets.BuildingDefinitionGdxFilesRepository
+import com.Labs2077.civgame.data.repository.rulesets.CityLevelDefinitionGdxFilesRepository
+import com.Labs2077.civgame.data.repository.rulesets.TerrainDefinitionGdxFilesRepository
+import com.Labs2077.civgame.data.repository.rulesets.UnitDefinitionGdxFilesRepository
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
+import com.labs2077.civilization.core.models.BuildingRuleset
+import com.labs2077.civilization.core.models.CityLevelRuleset
+import com.labs2077.civilization.core.models.TerrainRuleset
+import com.labs2077.civilization.core.models.UnitRuleset
 
 class CivGame : Game() {
     lateinit var assets: GameAssets
@@ -27,12 +20,10 @@ class CivGame : Game() {
     lateinit var gameAudio: GameAudio
         private set
 
-    lateinit var unitRuleset: UnitRuleset
-        private set
-    lateinit var buildingRuleset: BuildingRuleset
-        private set
-    lateinit var cityLevelRuleset: CityLevelRuleset
-        private set
+    lateinit var buildingRuleset: BuildingRuleset private set
+    lateinit var cityLevelRuleset: CityLevelRuleset private set
+    lateinit var unitRuleset: UnitRuleset private set
+
     /**
      * Zestaw definicji wszystkich rodzajów terenu dostępnych w grze.
      *
@@ -43,37 +34,25 @@ class CivGame : Game() {
      * Definicje są wczytywane z pliku terrains.json i sprawdzane
      * pod kątem poprawności przed udostępnieniem ich grze.
      */
-    lateinit var terrainRuleset: TerrainRuleset
-        private set
+    lateinit var terrainRuleset: TerrainRuleset private set
+
     /**
      * Odpowiada za wczytywanie plików konfiguracyjnych z assets
      * i przekształcanie ich w obiekty wykorzystywane przez grę
      */
-    val repository = RulesetRepository()
+    val buildingRepository = BuildingDefinitionGdxFilesRepository("rules/buildings.json")
+    val cityLevelRepository = CityLevelDefinitionGdxFilesRepository("rules/city_levels.json")
+    val terrainRepository = TerrainDefinitionGdxFilesRepository("rules/terrains.json")
+    val unitRepository = UnitDefinitionGdxFilesRepository("rules/units.json")
 
     override fun create() {
         // Póki co wczytujemy reguły jednostek po uruchomieniu samej gry, ale docelowo będzie to wczytywane przy
         // rozpoczęciu gry w menu lub wczytaniu gry.
-        unitRuleset = repository.load(
-            path = "rules/units.json",
-            deserializer = UnitRulesetFile.serializer(),
-            createRuleset = UnitRuleset.Companion::fromFile
-        )
-        terrainRuleset = repository.load(
-            path = "rules/terrains.json",
-            deserializer = TerrainRulesetFile.serializer(),
-            createRuleset = TerrainRuleset.Companion::fromFile
-        )
-        buildingRuleset = repository.load(
-            path = "rules/buildings.json",
-            deserializer = BuildingRulesetFile.serializer(),
-            createRuleset = BuildingRuleset.Companion::fromFile
-        )
-        cityLevelRuleset = repository.load(
-            path = "rules/city_levels.json",
-            deserializer = CityLevelRulesetFile.serializer(),
-            createRuleset = CityLevelRuleset.Companion::fromFile
-        )
+        buildingRuleset = BuildingRuleset(buildingRepository.getAll())
+        cityLevelRuleset = CityLevelRuleset(cityLevelRepository.getAll())
+        unitRuleset = UnitRuleset(unitRepository.getAll())
+        terrainRuleset = TerrainRuleset(terrainRepository.getAll())
+
 
         assets = GameAssets()
         gameAudio = GameAudio(assets::sound)

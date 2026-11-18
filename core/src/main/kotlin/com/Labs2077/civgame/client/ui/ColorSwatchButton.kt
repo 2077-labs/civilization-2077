@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Align
  * Przycisk wyboru koloru. Dodany do ButtonGroup działa jak radio button z HTML (zawsze jeden zaznaczony).
  * Zaznaczony kolor lekko się powiększa (animacja Scene2D: scaleTo z interpolacją).
  */
-class ColorSwatchButton(skin: Skin, val rgb: Int) : Button(UiSkinFactory.swatchStyle(skin, rgb)) {
+class ColorSwatchButton(skin: Skin, rgb: Int) : Button(UiSkinFactory.swatchStyle(skin, rgb)) {
     init {
         isTransform = true
         addListener(object : ChangeListener() {

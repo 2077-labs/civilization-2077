@@ -1,9 +1,6 @@
 package com.Labs2077.civgame.client.assets
 
 import com.Labs2077.civgame.client.assets.audio.SfxId
-import com.Labs2077.civgame.engine.PlayerSetup
-import com.Labs2077.civgame.engine.rules.TerrainId
-import com.Labs2077.civgame.engine.rules.UnitId
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.BitmapFontLoader
@@ -15,11 +12,16 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.labs2077.civilization.core.models.Civilization
+import com.labs2077.civilization.core.models.CivilizationId
+import com.labs2077.civilization.core.models.TerrainDefinitionId
+import com.labs2077.civilization.core.models.UnitDefinitionId
 
 /**
  * Renderer i UI pytają tę klasę o zasoby po id ("tank", "desert_terrain"), a silnik w ogóle jej nie widzi.
  */
-class GameAssets() : Disposable, AssetProvider {
+class GameAssets : Disposable, AssetProvider {
+
     private companion object {
         const val COMMON_ATLAS = "atlas/common.atlas"
 
@@ -50,9 +52,8 @@ class GameAssets() : Disposable, AssetProvider {
         queueFont()
     }
 
-    private fun fallback(): BitmapFont =
-        fallbackFont ?: BitmapFont().apply { data.setScale(1.4f) }
-            .also { fallbackFont = it }
+    private fun fallback(): BitmapFont = fallbackFont ?: BitmapFont().apply { data.setScale(1.4f) }
+        .also { fallbackFont = it }
 
     private fun queueFont() {
         if (!Gdx.files.internal(UI_FONT)
@@ -85,49 +86,79 @@ class GameAssets() : Disposable, AssetProvider {
     val progress: Float get() = am.progress
 
     /** Start gry. Wołać po zakończeniu ładowania i wybraniu danych graczy w menu. */
-    fun startGame(players: List<PlayerSetup>) = skins.bake(players)
+    fun startGame(civilizations: List<Civilization>) {
+        skins.bake(civilizations)
+    }
 
     /** Atlasy z AssetManager odtworzą się same, wypieczone trzeba odbudować. */
     fun onResume() = skins.rebuild()
 
-    /** Dostęp dla renderera (zawsze po id). Brak grafiki daje region "missing" */
-    override fun terrain(id: TerrainId): TextureRegion =
-        common.findRegion("terrain_${id.value}") ?: missing
+    override fun cityFrames(
+        civilizationId: CivilizationId,
+        level: Int,
+    ): Array<out TextureRegion> {
+        return framesOrMissing(skins.frames(civilizationId, "settlement_lvl$level"))
+    }
 
-    override fun icon(id: String): TextureRegion = common.findRegion("icon_$id") ?: missing
-    override fun unitFrames(playerId: Int, unitId: UnitId, anim: String): Array<out TextureRegion> =
-        framesOrMissing(skins.frames(playerId, "${unitId.value}_$anim"))
+    override fun cityAnimation(
+        civilizationId: CivilizationId,
+        level: Int,
+    ): Animation<TextureRegion> {
+        val frames = cityFrames(civilizationId, level)
+        return Animation<TextureRegion>(FRAME_TIME, frames, Animation.PlayMode.LOOP)
+    }
 
-    override fun cityFrames(playerId: Int, level: Int): Array<out TextureRegion> =
-        framesOrMissing(skins.frames(playerId, "settlement_lvl$level"))
-
-    override fun fxFrames(id: String): Array<out TextureRegion> =
-        framesOrMissing(common.findRegions("fx_$id"))
-
-    /** Wspólna czcionka UI - jedna dla wszystkich ekranów. Odtwarza się po utracie kontekstu OpenGL oraz jest zwalniana razem z GameAssets. */
-    override val uiFont: BitmapFont
-        get() = if (am.isLoaded(UI_FONT)) am.get(UI_FONT, BitmapFont::class.java) else fallback()
+    override fun unitFrames(
+        civilizationId: CivilizationId,
+        unitTypeId: UnitDefinitionId,
+        animation: String,
+    ): Array<out TextureRegion> {
+        val frames = skins.frames(civilizationId, "${unitTypeId.value}_$animation")
+        return framesOrMissing(frames)
+    }
 
     /** Animacje powinny być tworzone raz (np. w show() ekranu), a nie w render(). attack i efekty zwykle z PlayMode.NORMAL. */
     override fun unitAnimation(
-        playerId: Int, unitId: UnitId, anim: String,
-        mode: Animation.PlayMode
-    ): Animation<TextureRegion> =
-        Animation<TextureRegion>(FRAME_TIME, unitFrames(playerId, unitId, anim), mode)
+        civilizationId: CivilizationId,
+        unitTypeId: UnitDefinitionId,
+        animation: String,
+        mode: Animation.PlayMode,
+    ): Animation<TextureRegion> {
+        val frames = unitFrames(civilizationId, unitTypeId, animation)
+        return Animation<TextureRegion>(FRAME_TIME, frames, mode)
+    }
 
-    override fun cityAnimation(playerId: Int, level: Int): Animation<TextureRegion> =
-        Animation<TextureRegion>(FRAME_TIME, cityFrames(playerId, level), Animation.PlayMode.LOOP)
+    /** Dostęp dla renderera (zawsze po id). Brak grafiki daje region "missing" */
+    override fun terrain(id: TerrainDefinitionId): TextureRegion {
+        return common.findRegion("terrain_${id.value}") ?: missing
+    }
 
-    override fun sound(sound: SfxId): Sound = am.get(sound.path, Sound::class.java)
+    override fun icon(id: String): TextureRegion {
+        return common.findRegion("icon_$id") ?: missing
+    }
 
+    override fun sound(sound: SfxId): Sound {
+        return am.get(sound.path, Sound::class.java)
+    }
+
+    /** Wspólna czcionka UI - jedna dla wszystkich ekranów. Odtwarza się po utracie kontekstu OpenGL oraz jest zwalniana razem z GameAssets. */
+    override val uiFont: BitmapFont
+        get() = if (am.isLoaded(UI_FONT)) {
+            am.get(UI_FONT, BitmapFont::class.java)
+        } else {
+            fallback()
+        }
+
+    override fun fxFrames(id: String): Array<out TextureRegion> =
+        framesOrMissing(common.findRegions("fx_$id"))
 
     /**
      * Łączy dwa niezależne światy: id jednostek z reguł gry (silnik) i regiony w atlasie (klient).
      * required: id jednostki -> animacje, które ma mieć (jednostki cywilne bez attack).
      * Zwraca nazwy brakujących regionów. Do wywołania po startGame() przed rozpoczęciem rozgrywki.
      */
-    fun missingArt(required: Map<UnitId, Collection<String>>): List<String> =
-        required.flatMap { (unit, anims) -> anims.map { "${unit.value}_$it" } }
+    fun missingArt(required: Map<UnitDefinitionId, Collection<String>>): List<String> =
+        required.flatMap { (unit, animations) -> animations.map { "${unit.value}_$it" } }
             .filterNot { skins.hasFrames(it) }
 
     // TODO: To be removed

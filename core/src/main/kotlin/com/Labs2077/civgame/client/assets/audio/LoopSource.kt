@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.client.assets.audio
 
-import com.Labs2077.civgame.engine.map.HexCoordinate
+import com.labs2077.civilization.core.models.Hexagon
+import com.labs2077.civilization.core.models.UnitId
 
 /**
  * Identyfikuje obiekt lub obszar będący źródłem zapętlonego dźwięku.
@@ -13,14 +14,14 @@ sealed interface LoopSource {
      * Konkretna instancja jednostki.
      */
     data class Unit(
-        val instanceId: Long
+        val unitId: UnitId,
     ) : LoopSource
 
     /**
      * Konkretne pole mapy.
      */
     data class Tile(
-        val position: HexCoordinate
+        val position: Hexagon
     ) : LoopSource
 
     /**

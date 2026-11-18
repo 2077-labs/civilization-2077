@@ -5,13 +5,15 @@ import com.Labs2077.civgame.client.ui.ColorSwatchButton
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.Labs2077.civgame.client.units.requiredAnimations
 import com.Labs2077.civgame.engine.PlayerSetup
-import com.Labs2077.civgame.engine.player.Player
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.labs2077.civilization.core.models.Civilization
+import com.labs2077.civilization.core.models.CivilizationResources
+import com.labs2077.civilization.core.models.Player
 
 /**
  * MOCK menu na Scene2D:
@@ -77,11 +79,10 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
      * Tworzy wiersz przycisków z kolorami dla danego gracza.
      */
     private fun colorRow(player: Int): Table {
-        val group =
-            ButtonGroup<ColorSwatchButton>().apply {
-                setMinCheckCount(1)
-                setMaxCheckCount(1)
-            }
+        val group = ButtonGroup<ColorSwatchButton>().apply {
+            setMinCheckCount(1)
+            setMaxCheckCount(1)
+        }
 
         // Tworzymy przyciski na podstawie palety z MenuColorSelection.
         val swatches = colorSelection.palette.map {
@@ -140,45 +141,68 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
             return
         }
 
-        val playerSetups = listOf(
-            PlayerSetup(
-                0,
-                "Gracz 1",
-                colorSelection.selectedColor(0)
-            ),
-            PlayerSetup(
-                1,
-                "Gracz 2",
-                colorSelection.selectedColor(1)
+//        val playerSetups = listOf(
+//            PlayerSetup(
+//                0,
+//                "Gracz 1",
+//                colorSelection.selectedColor(0),
+//            ),
+//            PlayerSetup(
+//                1,
+//                "Gracz 2",
+//                colorSelection.selectedColor(1),
+//            ),
+//        )
+
+        // TODO: tu powstanie silnik: Engine(ruleset z JSON, players, seed).
+        // Przekształcamy PlayerSetup na obiekty Player.
+//        val players = playerSetups.mapIndexed { index, setup ->
+//            Player.fromSetup(setup, index == 1)
+//        }
+        val civilizations = mutableListOf<Civilization>()
+
+        civilizations.add(
+            Civilization(
+                player = Player(),
+                color = com.labs2077.civilization.core.models.Color(0xFF00FF),
+                cities = emptyList(),
+                units = emptyList(),
+                resources = CivilizationResources(),
+            )
+        )
+        civilizations.add(
+            Civilization(
+                player = Player(),
+                color = com.labs2077.civilization.core.models.Color(0x00FFFF),
+                cities = emptyList(),
+                units = emptyList(),
+                resources = CivilizationResources(),
             )
         )
 
         // Wypieczenie atlasu jednostek i miast dla każdego gracza.
         // Tworzy tekstury na GPU, więc musi odbywać się w wątku renderowania.
-        game.assets.startGame(playerSetups)
+        game.assets.startGame(civilizations)
 
         // Sprawdzamy, czy każda jednostka z reguł gry ma grafikę.
         // Kontrola odbywa się po wypieczeniu atlasów.
-        val missing = game.assets.missingArt(
-            game.unitRuleset.units.associate { unit ->
-                unit.id to unit.requiredAnimations()
-                    .map { it.id }
-            }
+        val unitTypes = game.unitRuleset.definitions
+
+        val requiredAssets = unitTypes.mapValues { (_, unitType) ->
+            unitType.requiredAnimations()
+                .map { it.id }
+        }
+        val missingAssets = game.assets.missingArt(
+            requiredAssets
         )
 
-        if (missing.isNotEmpty()) {
-            val text = "Brak grafik: " + missing.joinToString(", ")
+        if (missingAssets.isNotEmpty()) {
+            val text = "Brak grafik: " + missingAssets.joinToString(", ")
             messageLabel.setText(text)
             Gdx.app.error("Assets", text)
             return
         }
 
-        // TODO: tu powstanie silnik: Engine(ruleset z JSON, players, seed).
-        // Przekształcamy PlayerSetup na obiekty Player.
-        val players = playerSetups.mapIndexed { index, setup ->
-            Player.fromSetup(setup, index == 1)
-        }
-
-        switchTo(GameScreen(game, players))
+        switchTo(GameScreen(game, civilizations))
     }
 }

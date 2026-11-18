@@ -1,7 +1,7 @@
 package com.Labs2077.civgame.client.rendering
 
-import com.Labs2077.civgame.engine.map.HexCoordinate
 import com.badlogic.gdx.math.Vector2
+import com.labs2077.civilization.core.models.Hexagon
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -21,9 +21,9 @@ object HexLayout {
      * @return ten sam wektor out zawierający obliczoną pozycję w świecie gry.
      */
     fun axialToWorld(
-        coordinate: HexCoordinate,
+        coordinate: Hexagon,
         hexSize: Float,
-        out: Vector2
+        out: Vector2,
     ): Vector2 {
         // Promień hexa nie może być mniejszy lub równy 0
         require(hexSize > 0f)
@@ -84,8 +84,8 @@ object HexLayout {
     fun worldToAxial(
         worldX: Float,
         worldY: Float,
-        hexSize: Float
-    ): HexCoordinate {
+        hexSize: Float,
+    ): Hexagon {
         // Promień hexa nie może być mniejszy lub równy 0
         require(hexSize > 0f)
 
@@ -119,7 +119,7 @@ object HexLayout {
         * aby zachować warunek q + r + s = 0.
         *
         * Jeżeli największy błąd dotyczy s, nie musimy jawnie go poprawiać,
-        * ponieważ HexCoordinate przechowuje q i r, a s jest wyliczane
+        * ponieważ Hexagon przechowuje q i r, a s jest wyliczane
         * jako -q - r.
         */
         if (qDifference > rDifference && qDifference > sDifference) {
@@ -128,6 +128,6 @@ object HexLayout {
             r = -q - s
         }
         // Współrzędne systemu axial
-        return HexCoordinate(q, r)
+        return Hexagon(q, r)
     }
 }

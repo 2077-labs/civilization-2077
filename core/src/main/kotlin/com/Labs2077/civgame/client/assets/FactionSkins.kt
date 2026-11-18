@@ -1,12 +1,13 @@
 package com.Labs2077.civgame.client.assets
 
-import com.Labs2077.civgame.engine.PlayerSetup
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.labs2077.civilization.core.models.Civilization
+import com.labs2077.civilization.core.models.CivilizationId
 
 // Dla każdego gracza przetrzymywany jest osobny wypiekany atlas jednostek (i miast). Jest to realnie kopia bazowego
 // atlasu, w której zarezerwowane kolory magenty są zamieniane na kolor gracza:
@@ -20,16 +21,16 @@ class FactionSkins(private val packFile: FileHandle) : Disposable {
         val MAGENTA_DARK: Int = 0xAA00AAFF.toInt()
     }
 
-    private val atlases = HashMap<Int, TextureAtlas>()
-    private var players: List<PlayerSetup> = emptyList()
+    private val atlases = HashMap<CivilizationId, TextureAtlas>()
+    private var civilizations: List<Civilization> = emptyList()
 
-    fun bake(players: List<PlayerSetup>) {
+    fun bake(civilizations: List<Civilization>) {
         dispose()
-        this.players = players
-        for (p in players) atlases[p.id] = bakeAtlas(p.colorRgb)
+        this.civilizations = civilizations
+        for (c in this@FactionSkins.civilizations) atlases[c.id] = bakeAtlas(c.color.value)
     }
 
-    fun rebuild() = bake(players)
+    fun rebuild() = bake(civilizations)
 
     // Ciemniejszy odcień koloru gracza (np. fałdy flagi)
     private fun shade(rgb: Int): Int {
@@ -60,8 +61,7 @@ class FactionSkins(private val packFile: FileHandle) : Disposable {
             }
             page.texture = Texture(out).apply {
                 setFilter(
-                    Texture.TextureFilter.Nearest,
-                    Texture.TextureFilter.Nearest
+                    Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest
                 )
             }
             src.dispose()
@@ -70,14 +70,13 @@ class FactionSkins(private val packFile: FileHandle) : Disposable {
         return TextureAtlas(data)
     }
 
-    fun frames(playerId: Int, name: String): Array<TextureAtlas.AtlasRegion> =
-        atlases.getValue(playerId)
+    fun frames(civilizationId: CivilizationId, name: String): Array<TextureAtlas.AtlasRegion> =
+        atlases.getValue(civilizationId)
             .findRegions(name)
 
-    fun hasFrames(name: String): Boolean =
-        atlases.values.firstOrNull()
-            ?.findRegions(name)
-            ?.let { it.size > 0 } ?: false
+    fun hasFrames(name: String): Boolean = atlases.values.firstOrNull()
+        ?.findRegions(name)
+        ?.let { it.size > 0 } ?: false
 
     override fun dispose() {
         atlases.values.forEach { it.dispose() }

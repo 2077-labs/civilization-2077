@@ -1,7 +1,7 @@
 package com.Labs2077.civgame.client.rendering
 
-import com.Labs2077.civgame.engine.map.HexCoordinate
 import com.badlogic.gdx.math.Vector2
+import com.labs2077.civilization.core.models.Hexagon
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import kotlin.math.sqrt
@@ -11,7 +11,7 @@ class HexLayoutTest {
     @Test
     fun axialToWorld_shouldConvertOriginCorrectly() {
         val result = HexLayout.axialToWorld(
-            HexCoordinate(0, 0),
+            Hexagon(0, 0),
             3f,
             Vector2()
         )
@@ -23,7 +23,7 @@ class HexLayoutTest {
     @Test
     fun axialToWorld_shouldConvertCoordinatesCorrectly() {
         val result = HexLayout.axialToWorld(
-            HexCoordinate(1, 0),
+            Hexagon(1, 0),
             3f,
             Vector2()
         )
@@ -35,12 +35,12 @@ class HexLayoutTest {
     @Test
     fun worldToAxial_shouldRestoreOriginalCoordinates() {
         val coordinates = listOf(
-            HexCoordinate(0, 0),
-            HexCoordinate(1, 0),
-            HexCoordinate(0, 1),
-            HexCoordinate(-2, 3),
-            HexCoordinate(4, -1),
-            HexCoordinate(-3, -2)
+            Hexagon(0, 0),
+            Hexagon(1, 0),
+            Hexagon(0, 1),
+            Hexagon(-2, 3),
+            Hexagon(4, -1),
+            Hexagon(-3, -2)
         )
 
         val hexSize = 3f
@@ -64,7 +64,7 @@ class HexLayoutTest {
 
     @Test
     fun worldToAxial_shouldReturnNearestHexForSmallOffset() {
-        val expected = HexCoordinate(2, -1)
+        val expected = Hexagon(2, -1)
         val hexSize = 3f
 
         val center = HexLayout.axialToWorld(

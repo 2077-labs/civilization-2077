@@ -3,14 +3,15 @@ package com.Labs2077.civgame.client.rendering
 import com.Labs2077.civgame.client.assets.AssetProvider
 import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.units.UnitAnimation
-import com.Labs2077.civgame.engine.map.HexCoordinate
-import com.Labs2077.civgame.engine.map.MapTile
-import com.Labs2077.civgame.engine.rules.UnitId
-import com.Labs2077.civgame.engine.units.UnitInstance
+import com.Labs2077.civgame.engine.MapTile
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
+import com.labs2077.civilization.core.models.CivilizationId
+import com.labs2077.civilization.core.models.Hexagon
+import com.labs2077.civilization.core.models.Unit
+import com.labs2077.civilization.core.models.UnitDefinitionId
 import kotlin.math.sqrt
 
 class WorldRenderer(
@@ -30,7 +31,7 @@ class WorldRenderer(
      * gdy nie ma ich jeszcze w cache.
      */
     private val unitAnimations =
-        mutableMapOf<Pair<Int, UnitId>, Animation<TextureRegion>>()
+        mutableMapOf<Pair<CivilizationId, UnitDefinitionId>, Animation<TextureRegion>>()
 
     /**
      * Rysuje na ekranie wszystkie widoczne kafelki
@@ -40,9 +41,7 @@ class WorldRenderer(
      *                wyrażony w jednostkach świata gry.
      */
     fun renderTiles(
-        tiles: Iterable<MapTile>,
-        camera: GameCamera,
-        hexSize: Float
+        tiles: Iterable<MapTile>, camera: GameCamera, hexSize: Float
     ) {
         // Promień hexa nie może być mniejszy lub równy 0
         require(hexSize > 0f)
@@ -97,17 +96,14 @@ class WorldRenderer(
                 }
 
                 // Pobieranie odpowiedniej grafiki dla danego terenu
-                val region = assets.terrain(tile.terrainId)
+                val region = assets.terrain(tile.terrainTypeId)
 
                 // Rysowanie grafiki na ekranie
                 batch.draw(
                     region,
                     // Wyznaczamy lewy dolny róg grafiki,
                     // odejmując połowę szerokości i wysokości od środka kafelka.
-                    center.x - tileWidth / 2f,
-                    center.y - tileHeight / 2f,
-                    tileWidth,
-                    tileHeight
+                    center.x - tileWidth / 2f, center.y - tileHeight / 2f, tileWidth, tileHeight
                 )
             }
         } finally {
@@ -127,10 +123,7 @@ class WorldRenderer(
      * @param stateTime całkowity czas animacji (w sekundach) służący do wybrania odpowiedniej klatki.
      */
     fun renderUnits(
-        units: Iterable<UnitInstance>,
-        camera: GameCamera,
-        hexSize: Float,
-        stateTime: Float
+        units: Iterable<Unit>, camera: GameCamera, hexSize: Float, stateTime: Float
     ) {
 
         require(hexSize > 0f)
@@ -188,8 +181,7 @@ class WorldRenderer(
                 }
 
                 // Tworzymy klucz cache na podstawie właściciela i typu jednostki.
-                val key = unit.ownerId to unit.definitionId
-
+                val key = unit.civilization.id to unit.definition.id
 
                 /*
                     Funkcja najpierw sprawdza własną podręczną mapę unitAnimations.
@@ -198,9 +190,7 @@ class WorldRenderer(
                  */
                 val animation = unitAnimations.getOrPut(key) {
                     assets.unitAnimation(
-                        unit.ownerId,
-                        unit.definitionId,
-                        UnitAnimation.IDLE.id
+                        unit.civilization.id, unit.definition.id, UnitAnimation.IDLE.id
                     )
                 }
 
@@ -213,11 +203,7 @@ class WorldRenderer(
 
                 // Rysuje wybraną klatkę animacji na środku kafelka
                 batch.draw(
-                    region,
-                    center.x - unitSize / 2f,
-                    center.y - unitSize / 2f,
-                    unitSize,
-                    unitSize
+                    region, center.x - unitSize / 2f, center.y - unitSize / 2f, unitSize, unitSize
                 )
             }
         } finally {
@@ -264,15 +250,11 @@ class WorldRenderer(
         // Wyznaczenie pionowych granic prostokąta obiektu.
         // Od środka obiektu odejmujemy lub dodajemy połowę jego wysokości.
         val objectBottom = centerY - objectHeight / 2f
-        val objectTop = centerY + objectHeight / 2f
-        /*
+        val objectTop = centerY + objectHeight / 2f/*
             Sprawdzamy, czy prostokąt obiektu przecina się
             z prostokątem widocznego obszaru kamery.
          */
-        return objectRight >= cameraLeft &&
-                objectLeft <= cameraRight &&
-                objectTop >= cameraBottom &&
-                objectBottom <= cameraTop
+        return objectRight >= cameraLeft && objectLeft <= cameraRight && objectTop >= cameraBottom && objectBottom <= cameraTop
     }
 
     /**
@@ -288,9 +270,7 @@ class WorldRenderer(
      * @return ten sam wektor out zawierający obliczoną pozycję w świecie gry.
      */
     fun axialToWorld(
-        coordinate: HexCoordinate,
-        hexSize: Float,
-        out: Vector2
+        coordinate: Hexagon, hexSize: Float, out: Vector2
     ): Vector2 {
         return HexLayout.axialToWorld(coordinate, hexSize, out)
     }
@@ -311,10 +291,8 @@ class WorldRenderer(
      *         Współrzędna s układu Cube jest wyliczana na podstawie q i r.
      */
     fun worldToAxial(
-        worldX: Float,
-        worldY: Float,
-        hexSize: Float
-    ): HexCoordinate {
+        worldX: Float, worldY: Float, hexSize: Float
+    ): Hexagon {
         return HexLayout.worldToAxial(worldX, worldY, hexSize)
     }
 
@@ -322,14 +300,14 @@ class WorldRenderer(
         batch.dispose()
     }
 
-    /*
-    * Czyści cache animacji po odbudowie atlasów przez GameAssets.
-    *
-    * Stare animacje mogą zawierać referencje do TextureRegion
-    * pochodzących ze zwolnionych tekstur.
-    * Dzięki wyczyszczeniu cache kolejne renderowanie pobierze
-    * animacje z aktualnych atlasów.
-    */
+    /**
+     * Czyści cache animacji po odbudowie atlasów przez GameAssets.
+     *
+     * Stare animacje mogą zawierać referencje do TextureRegion
+     * pochodzących ze zwolnionych tekstur.
+     * Dzięki wyczyszczeniu cache kolejne renderowanie pobierze
+     * animacje z aktualnych atlasów.
+     */
     fun onAssetsRebuilt() {
         unitAnimations.clear()
     }
