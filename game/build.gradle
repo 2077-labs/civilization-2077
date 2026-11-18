@@ -1,5 +1,5 @@
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-eclipse.project.name = appName + '-core'
+eclipse.project.name = appName + '-game'
 
 dependencies {
   implementation projects.core0
@@ -45,4 +45,3 @@ dependencies {
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
