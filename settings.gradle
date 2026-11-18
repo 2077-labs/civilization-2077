@@ -11,6 +11,6 @@ rootProject.name = "civilization"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include ':core0'
+include ':core'
 include ':engine'
 include ':client'

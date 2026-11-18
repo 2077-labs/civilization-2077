@@ -2,7 +2,7 @@
 eclipse.project.name = appName + '-game'
 
 dependencies {
-  implementation projects.core0
+  implementation projects.core
   implementation projects.engine
   implementation projects.client
 
