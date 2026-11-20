@@ -222,4 +222,9 @@ class MapInputController(
 
         return true
     }
+
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        camera.changeZoom((camera.zoom * (1f + amountY * 0.1f)).coerceIn(0.5f, 3f))
+        return true
+    }
 }

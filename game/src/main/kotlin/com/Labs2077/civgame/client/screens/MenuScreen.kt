@@ -4,7 +4,6 @@ import com.Labs2077.civgame.CivGame
 import com.Labs2077.civgame.client.ui.ColorSwatchButton
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.Labs2077.civgame.client.units.requiredAnimations
-import com.Labs2077.civgame.engine.PlayerSetup
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup
@@ -141,44 +140,18 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
             return
         }
 
-//        val playerSetups = listOf(
-//            PlayerSetup(
-//                0,
-//                "Gracz 1",
-//                colorSelection.selectedColor(0),
-//            ),
-//            PlayerSetup(
-//                1,
-//                "Gracz 2",
-//                colorSelection.selectedColor(1),
-//            ),
-//        )
-
         // TODO: tu powstanie silnik: Engine(ruleset z JSON, players, seed).
-        // Przekształcamy PlayerSetup na obiekty Player.
-//        val players = playerSetups.mapIndexed { index, setup ->
-//            Player.fromSetup(setup, index == 1)
-//        }
-        val civilizations = mutableListOf<Civilization>()
-
-        civilizations.add(
+        val civilizations = (0 until colorSelection.playerCount).map { playerIndex ->
             Civilization(
                 player = Player(),
-                color = com.labs2077.civilization.core.models.Color(0xFF00FF),
+                color = com.labs2077.civilization.core.models.Color(
+                    colorSelection.selectedColor(playerIndex)
+                ),
                 cities = emptyList(),
                 units = emptyList(),
                 resources = CivilizationResources(),
             )
-        )
-        civilizations.add(
-            Civilization(
-                player = Player(),
-                color = com.labs2077.civilization.core.models.Color(0x00FFFF),
-                cities = emptyList(),
-                units = emptyList(),
-                resources = CivilizationResources(),
-            )
-        )
+        }
 
         // Wypieczenie atlasu jednostek i miast dla każdego gracza.
         // Tworzy tekstury na GPU, więc musi odbywać się w wątku renderowania.
@@ -195,9 +168,17 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
         val missingAssets = game.assets.missingArt(
             requiredAssets
         )
+        val missingDecorations = game.assets.missingDecorations(
+            game.decorationRuleset.decorationIds
+        )
 
         if (missingAssets.isNotEmpty()) {
             val text = "Brak grafik: " + missingAssets.joinToString(", ")
+            messageLabel.setText(text)
+            Gdx.app.error("Assets", text)
+            return
+        } else if (missingDecorations.isNotEmpty()) {
+            val text = "Brak grafik dekoracji: " + missingDecorations.joinToString(", ")
             messageLabel.setText(text)
             Gdx.app.error("Assets", text)
             return

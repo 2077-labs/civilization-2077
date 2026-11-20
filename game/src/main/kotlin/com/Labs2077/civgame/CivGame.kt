@@ -2,9 +2,11 @@ package com.Labs2077.civgame
 
 import com.Labs2077.civgame.client.assets.GameAssets
 import com.Labs2077.civgame.client.assets.audio.GameAudio
+import com.Labs2077.civgame.client.decoration.DecorationRuleset
 import com.Labs2077.civgame.client.screens.MenuLoadingScreen
 import com.Labs2077.civgame.data.repository.rulesets.BuildingDefinitionGdxFilesRepository
 import com.Labs2077.civgame.data.repository.rulesets.CityLevelDefinitionGdxFilesRepository
+import com.Labs2077.civgame.data.repository.rulesets.DecorationDefinitionGdxFilesRepository
 import com.Labs2077.civgame.data.repository.rulesets.TerrainDefinitionGdxFilesRepository
 import com.Labs2077.civgame.data.repository.rulesets.UnitDefinitionGdxFilesRepository
 import com.badlogic.gdx.Game
@@ -22,6 +24,7 @@ class CivGame : Game() {
 
     lateinit var buildingRuleset: BuildingRuleset private set
     lateinit var cityLevelRuleset: CityLevelRuleset private set
+    lateinit var decorationRuleset: DecorationRuleset private set
     lateinit var unitRuleset: UnitRuleset private set
 
     /**
@@ -44,6 +47,7 @@ class CivGame : Game() {
     val cityLevelRepository = CityLevelDefinitionGdxFilesRepository("rules/city_levels.json")
     val terrainRepository = TerrainDefinitionGdxFilesRepository("rules/terrains.json")
     val unitRepository = UnitDefinitionGdxFilesRepository("rules/units.json")
+    val decorationRepository = DecorationDefinitionGdxFilesRepository("rules/decorations.json")
 
     override fun create() {
         // Póki co wczytujemy reguły jednostek po uruchomieniu samej gry, ale docelowo będzie to wczytywane przy
@@ -52,6 +56,8 @@ class CivGame : Game() {
         cityLevelRuleset = CityLevelRuleset(cityLevelRepository.getAll())
         unitRuleset = UnitRuleset(unitRepository.getAll())
         terrainRuleset = TerrainRuleset(terrainRepository.getAll())
+        decorationRuleset = DecorationRuleset(decorationRepository.getAll())
+            .also { it.validateGains(terrainRuleset) }
 
 
         assets = GameAssets()
