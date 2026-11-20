@@ -5,6 +5,7 @@ import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.units.UnitAnimation
 import com.Labs2077.civgame.engine.MapTile
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
@@ -97,13 +98,19 @@ class WorldRenderer(
 
                 // Pobieranie odpowiedniej grafiki dla danego terenu
                 val region = assets.terrain(tile.terrainTypeId)
+                // Wyznaczenie skali wysokości regionu tekstury do wysokości kafelka w świecie gry
+                val scale = tileHeight / region.regionHeight
+                // Na podstawie tej skali wiemy, jak duży obszar w świecie gry zajmie grafika
+                val drawW = region.regionWidth * scale
+                val drawH = region.regionHeight * scale
 
                 // Rysowanie grafiki na ekranie
                 batch.draw(
-                    region,
-                    // Wyznaczamy lewy dolny róg grafiki,
-                    // odejmując połowę szerokości i wysokości od środka kafelka.
-                    center.x - tileWidth / 2f, center.y - tileHeight / 2f, tileWidth, tileHeight
+                    HexMask.of(region),
+                    center.x - drawW / 2f,
+                    center.y - drawH / 2f,
+                    drawW,
+                    drawH
                 )
             }
         } finally {

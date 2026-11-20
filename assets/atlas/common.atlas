@@ -6,239 +6,232 @@ filter: Nearest, Nearest
 repeat: none
 fx_explosion
   rotate: false
-  xy: 1, 51
+  xy: 1, 35
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 0
 fx_explosion
   rotate: false
-  xy: 1171, 181
+  xy: 1041, 185
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 1
 fx_explosion
   rotate: false
-  xy: 67, 51
+  xy: 67, 35
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 2
 fx_explosion
   rotate: false
-  xy: 1237, 181
+  xy: 1107, 185
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 3
 fx_explosion
   rotate: false
-  xy: 133, 51
+  xy: 133, 35
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 4
 fx_explosion
   rotate: false
-  xy: 1303, 181
+  xy: 1173, 185
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 5
 fx_impact_flash
   rotate: false
-  xy: 249, 83
+  xy: 1, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 0
 fx_impact_flash
   rotate: false
-  xy: 1419, 213
+  xy: 1141, 151
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 1
 fx_impact_flash
   rotate: false
-  xy: 101, 17
+  xy: 299, 67
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 2
 fx_rocket
   rotate: false
-  xy: 1271, 147
+  xy: 1339, 217
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_building_barracks
   rotate: false
-  xy: 1, 1
+  xy: 1041, 135
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_factory
   rotate: false
-  xy: 1171, 131
+  xy: 199, 51
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_fusion
   rotate: false
-  xy: 199, 67
+  xy: 1239, 201
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_lab
   rotate: false
-  xy: 1369, 197
+  xy: 1091, 135
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_radar
   rotate: false
-  xy: 51, 1
+  xy: 249, 51
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_vault
   rotate: false
-  xy: 1221, 131
+  xy: 1289, 201
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_resource_energy_crystals
   rotate: false
-  xy: 283, 83
+  xy: 35, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_resource_hydroponic_food
   rotate: false
-  xy: 1453, 213
+  xy: 1175, 151
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_resource_rare_metal
   rotate: false
-  xy: 135, 17
+  xy: 333, 67
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_attack
   rotate: false
-  xy: 1305, 147
+  xy: 1373, 217
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_cursor
   rotate: false
-  xy: 317, 83
+  xy: 69, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_defense
   rotate: false
-  xy: 1487, 213
+  xy: 367, 67
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_endturn
   rotate: false
-  xy: 351, 83
+  xy: 1407, 217
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_move
   rotate: false
-  xy: 1521, 213
+  xy: 103, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_selection
   rotate: false
-  xy: 385, 83
+  xy: 401, 67
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 missing
   rotate: false
-  xy: 1, 117
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-terrain_city_ruins
-  rotate: false
-  xy: 131, 117
+  xy: 911, 121
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 terrain_crystal_mountains
   rotate: false
-  xy: 261, 117
-  size: 128, 128
-  orig: 128, 128
+  xy: 1, 101
+  size: 128, 148
+  orig: 128, 148
   offset: 0, 0
   index: -1
-terrain_deep_water
+terrain_desert
   rotate: false
-  xy: 391, 117
-  size: 128, 128
-  orig: 128, 128
+  xy: 131, 101
+  size: 128, 148
+  orig: 128, 148
   offset: 0, 0
   index: -1
-terrain_desert_terrain
+terrain_old_city_ruins
   rotate: false
-  xy: 521, 117
-  size: 128, 128
-  orig: 128, 128
+  xy: 261, 101
+  size: 128, 148
+  orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_radiation_zone
   rotate: false
-  xy: 651, 117
-  size: 128, 128
-  orig: 128, 128
+  xy: 391, 101
+  size: 128, 148
+  orig: 128, 148
   offset: 0, 0
   index: -1
-terrain_scrap_field
+terrain_scrapyard
   rotate: false
-  xy: 781, 117
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-terrain_shallow_water
-  rotate: false
-  xy: 911, 117
-  size: 128, 128
-  orig: 128, 128
+  xy: 521, 101
+  size: 128, 148
+  orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_toxic_swamp
   rotate: false
-  xy: 1041, 117
-  size: 128, 128
-  orig: 128, 128
+  xy: 651, 101
+  size: 128, 148
+  orig: 128, 148
+  offset: 0, 0
+  index: -1
+terrain_water
+  rotate: false
+  xy: 781, 101
+  size: 128, 148
+  orig: 128, 148
   offset: 0, 0
   index: -1
