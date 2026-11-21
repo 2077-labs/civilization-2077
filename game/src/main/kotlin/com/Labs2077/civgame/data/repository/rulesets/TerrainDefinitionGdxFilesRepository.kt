@@ -1,0 +1,18 @@
+package com.Labs2077.civgame.data.repository.rulesets
+
+import com.Labs2077.civgame.data.TerrainDefinitionRepository
+import com.Labs2077.civgame.data.repository.AbstractGdxRepository
+import com.Labs2077.civgame.data.repository.rulesets.dto.TerrainDefinitionFileDto
+import com.Labs2077.civgame.data.repository.rulesets.dto.TerrainDefinitionFileV1Dto
+import com.Labs2077.civgame.data.repository.rulesets.dto.toDomainTerrainDefinitions
+import com.labs2077.civilization.core.models.TerrainDefinition
+
+class TerrainDefinitionGdxFilesRepository(val path: String) : AbstractGdxRepository(),
+    TerrainDefinitionRepository {
+
+    override fun getAll(): List<TerrainDefinition> {
+        return when (val result = decode<TerrainDefinitionFileDto>(path)) {
+            is TerrainDefinitionFileV1Dto -> result.terrains.toDomainTerrainDefinitions()
+        }
+    }
+}
