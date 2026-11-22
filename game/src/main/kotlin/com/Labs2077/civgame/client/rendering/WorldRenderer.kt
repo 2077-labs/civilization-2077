@@ -5,6 +5,7 @@ import com.Labs2077.civgame.client.decoration.DecorationId
 import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.units.UnitAnimation
 import com.badlogic.gdx.graphics.Color
+import com.Labs2077.civgame.engine.MapTile
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion

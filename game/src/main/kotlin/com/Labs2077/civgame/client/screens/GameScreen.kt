@@ -11,6 +11,12 @@ import com.Labs2077.civgame.client.rendering.WorldRenderer
 import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.badlogic.gdx.math.Vector2
+import com.Labs2077.civgame.client.units.UnitAnimation
+import com.Labs2077.civgame.engine.MapTile
+import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.labs2077.civilization.core.map_generation.ClusterMapGenerator
@@ -106,6 +112,11 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
 
     /** Zbiór przechodnich współrzędnych dla szybkiego sprawdzania podczas walidacji ścieżki. */
     private val passable: Set<Hexagon> = passableList.toSet()
+
+    // Jednostka aktualnie zaznaczona przez gracza.
+    private var selectedUnit: Unit? = null
+    // Etykieta wyświetlająca informację o zaznaczonej jednostce.
+    private lateinit var selectionLabel: Label
 
     /*
      * Miasta startowe cywilizacji: pierwsza cywilizacja trafia na początek listy przechodnich
@@ -290,6 +301,9 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
                 decorationSprites = buildDecorations()
             }
         }
+        selectionLabel = label("Nie wybrano jednostki").apply {
+            setPosition(30f, 30f)
+        }
         refreshButtons()
 
         val buttons = Table().apply {
@@ -297,6 +311,7 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
             add(seedButton).padRight(10f)
             add(menuButton)
         }
+
 
         root.pad(30f)
             .top()
@@ -308,6 +323,8 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
         root.add()
             .expand()
             .row()
+
+        stage.addActor(selectionLabel)
     }
 
     override fun update(delta: Float) {
@@ -330,7 +347,47 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
 
     override fun configureInputProcessors() {
         // Stage jest rejestrowany w UiScreen jako pierwszy, więc UI przechwytuje kliknięcia przed gestami mapy.
-        inputs.addProcessor(MapInputController(worldCamera))
+        inputs.addProcessor(
+            MapInputController(worldCamera) { screenX, screenY ->
+                selectUnitAt(screenX, screenY)
+            })
+    }
+
+    /**
+     * Sprawdza, czy na wskazanym przez gracza polu znajduje się jednostka.
+     *
+     * Najpierw przelicza współrzędne ekranu na współrzędne świata gry,
+     * następnie znajduje najbliższy heks i sprawdza obecność jednostki.
+     */
+    private fun selectUnitAt(screenX: Int, screenY: Int) {
+
+        // Zamieniamy współrzędne ekranu na współrzędne świata gry.
+        val worldPosition = worldCamera.unproject(
+            Vector3(
+                screenX.toFloat(), screenY.toFloat(), 0f
+            )
+        )
+
+        // Zamieniamy pozycję świata na współrzędne heksagonu.
+        val hexCoordinate = worldRenderer.worldToAxial(
+            worldPosition.x, worldPosition.y, hexSize
+        )
+
+        // Sprawdzamy, czy na wskazanym heksie znajduje się jednostka.
+        selectedUnit = civilizations.flatMap { it.units }
+            .firstOrNull {
+                it.position == hexCoordinate
+            }
+
+        // Aktualizujemy informację wyświetlaną na ekranie.
+        val unit = selectedUnit
+        selectionLabel.setText(
+            if (unit != null) {
+                "Wybrano jednostke ${unit.id} (gracz ${unit.civilization.id})"
+            } else {
+                "Brak jednostki na tym polu (${hexCoordinate.q}, ${hexCoordinate.r})"
+            }
+        )
     }
 
     override fun drawBackground(delta: Float) {
