@@ -17,11 +17,10 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 0
       },
       "abilities": [
-        "ATTACK_MELEE"
+        "ATTACK"
       ],
       "requiredBuildings": []
     },
@@ -41,11 +40,10 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 0
       },
       "abilities": [
-        "ATTACK_MELEE"
+        "ATTACK"
       ],
       "requiredBuildings": []
     },
@@ -65,11 +63,10 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 0
       },
       "abilities": [
-        "ATTACK_RANGED"
+        "ATTACK"
       ],
       "requiredBuildings": [
         "barracks"
@@ -91,11 +88,10 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 0
       },
       "abilities": [
-        "ATTACK_MELEE"
+        "ATTACK"
       ],
       "requiredBuildings": [
         "fabricator"
@@ -117,17 +113,16 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 1
       },
       "abilities": [
-        "ATTACK_RANGED",
-        "CANNOT_ATTACK_AFTER_MOVING"
+        "ATTACK"
       ],
       "requiredBuildings": [
         "fabricator",
         "radar"
-      ]
+      ],
+      "canAttackAfterMoving": false
     },
     {
       "id": "tank",
@@ -145,11 +140,10 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 1
       },
       "abilities": [
-        "ATTACK_MELEE"
+        "ATTACK"
       ],
       "requiredBuildings": [
         "fabricator",
@@ -172,11 +166,10 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 2
       },
       "abilities": [
-        "ATTACK_MELEE"
+        "ATTACK"
       ],
       "requiredBuildings": [
         "fusion_generator"
@@ -191,7 +184,7 @@
       "defense": 1,
       "movement": 2,
       "vision": 2,
-      "attackRange": 1,
+      "attackRange": 0,
       "cost": {
         "metals": 25,
         "food": 15,
@@ -199,7 +192,6 @@
       },
       "upkeep": {
         "metals": 0,
-        "food": 0,
         "crystals": 0
       },
       "abilities": [
