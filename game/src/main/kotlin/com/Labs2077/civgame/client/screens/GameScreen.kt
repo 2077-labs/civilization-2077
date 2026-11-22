@@ -11,10 +11,6 @@ import com.Labs2077.civgame.client.rendering.WorldRenderer
 import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.badlogic.gdx.math.Vector2
-import com.Labs2077.civgame.client.units.UnitAnimation
-import com.Labs2077.civgame.engine.MapTile
-import com.badlogic.gdx.graphics.g2d.Animation
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -28,6 +24,7 @@ import com.labs2077.civilization.core.models.CivilizationId
 import com.labs2077.civilization.core.models.Hexagon
 import com.labs2077.civilization.core.models.HexagonGrid
 import com.labs2077.civilization.core.models.Terrain
+import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
 import kotlin.math.max
 import kotlin.random.Random
@@ -115,6 +112,7 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
 
     // Jednostka aktualnie zaznaczona przez gracza.
     private var selectedUnit: Unit? = null
+
     // Etykieta wyświetlająca informację o zaznaczonej jednostce.
     private lateinit var selectionLabel: Label
 
