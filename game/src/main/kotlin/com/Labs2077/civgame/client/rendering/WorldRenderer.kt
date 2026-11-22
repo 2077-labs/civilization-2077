@@ -18,7 +18,7 @@ import kotlin.math.sqrt
 class WorldRenderer(
     private val assets: AssetProvider
 ) {
-    private val batch = SpriteBatch()
+    private val batch = PolygonSpriteBatch()
     private val worldPosition = Vector2()
 
     /*
