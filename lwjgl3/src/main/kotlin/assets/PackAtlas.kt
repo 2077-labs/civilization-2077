@@ -25,6 +25,8 @@ private const val MAX_WIDTH = 2048
 private const val MAX_HEIGHT = 2048
 private const val PADDING_X = 2
 private const val PADDING_Y = 2
+private const val DECORATIONS_FOLDER = "decorations"
+private const val DECO_MAX_WIDTH_PX = 96
 
 private class AtlasSpec(
     val name: String,
@@ -33,13 +35,14 @@ private class AtlasSpec(
 )
 
 private val ATLASES = listOf(
-    AtlasSpec("common", listOf("terrain", "icons", "fx", "common")),
+    AtlasSpec("common", listOf("terrain", "icons", "fx", "common", DECORATIONS_FOLDER)),
     // miasta mają sztandar w magencie, więc razem z jednostkami przechodzą wypiekanie kolorów graczy
     AtlasSpec("units", listOf("units", "cities"), checkUnits = true)
 )
 private val UNIT_ANIM =
     Regex("^(.+)_(${UnitAnimation.entries.joinToString("|") { it.id }})_\\d+\\.png$")
 private val FRAME = Regex("^(.+)_\\d+\\.png$")
+private val VARIANT_SUFFIX = Regex("_v(\\d+)\\.png$", RegexOption.IGNORE_CASE)
 
 // Dla uproszczenia walidacji zakładam, że wszystkie jednostki muszą mieć dokładnie wszystkie rodzaje animacji, aby nie
 // komplikować, a komunikaty można zignorować dla jednostek cywilnych
@@ -61,6 +64,7 @@ fun main() {
     File(OUT).mkdirs()
     for (spec in ATLASES) {
         val dir = stage(spec)
+        if (spec.name == "common") validateDecorations(dir)
         validate(dir, spec.checkUnits)
         TexturePacker.process(settings, dir.path, OUT, spec.name)
         println("Atlas '${spec.name}' gotowy: $OUT/${spec.name}.atlas (${dir.listFiles()!!.size} plików PNG)")
@@ -82,9 +86,14 @@ private fun stage(spec: AtlasSpec): File {
         require(src.isDirectory) { "Brak folderu ${src.path}" }
         for (f in src.walkTopDown()
             .filter { it.isFile && it.extension.equals("png", ignoreCase = true) }) {
-            val previous = seen.put(f.name, f.path)
-            require(previous == null) { "Duplikat nazwy pliku ${f.name}: $previous oraz ${f.path}" }
-            f.copyTo(File(dir, f.name))
+            // deco_rock_v1.png -> deco_rock_1.png, żeby packer złożył warianty w jeden region
+            val name = if (folder == DECORATIONS_FOLDER) f.name.replace(
+                VARIANT_SUFFIX,
+                "_\$1.png"
+            ) else f.name
+            val previous = seen.put(name, f.path)
+            require(previous == null) { "Duplikat nazwy pliku $name: $previous oraz ${f.path}" }
+            f.copyTo(File(dir, name))
         }
     }
     return dir
@@ -101,6 +110,8 @@ private fun validate(dir: File, units: Boolean) {
 
     // wszystkie klatki jednej animacji muszą mieć ten sam rozmiar
     pngs.groupBy { FRAME.matchEntire(it.name)?.groupValues?.get(1) ?: it.nameWithoutExtension }
+        // Pomijamy regiony dekoracji, bo one mają różne warianty i rozmiary (np. scrap_car i scrap_car_v2)
+        .filterKeys { !it.startsWith("deco_") }
         .forEach { (region, files) ->
             val s = files.map { sizes.getValue(it) }
                 .toSet()
@@ -136,4 +147,32 @@ private fun copyAudio() {
             println("Skopiowano $dir -> assets/$dir")
         }
     }
+}
+
+/**
+ * Sprawdza, czy wszystkie pliki PNG w folderze dekoracji mają kanał alfa, nie przekraczają określonej wielkości i
+ * mają grafikę zaczynającą się od dolnej krawędzi.
+ */
+private fun validateDecorations(dir: File) {
+    dir.listFiles { f ->
+        f.name.startsWith("deco_") && f.extension.equals(
+            "png",
+            ignoreCase = true
+        )
+    }!!
+        .sortedBy { it.name }
+        .forEach { f ->
+            val img = ImageIO.read(f)
+            if (!img.colorModel.hasAlpha()) {
+                println("UWAGA [${f.name}]: brak kanału alfa")
+            }
+            if (img.width > DECO_MAX_WIDTH_PX) {
+                println("UWAGA [${f.name}]: szerokość ${img.width}px > $DECO_MAX_WIDTH_PX (szersza niż kafelek)")
+            }
+            val bottomRowEmpty =
+                (0 until img.width).none { x -> (img.getRGB(x, img.height - 1) ushr 24) != 0 }
+            if (bottomRowEmpty) {
+                println("UWAGA [${f.name}]: pusty dolny wiersz, obiekt będzie się unosił nad punktem stóp")
+            }
+        }
 }

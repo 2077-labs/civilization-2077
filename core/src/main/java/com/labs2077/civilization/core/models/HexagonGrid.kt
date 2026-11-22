@@ -90,7 +90,25 @@ class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : I
         }
     }
 
+    /**
+     * Zwraca współrzędne heksagonu dla podanej kolumny i wiersza w obrębie tej siatki.
+     */
+    fun coordinateAt(column: Int, row: Int): Hexagon {
+        require(column in 0..<width && row in 0..<height) {
+            "Współrzędne ($column, $row) znajdują się poza obszarem mapy ${width}x${height}."
+        }
+        return coordinate(column, row)
+    }
+
     companion object {
+        /**
+         * Konwertuje współrzędne prostokątne (kolumna, wiersz) na współrzędne osiowe heksagonu.
+         */
+        fun coordinate(column: Int, row: Int): Hexagon {
+            val q = column - row / 2
+            return Hexagon(q, row)
+        }
+
         /**
          * Konwertuje indeks w tablicy jednowymiarowej na współrzędne komórki.
          */
@@ -98,13 +116,7 @@ class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : I
             if (this !in 0 until width * height) {
                 throw IndexOutOfBoundsException("Indeks $this znajduje się poza obszarem mapy.")
             }
-
-            val row = this / width
-            val column = this % width
-
-            val q = column - row / 2
-
-            return Hexagon(q, row)
+            return coordinate(this % width, this / width)
         }
     }
 }

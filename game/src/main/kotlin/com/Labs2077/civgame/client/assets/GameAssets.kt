@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.client.assets
 
 import com.Labs2077.civgame.client.assets.audio.SfxId
+import com.Labs2077.civgame.client.decoration.DecorationId
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.BitmapFontLoader
@@ -141,6 +142,9 @@ class GameAssets : Disposable, AssetProvider {
         return am.get(sound.path, Sound::class.java)
     }
 
+    override fun decorationFrames(id: DecorationId): Array<out TextureRegion> =
+        framesOrMissing(common.findRegions("deco_${id.value}"))
+
     /** Wspólna czcionka UI - jedna dla wszystkich ekranów. Odtwarza się po utracie kontekstu OpenGL oraz jest zwalniana razem z GameAssets. */
     override val uiFont: BitmapFont
         get() = if (am.isLoaded(UI_FONT)) {
@@ -161,10 +165,8 @@ class GameAssets : Disposable, AssetProvider {
         required.flatMap { (unit, animations) -> animations.map { "${unit.value}_$it" } }
             .filterNot { skins.hasFrames(it) }
 
-    // TODO: To be removed
-    fun finishLoading() {
-        am.finishLoading()
-    }
+    fun missingDecorations(ids: Set<DecorationId>): List<DecorationId> =
+        ids.filter { common.findRegions("deco_${it.value}").size == 0 }
 
     private fun framesOrMissing(frames: Array<out TextureRegion>): Array<out TextureRegion> =
         if (frames.size > 0) frames else Array.with(missing)

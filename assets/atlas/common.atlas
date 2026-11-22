@@ -4,233 +4,723 @@ size: 2048, 256
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+deco_crystal_cluster
+  rotate: false
+  xy: 913, 35
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_crystal_cluster
+  rotate: false
+  xy: 947, 35
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_crystal_cluster
+  rotate: false
+  xy: 981, 35
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 3
+deco_crystal_peak
+  rotate: false
+  xy: 1, 9
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 1
+deco_crystal_peak
+  rotate: false
+  xy: 1041, 159
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 2
+deco_crystal_shard
+  rotate: false
+  xy: 1239, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_crystal_shard
+  rotate: false
+  xy: 1265, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_crystal_shard
+  rotate: false
+  xy: 1013, 101
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 3
+deco_crystal_spire
+  rotate: false
+  xy: 1437, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_crystal_spire
+  rotate: false
+  xy: 463, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_crystal_spire
+  rotate: false
+  xy: 1487, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 3
+deco_desert_bones
+  rotate: false
+  xy: 673, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_desert_bones
+  rotate: false
+  xy: 1869, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_desert_cactus
+  rotate: false
+  xy: 1241, 123
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_desert_cactus
+  rotate: false
+  xy: 1291, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_desert_debris
+  rotate: false
+  xy: 1325, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_desert_debris
+  rotate: false
+  xy: 1359, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_desert_debris
+  rotate: false
+  xy: 1393, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 3
+deco_desert_pole
+  rotate: false
+  xy: 513, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_desert_pole
+  rotate: false
+  xy: 1537, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_desert_rock
+  rotate: false
+  xy: 699, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_desert_rock
+  rotate: false
+  xy: 1895, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_desert_rock
+  rotate: false
+  xy: 725, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 3
+deco_rad_barrel
+  rotate: false
+  xy: 1427, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_rad_barrel
+  rotate: false
+  xy: 1461, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_rad_barrel
+  rotate: false
+  xy: 1495, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 3
+deco_rad_crack
+  rotate: false
+  xy: 1921, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_rad_crack
+  rotate: false
+  xy: 751, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_rad_crack
+  rotate: false
+  xy: 1947, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 3
+deco_rad_crystal
+  rotate: false
+  xy: 563, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_rad_crystal
+  rotate: false
+  xy: 1587, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_rad_sign
+  rotate: false
+  xy: 613, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_rad_sign
+  rotate: false
+  xy: 1637, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_ruins_rubble
+  rotate: false
+  xy: 777, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_ruins_rubble
+  rotate: false
+  xy: 1973, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_ruins_rubble
+  rotate: false
+  xy: 803, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 3
+deco_ruins_sign
+  rotate: false
+  xy: 663, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_ruins_sign
+  rotate: false
+  xy: 1687, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_ruins_tower
+  rotate: false
+  xy: 67, 9
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 1
+deco_ruins_tower
+  rotate: false
+  xy: 1107, 159
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 2
+deco_ruins_wall
+  rotate: false
+  xy: 1529, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_ruins_wall
+  rotate: false
+  xy: 1563, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_ruins_wall
+  rotate: false
+  xy: 1597, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 3
+deco_scrap_barrel
+  rotate: false
+  xy: 1631, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_scrap_barrel
+  rotate: false
+  xy: 1665, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_scrap_barrel
+  rotate: false
+  xy: 1699, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 3
+deco_scrap_car
+  rotate: false
+  xy: 713, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_scrap_car
+  rotate: false
+  xy: 1737, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_scrap_car
+  rotate: false
+  xy: 763, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 3
+deco_scrap_heap
+  rotate: false
+  xy: 133, 9
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 1
+deco_scrap_heap
+  rotate: false
+  xy: 1173, 159
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 2
+deco_scrap_heap
+  rotate: false
+  xy: 199, 9
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: 3
+deco_scrap_plates
+  rotate: false
+  xy: 1999, 165
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_scrap_plates
+  rotate: false
+  xy: 829, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_scrap_plates
+  rotate: false
+  xy: 855, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 3
+deco_swamp_mushroom
+  rotate: false
+  xy: 1787, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_swamp_mushroom
+  rotate: false
+  xy: 813, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_swamp_pipe
+  rotate: false
+  xy: 1733, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_swamp_pipe
+  rotate: false
+  xy: 1733, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 3
+deco_swamp_pipe
+  rotate: false
+  xy: 1767, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_swamp_sludge
+  rotate: false
+  xy: 881, 15
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 1
+deco_swamp_sludge
+  rotate: false
+  xy: 1869, 139
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 2
+deco_swamp_sludge
+  rotate: false
+  xy: 1895, 139
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: 3
+deco_swamp_tree
+  rotate: false
+  xy: 1837, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_swamp_tree
+  rotate: false
+  xy: 1887, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
+deco_swamp_tree
+  rotate: false
+  xy: 1937, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 3
+deco_water_buoy
+  rotate: false
+  xy: 1801, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 1
+deco_water_buoy
+  rotate: false
+  xy: 1835, 149
+  size: 32, 40
+  orig: 32, 40
+  offset: 0, 0
+  index: 2
+deco_water_wreck
+  rotate: false
+  xy: 1987, 191
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 1
+deco_water_wreck
+  rotate: false
+  xy: 863, 41
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: 2
 fx_explosion
   rotate: false
-  xy: 1, 35
+  xy: 1239, 191
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 0
 fx_explosion
   rotate: false
-  xy: 1041, 185
+  xy: 265, 41
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 1
 fx_explosion
   rotate: false
-  xy: 67, 35
+  xy: 1305, 191
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 2
 fx_explosion
   rotate: false
-  xy: 1107, 185
+  xy: 331, 41
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 3
 fx_explosion
   rotate: false
-  xy: 133, 35
+  xy: 1371, 191
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 4
 fx_explosion
   rotate: false
-  xy: 1173, 185
+  xy: 397, 41
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: 5
 fx_impact_flash
   rotate: false
-  xy: 1, 1
+  xy: 947, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 0
 fx_impact_flash
   rotate: false
-  xy: 1141, 151
+  xy: 265, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 1
 fx_impact_flash
   rotate: false
-  xy: 299, 67
+  xy: 299, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 2
 fx_rocket
   rotate: false
-  xy: 1339, 217
+  xy: 333, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_building_barracks
   rotate: false
-  xy: 1041, 135
+  xy: 1041, 109
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_factory
   rotate: false
-  xy: 199, 51
+  xy: 1091, 109
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_fusion
   rotate: false
-  xy: 1239, 201
+  xy: 1141, 109
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_lab
   rotate: false
-  xy: 1091, 135
+  xy: 1191, 109
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_radar
   rotate: false
-  xy: 249, 51
+  xy: 913, 77
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_building_vault
   rotate: false
-  xy: 1289, 201
+  xy: 963, 77
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 icon_resource_energy_crystals
   rotate: false
-  xy: 35, 1
+  xy: 367, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_resource_hydroponic_food
   rotate: false
-  xy: 1175, 151
+  xy: 401, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_resource_rare_metal
   rotate: false
-  xy: 333, 67
+  xy: 435, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_attack
   rotate: false
-  xy: 1373, 217
+  xy: 469, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_cursor
   rotate: false
-  xy: 69, 1
+  xy: 503, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_defense
   rotate: false
-  xy: 367, 67
+  xy: 537, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_endturn
   rotate: false
-  xy: 1407, 217
+  xy: 571, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_move
   rotate: false
-  xy: 103, 1
+  xy: 605, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 icon_ui_selection
   rotate: false
-  xy: 401, 67
+  xy: 639, 7
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 missing
   rotate: false
-  xy: 911, 121
+  xy: 911, 127
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 terrain_crystal_mountains
   rotate: false
-  xy: 1, 101
+  xy: 1, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_desert
   rotate: false
-  xy: 131, 101
+  xy: 131, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_old_city_ruins
   rotate: false
-  xy: 261, 101
+  xy: 261, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_radiation_zone
   rotate: false
-  xy: 391, 101
+  xy: 391, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_scrapyard
   rotate: false
-  xy: 521, 101
+  xy: 521, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_toxic_swamp
   rotate: false
-  xy: 651, 101
+  xy: 651, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
   index: -1
 terrain_water
   rotate: false
-  xy: 781, 101
+  xy: 781, 107
   size: 128, 148
   orig: 128, 148
   offset: 0, 0
