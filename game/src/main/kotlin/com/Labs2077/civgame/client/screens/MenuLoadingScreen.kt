@@ -18,7 +18,7 @@ class MenuLoadingScreen(private val game: CivGame) : ScreenAdapter() {
     override fun render(delta: Float) {
         // AssetManager ładuje po trochu w każdej klatce, więc nie blokujemy wątku renderowania. Gdy skończy, przechodzimy do menu.
         if (game.assets.updateLoading()) {
-            game.screen = MenuScreen(game)
+            game.screen = MainMenuScreen(game)
             return
         }
         ScreenUtils.clear(0.07f, 0.08f, 0.12f, 1f)

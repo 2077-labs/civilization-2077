@@ -1,3 +1,4 @@
+
 package com.Labs2077.civgame.client.screens
 
 import com.Labs2077.civgame.CivGame
@@ -16,61 +17,161 @@ import com.labs2077.civilization.core.models.CivilizationResources
 import com.labs2077.civilization.core.models.Player
 
 /**
- * MOCK menu na Scene2D:
- * wybór kolorów dla dwóch graczy oraz przycisk rozpoczęcia gry.
+ * Menu wyboru kolorów dla wszystkich graczy.
+ *
+ * Liczba graczy jest pobierana z NewGameSettings.
+ * Każdy gracz musi mieć inny kolor.
  *
  * Logika wyboru kolorów znajduje się w MenuColorSelection,
  * dzięki czemu można ją testować niezależnie od interfejsu.
  */
-class MenuScreen(game: CivGame) : UiScreen(game) {
+class MenuScreen(
+    game: CivGame,
+    private val settings: NewGameSettings = NewGameSettings(),
+) : UiScreen(game) {
 
     // Logika wyboru kolorów graczy.
-    private val colorSelection = MenuColorSelection()
+    // Początkowo każdy gracz otrzymuje inny kolor.
+    private val colorSelection = MenuColorSelection(
+        initialColorIndices = (0 until settings.playerCount).toList()
+    )
 
     private lateinit var startButton: TextButton
     private lateinit var messageLabel: Label
 
     override fun build(root: Table) {
-        messageLabel = label("", wrap = true, color = Color(1f, 0.4f, 0.4f, 1f))
 
-        startButton = TextButton("Rozpocznij gre", skin).apply {
+        messageLabel = label(
+            "",
+            wrap = true,
+            color = Color(1f, 0.4f, 0.4f, 1f)
+        )
+
+        startButton = TextButton("ROZPOCZNIJ GRĘ", skin, "primary").apply {
             pad(14f, 40f, 14f, 40f)
-            onClick { startGame() }
+            onClick {
+                startGame()
+            }
         }
 
-        root.pad(60f)
-            .top()
-            .left()
+        // Główny panel ekranu.
+        val panel = Table(skin).apply {
+            background = skin.newDrawable(
+                "white",
+                Color(0.06f, 0.08f, 0.13f, 0.97f)
+            )
+            pad(36f)
+        }
 
-        root.add(label("CYWILIZACJA 2077 - mock menu"))
+        // Nagłówek.
+        val title = label(
+            "WYBÓR GRACZY",
+            color = Color.CYAN
+        ).apply {
+            setFontScale(1.9f)
+        }
+
+        val subtitle = label(
+            "Wybierz kolor dla każdego gracza.",
+            color = Color.LIGHT_GRAY
+        )
+
+        panel.add(title)
             .colspan(2)
             .left()
-            .padBottom(40f)
+            .padBottom(8f)
             .row()
 
-        for (player in 0..1) {
-            root.add(label("Gracz ${player + 1} - kolor"))
-                .left()
-                .padRight(40f)
+        panel.add(subtitle)
+            .colspan(2)
+            .left()
+            .padBottom(28f)
+            .row()
 
-            root.add(colorRow(player))
-                .left()
-                .padBottom(30f)
+        // Siatka paneli graczy.
+        val playersGrid = Table()
+
+        for (player in 0 until settings.playerCount) {
+
+            val playerPanel = Table(skin).apply {
+                background = skin.newDrawable(
+                    "white",
+                    Color(0.10f, 0.12f, 0.18f, 1f)
+                )
+                pad(12f)
+            }
+
+            val playerTitle = label(
+                "GRACZ ${player + 1}",
+                color = Color.CYAN
+            ).apply {
+                setFontScale(1.1f)
+            }
+
+            playerPanel.add(playerTitle)
+                .center()
+                .padBottom(10f)
                 .row()
+
+            playerPanel.add(colorRow(player))
+                .center()
+                .row()
+
+            playersGrid.add(playerPanel)
+                .width(250f)
+                .height(165f)
+                .pad(6f)
+
+            // Po czterech graczach rozpoczynamy kolejny rząd.
+            if ((player + 1) % 4 == 0) {
+                playersGrid.row()
+            }
         }
 
-        root.add(startButton)
+        panel.add(playersGrid)
             .colspan(2)
-            .left()
-            .padTop(20f)
+            .center()
             .row()
 
-        root.add(messageLabel)
+        // Komunikat o wyborze kolorów.
+        panel.add(messageLabel)
             .colspan(2)
+            .width(700f)
             .left()
-            .width(780f)
-            .padTop(20f)
+            .padTop(6f)
+            .padBottom(12f)
             .row()
+
+        // Przycisk powrotu do konfiguracji.
+        val backButton = TextButton("WRÓĆ", skin).apply {
+            pad(12f, 30f, 12f, 30f)
+
+            onClick {
+                switchTo(NewGameSettingsScreen(game, settings))
+            }
+        }
+
+        val buttonsRow = Table()
+
+        buttonsRow.add(backButton)
+            .width(200f)
+            .height(58f)
+            .padRight(14f)
+
+        buttonsRow.add(startButton)
+            .width(280f)
+            .height(58f)
+
+        panel.add(buttonsRow)
+            .colspan(2)
+            .right()
+            .padTop(12f)
+
+        root.center()
+
+        root.add(panel)
+            .width(1160f)
+            .pad(24f)
 
         refreshStart()
     }
@@ -91,11 +192,17 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
 
         val row = Table()
 
-        swatches.forEach {
-            group.add(it)
-            row.add(it)
-                .size(56f)
-                .pad(7f)
+        swatches.forEachIndexed { index, swatch ->
+            group.add(swatch)
+
+            // Cztery kolory w jednym rzędzie.
+            if (index > 0 && index % 4 == 0) {
+                row.row()
+            }
+
+            row.add(swatch)
+                .size(40f)
+                .pad(4f)
         }
 
         // Ustawiamy początkowo wybrany kolor gracza.
@@ -115,8 +222,9 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
     }
 
     /**
-     * Aktualizuje stan przycisku rozpoczęcia gry
-     * oraz komunikat informujący o błędnym wyborze kolorów.
+     * Aktualizuje stan przycisku rozpoczęcia gry,
+     * komunikat o błędnym wyborze kolorów
+     * oraz informacje o wybranych kolorach graczy.
      */
     private fun refreshStart() {
         val canStart = colorSelection.canStart
@@ -127,7 +235,7 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
             if (canStart) {
                 ""
             } else {
-                "Gracze musza miec rozne kolory."
+                "Gracze muszą mieć różne kolory."
             }
         )
     }
@@ -136,65 +244,44 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
      * Przygotowuje graczy i rozpoczyna grę.
      */
     private fun startGame() {
+
         // Nie pozwalamy rozpocząć gry, jeśli gracze mają ten sam kolor.
         if (!colorSelection.canStart) {
             return
         }
 
-//        val playerSetups = listOf(
-//            PlayerSetup(
-//                0,
-//                "Gracz 1",
-//                colorSelection.selectedColor(0),
-//            ),
-//            PlayerSetup(
-//                1,
-//                "Gracz 2",
-//                colorSelection.selectedColor(1),
-//            ),
-//        )
+        // Tworzymy konfigurację wszystkich wybranych graczy.
+        val playerSetups = (0 until settings.playerCount).map { player ->
+            PlayerSetup(
+                id = player,
+                name = "Gracz ${player + 1}",
+                colorRgb = colorSelection.selectedColor(player),
+            )
+        }
 
-        // TODO: tu powstanie silnik: Engine(ruleset z JSON, players, seed).
-        // Przekształcamy PlayerSetup na obiekty Player.
-//        val players = playerSetups.mapIndexed { index, setup ->
-//            Player.fromSetup(setup, index == 1)
-//        }
-        val civilizations = mutableListOf<Civilization>()
-
-        civilizations.add(
+        // Tworzymy cywilizacje z kolorami wybranymi przez graczy.
+        val civilizations = playerSetups.map { setup ->
             Civilization(
                 player = Player(),
-                color = com.labs2077.civilization.core.models.Color(0xFF00FF),
+                color = com.labs2077.civilization.core.models.Color(setup.colorRgb),
                 cities = emptyList(),
                 units = emptyList(),
                 resources = CivilizationResources(),
             )
-        )
-        civilizations.add(
-            Civilization(
-                player = Player(),
-                color = com.labs2077.civilization.core.models.Color(0x00FFFF),
-                cities = emptyList(),
-                units = emptyList(),
-                resources = CivilizationResources(),
-            )
-        )
+        }
 
         // Wypieczenie atlasu jednostek i miast dla każdego gracza.
-        // Tworzy tekstury na GPU, więc musi odbywać się w wątku renderowania.
         game.assets.startGame(civilizations)
 
         // Sprawdzamy, czy każda jednostka z reguł gry ma grafikę.
-        // Kontrola odbywa się po wypieczeniu atlasów.
         val unitTypes = game.unitRuleset.definitions
 
         val requiredAssets = unitTypes.mapValues { (_, unitType) ->
             unitType.requiredAnimations()
                 .map { it.id }
         }
-        val missingAssets = game.assets.missingArt(
-            requiredAssets
-        )
+
+        val missingAssets = game.assets.missingArt(requiredAssets)
 
         if (missingAssets.isNotEmpty()) {
             val text = "Brak grafik: " + missingAssets.joinToString(", ")
@@ -203,6 +290,6 @@ class MenuScreen(game: CivGame) : UiScreen(game) {
             return
         }
 
-        switchTo(GameScreen(game, civilizations))
+        switchTo(GameScreen(game, civilizations, settings))
     }
 }

@@ -1,3 +1,4 @@
+
 package com.Labs2077.civgame.client.ui
 
 import com.badlogic.gdx.graphics.Color
@@ -19,11 +20,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
  * Skin.dispose() zwalnia swoje zasoby i zwolniłby też czcionkę używaną przez kolejne ekrany.
  */
 object UiSkinFactory {
-    private val BLUE = Color(0.10f, 0.45f, 0.80f, 1f)
-    private val BLUE_DOWN = Color(0.06f, 0.30f, 0.55f, 1f)
-    private val BLUE_OVER = Color(0.20f, 0.55f, 0.90f, 1f)
-    private val DISABLED = Color(0.30f, 0.32f, 0.38f, 1f)
-    private val DISABLED_TEXT = Color(0.60f, 0.62f, 0.68f, 1f)
+    private val PRIMARY = Color(0.12f, 0.40f, 0.62f, 1f)
+    private val PRIMARY_DOWN = Color(0.08f, 0.30f, 0.48f, 1f)
+    private val PRIMARY_OVER = Color(0.17f, 0.48f, 0.70f, 1f)
+
+    private val SECONDARY = Color(0.16f, 0.19f, 0.25f, 1f)
+    private val SECONDARY_DOWN = Color(0.12f, 0.15f, 0.21f, 1f)
+    private val SECONDARY_OVER = Color(0.22f, 0.27f, 0.35f, 1f)
+
+    private val DISABLED = Color(0.25f, 0.27f, 0.31f, 1f)
+    private val DISABLED_TEXT = Color(0.60f, 0.62f, 0.66f, 1f)
 
     /** Tworzy Skin zbudowany w kodzie, z podaną czcionką. */
     fun create(font: BitmapFont): Skin {
@@ -36,19 +42,49 @@ object UiSkinFactory {
         skin.add("white", TextureRegionDrawable(TextureRegion(pixel)), Drawable::class.java)
 
         skin.add("default", Label.LabelStyle(font, Color.WHITE))
+
         skin.add(
             "default",
-            TextButton.TextButtonStyle()
-                .apply {
-                    this.font = font
-                    up = skin.newDrawable("white", BLUE)
-                    down = skin.newDrawable("white", BLUE_DOWN)
-                    over = skin.newDrawable("white", BLUE_OVER)
-                    disabled = skin.newDrawable("white", DISABLED)
-                    fontColor = Color.WHITE
-                    disabledFontColor = DISABLED_TEXT
-                })
+            buttonStyle(
+                skin,
+                font,
+                SECONDARY,
+                SECONDARY_DOWN,
+                SECONDARY_OVER
+            )
+        )
+
+        skin.add(
+            "primary",
+            buttonStyle(
+                skin,
+                font,
+                PRIMARY,
+                PRIMARY_DOWN,
+                PRIMARY_OVER
+            )
+        )
+
         return skin
+    }
+
+    private fun buttonStyle(
+        skin: Skin,
+        font: BitmapFont,
+        upColor: Color,
+        downColor: Color,
+        overColor: Color
+    ): TextButton.TextButtonStyle {
+        return TextButton.TextButtonStyle().apply {
+            this.font = font
+            up = skin.newDrawable("white", upColor)
+            down = skin.newDrawable("white", downColor)
+            over = skin.newDrawable("white", overColor)
+            disabled = skin.newDrawable("white", DISABLED)
+
+            fontColor = Color.WHITE
+            disabledFontColor = DISABLED_TEXT
+        }
     }
 
     /** Styl kwadracika z kolorem (0xRRGGBB): zaznaczony ma białą ramkę. Tworzony raz na kolor i zapamiętywany w skinie. */

@@ -1,3 +1,4 @@
+
 package com.Labs2077.civgame.client.screens
 
 import com.Labs2077.civgame.CivGame
@@ -23,12 +24,16 @@ import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
 
 /**
- * MOCK gry na UiScreen: pokazuje, że wypieczone tekstury działają. Dla gracza rysuje jego czołg i miasto
- * w jego kolorze (sprite'y w drawBackground, nazwy graczy i przycisk Menu to widgety Scene2D).
+ * MOCK gry na UiScreen: pokazuje, że wypieczone tekstury działają.
+ *
+ * Dla graczy rysuje ich czołgi i miasta w odpowiednich kolorach.
  * Docelowo w tym miejscu stoi HexMapScreen, a ta klasa znika.
  */
-class GameScreen(game: CivGame, private val initialCivilizations: List<Civilization>) :
-    UiScreen(game) {
+class GameScreen(
+    game: CivGame,
+    private val initialCivilizations: List<Civilization>,
+    private val settings: NewGameSettings = NewGameSettings(),
+) : UiScreen(game) {
 
     private lateinit var tanks: Map<CivilizationId, Animation<TextureRegion>>
 
@@ -38,14 +43,21 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
     // Etykieta wyświetlająca informację o zaznaczonej jednostce.
     private lateinit var selectionLabel: Label
     private lateinit var cities: Map<CivilizationId, Animation<TextureRegion>>
+
     private var time = 0f
+
     private val worldCamera = GameCamera(
-        viewportWidth = 40f, viewportHeight = 22.5f
+        viewportWidth = 40f,
+        viewportHeight = 22.5f
     )
+
     private val worldRenderer = WorldRenderer(game.assets)
     private val hexSize = 3f
+
     private val demoMap = HexagonGrid(
-        width = 3, height = 3, tiles = arrayOf(
+        width = 3,
+        height = 3,
+        tiles = arrayOf(
             MapTile(Hexagon(0, 0), TerrainDefinitionId("crystal_mountains")),
             MapTile(Hexagon(1, 0), TerrainDefinitionId("toxic_swamp")),
             MapTile(Hexagon(2, 0), TerrainDefinitionId("radiation_zone")),
@@ -64,11 +76,13 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
 
     init {
         initialCivilizations.forEachIndexed { index, civilization ->
+
             val unit = Unit(
                 definition = game.unitRuleset.definitions[UnitDefinitionId("tank")]!!,
                 civilization = civilization,
                 position = demoTiles[index % demoTiles.size].position,
             )
+
             val city = City(
                 civilization = civilization,
                 name = "Miasto ${civilization.id}",
@@ -83,38 +97,76 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
 
     private var civilizations: List<Civilization> = initialCivilizations
 
+    /**
+     * Oblicza poziomą pozycję podglądu gracza.
+     *
+     * Dla dwóch graczy zachowujemy dotychczasowy odstęp.
+     * Przy większej liczbie graczy zmniejszamy odstępy,
+     * aby elementy mieściły się na ekranie.
+     */
+    private fun playerPreviewX(index: Int): Float {
+        val playerCount = initialCivilizations.size
+
+        if (playerCount <= 1) {
+            return 140f
+        }
+
+        val spacing = minOf(
+            560f,
+            960f / (playerCount - 1)
+        )
+
+        return 140f + index * spacing
+    }
+
     override fun build(root: Table) {
-        // animacje tworzymy raz, nie w render()
+
+        // Animacje tworzymy raz, nie w render().
         tanks = civilizations.associate {
             it.id to game.assets.unitAnimation(
-                it.id, UnitDefinitionId("tank"), UnitAnimation.IDLE.id
+                it.id,
+                UnitDefinitionId("tank"),
+                UnitAnimation.IDLE.id
             )
         }
-        cities = civilizations.associate { it.id to game.assets.cityAnimation(it.id, 1) }
+
+        cities = civilizations.associate {
+            it.id to game.assets.cityAnimation(it.id, 1)
+        }
 
         val menuButton = TextButton("Menu", skin).apply {
             pad(10f, 30f, 10f, 30f)
-            onClick { switchTo(MenuScreen(game)) }
+            onClick {
+                switchTo(MainMenuScreen(game))
+            }
         }
+
         root.pad(30f)
             .top()
+
         root.add(label("GameScreen (mock). Tu będzie HexMapScreen."))
             .expandX()
             .left()
+
         root.add(menuButton)
             .right()
             .row()
-        // Wypełnia resztę ekranu, resztę rysuje drawBackground() (czołgi i miasta).
+
+        // Wypełnia resztę ekranu, resztę rysuje drawBackground().
         root.add()
             .expand()
             .row()
 
-        // nazwy graczy pod czołgami (współrzędne Stage'a, y rośnie w górę)
-        civilizations.forEachIndexed { i, c ->
-            stage.addActor(label("${c.player.id}").apply {
-                setPosition(140f + i * 560f, 270f)
-            })
+        // Nazwy graczy pod czołgami.
+        civilizations.forEachIndexed { index, civilization ->
+
+            stage.addActor(
+                label("Gracz ${index + 1}").apply {
+                    setPosition(playerPreviewX(index), 270f)
+                }
+            )
         }
+
         selectionLabel = label("Nie wybrano jednostki").apply {
             setPosition(30f, 30f)
         }
@@ -130,7 +182,9 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
         if (width == 0 || height == 0) return
 
         worldCamera.viewportWidth = 40f
-        worldCamera.viewportHeight = worldCamera.viewportWidth * height.toFloat() / width.toFloat()
+        worldCamera.viewportHeight =
+            worldCamera.viewportWidth * height.toFloat() / width.toFloat()
+
         worldCamera.update()
     }
 
@@ -146,7 +200,8 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
         inputs.addProcessor(
             MapInputController(worldCamera) { screenX, screenY ->
                 selectUnitAt(screenX, screenY)
-            })
+            }
+        )
     }
 
     /**
@@ -160,13 +215,17 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
         // Zamieniamy współrzędne ekranu na współrzędne świata gry.
         val worldPosition = worldCamera.unproject(
             Vector3(
-                screenX.toFloat(), screenY.toFloat(), 0f
+                screenX.toFloat(),
+                screenY.toFloat(),
+                0f
             )
         )
 
         // Zamieniamy pozycję świata na współrzędne heksagonu.
         val hexCoordinate = worldRenderer.worldToAxial(
-            worldPosition.x, worldPosition.y, hexSize
+            worldPosition.x,
+            worldPosition.y,
+            hexSize
         )
 
         // Sprawdzamy, czy na wskazanym heksie znajduje się jednostka.
@@ -177,6 +236,7 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
 
         // Aktualizujemy informację wyświetlaną na ekranie.
         val unit = selectedUnit
+
         selectionLabel.setText(
             if (unit != null) {
                 "Wybrano jednostke ${unit.id} (gracz ${unit.civilization.id})"
@@ -186,38 +246,63 @@ class GameScreen(game: CivGame, private val initialCivilizations: List<Civilizat
         )
     }
 
-    override fun drawBackground(delta: Float) {/*
+    override fun drawBackground(delta: Float) {
+
+        /*
          * Zachowujemy kolejność warstw:
          * najpierw teren, następnie jednostki, a na końcu
          * dodatkowe elementy demonstracyjne.
          *
          * Dzięki temu jednostki są rysowane nad kafelkami terenu.
          */
+
         worldRenderer.renderTiles(
-            tiles = demoMap, camera = worldCamera, hexSize = hexSize
+            tiles = demoMap,
+            camera = worldCamera,
+            hexSize = hexSize
         )
+
         worldRenderer.renderUnits(
             units = civilizations.flatMap { it.units },
             camera = worldCamera,
             hexSize = hexSize,
             stateTime = time
         )
-        // TODO: dodać rysowanie miast
+
+        // TODO: dodać rysowanie miast.
         drawWorld { batch ->
-            civilizations.forEachIndexed { i, p ->
-                val x = 140f + i * 560f
-                val tank = tanks.getValue(p.id)
+
+            civilizations.forEachIndexed { index, civilization ->
+
+                val x = playerPreviewX(index)
+
+                val tank = tanks.getValue(civilization.id)
                     .getKeyFrame(time)
-                batch.draw(tank, x, 300f, tank.regionWidth * 3f, tank.regionHeight * 3f)
-                val city = cities.getValue(p.id)
+
+                batch.draw(
+                    tank,
+                    x,
+                    300f,
+                    tank.regionWidth * 3f,
+                    tank.regionHeight * 3f
+                )
+
+                val city = cities.getValue(civilization.id)
                     .getKeyFrame(time)
-                batch.draw(city, x, 20f, city.regionWidth * 2f, city.regionHeight * 2f)
+
+                batch.draw(
+                    city,
+                    x,
+                    20f,
+                    city.regionWidth * 2f,
+                    city.regionHeight * 2f
+                )
             }
         }
     }
 
     override fun hide() {
-//        worldRenderer.dispose()
+        // worldRenderer.dispose()
         super.hide()
     }
 }
