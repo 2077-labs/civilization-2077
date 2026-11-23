@@ -13,7 +13,7 @@ class Civilization(
     val color: Color,
     cities: List<City> = emptyList(),
     units: List<Unit> = emptyList(),
-    resources: CivilizationResources,
+    resources: CivilizationResources = CivilizationResources(),
 ) {
     private val _cities = mutableMapOf<CityId, City>()
     private val _units = mutableMapOf<UnitId, Unit>()

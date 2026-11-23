@@ -1,3 +1,5 @@
 package com.labs2077.civilization.core.models
 
-interface Error
+open class Error(
+    val message: String,
+)
