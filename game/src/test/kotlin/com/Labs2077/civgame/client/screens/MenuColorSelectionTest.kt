@@ -68,4 +68,31 @@ class MenuColorSelectionTest {
     fun invalidInitialColorIndexThrowsException() {
         MenuColorSelection(initialColorIndices = listOf(0, 100))
     }
+    @Test
+    fun eightPlayersCanStartWithDifferentColors() {
+        val selection = MenuColorSelection(
+            initialColorIndices = (0 until 8).toList()
+        )
+
+        assertTrue(selection.canStart)
+
+        for (player in 0 until 8) {
+            assertEquals(player, selection.selectedColorIndex(player))
+        }
+    }
+
+    @Test
+    fun duplicateColorAmongEightPlayersPreventsStarting() {
+        val selection = MenuColorSelection(
+            initialColorIndices = (0 until 8).toList()
+        )
+
+        selection.selectColor(7, 0)
+
+        assertFalse(selection.canStart)
+
+        selection.selectColor(7, 7)
+
+        assertTrue(selection.canStart)
+    }
 }
