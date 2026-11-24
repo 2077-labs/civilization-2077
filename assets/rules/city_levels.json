@@ -4,23 +4,39 @@
     {
       "id": "city_level_1",
       "level": 1,
-      "centerProduction": { "food": 3, "metals": 2, "crystals": 0 },
-      "levelUpRequirement": { "food": 30 },
+      "centerProduction": {
+        "food": 3,
+        "metals": 2,
+        "crystals": 0
+      },
+      "levelUpRequirement": {
+        "food": 30
+      },
       "radius": 1,
       "maxTiles": 4
     },
     {
       "id": "city_level_2",
       "level": 2,
-      "centerProduction": { "food": 4, "metals": 3, "crystals": 0 },
-      "levelUpRequirement": { "food": 70 },
+      "centerProduction": {
+        "food": 4,
+        "metals": 3,
+        "crystals": 0
+      },
+      "levelUpRequirement": {
+        "food": 70
+      },
       "radius": 2,
       "maxTiles": 8
     },
     {
       "id": "city_level_3",
       "level": 3,
-      "centerProduction": { "food": 5, "metals": 4, "crystals": 1 },
+      "centerProduction": {
+        "food": 5,
+        "metals": 4,
+        "crystals": 1
+      },
       "radius": 3,
       "maxTiles": 12
     }

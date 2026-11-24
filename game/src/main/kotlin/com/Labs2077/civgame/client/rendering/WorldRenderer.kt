@@ -1,15 +1,19 @@
 package com.Labs2077.civgame.client.rendering
 
 import com.Labs2077.civgame.client.assets.AssetProvider
+import com.Labs2077.civgame.client.decoration.DecorationId
 import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.units.UnitAnimation
+import com.badlogic.gdx.graphics.Color
 import com.Labs2077.civgame.engine.MapTile
 import com.badlogic.gdx.graphics.g2d.Animation
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Array
 import com.labs2077.civilization.core.models.CivilizationId
 import com.labs2077.civilization.core.models.Hexagon
+import com.labs2077.civilization.core.models.Terrain
 import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
 import kotlin.math.sqrt
@@ -17,21 +21,34 @@ import kotlin.math.sqrt
 class WorldRenderer(
     private val assets: AssetProvider
 ) {
-    private val batch = SpriteBatch()
+    private val batch = PolygonSpriteBatch()
     private val worldPosition = Vector2()
 
     /*
      * Cache animacji jednostek.
      *
-     * Klucz składa się z ID właściciela i ID typu jednostki,
+     * Klucz składa się z ID właściciela, ID typu jednostki oraz nazwy animacji (np. "idle", "move").
      * dzięki czemu każdy gracz może korzystać z animacji
      * przygotowanej dla swojej frakcji.
      *
      * Animacje są pobierane z GameAssets tylko wtedy,
      * gdy nie ma ich jeszcze w cache.
      */
-    private val unitAnimations =
-        mutableMapOf<Pair<CivilizationId, UnitDefinitionId>, Animation<TextureRegion>>()
+    private val stateAnimations =
+        mutableMapOf<Triple<CivilizationId, UnitDefinitionId, UnitAnimation>, Animation<TextureRegion>>()
+
+    // analogiczny cache wariantów dekoracji: id -> klatki z atlasu
+    private val decorationFrames = mutableMapOf<DecorationId, Array<out TextureRegion>>()
+
+    // analogiczny cache animacji miast: (właściciel, poziom) -> animacja
+    private val cityAnimations = mutableMapOf<Pair<CivilizationId, Int>, Animation<TextureRegion>>()
+
+    private companion object {
+        const val TILE_TEXTURE_WIDTH_PX = 128f
+
+        /** Stopy jednostki leżą tyle (w hexSize) poniżej środka kafelka. Do strojenia. */
+        const val UNIT_FOOT_OFFSET = 0.35f
+    }
 
     /**
      * Rysuje na ekranie wszystkie widoczne kafelki
@@ -41,7 +58,7 @@ class WorldRenderer(
      *                wyrażony w jednostkach świata gry.
      */
     fun renderTiles(
-        tiles: Iterable<MapTile>, camera: GameCamera, hexSize: Float
+        tiles: Iterable<Terrain>, camera: GameCamera, hexSize: Float
     ) {
         // Promień hexa nie może być mniejszy lub równy 0
         require(hexSize > 0f)
@@ -96,14 +113,20 @@ class WorldRenderer(
                 }
 
                 // Pobieranie odpowiedniej grafiki dla danego terenu
-                val region = assets.terrain(tile.terrainTypeId)
+                val region = assets.terrain(tile.definition.id)
+                // Wyznaczenie skali wysokości regionu tekstury do wysokości kafelka w świecie gry
+                val scale = tileHeight / region.regionHeight
+                // Na podstawie tej skali wiemy, jak duży obszar w świecie gry zajmie grafika
+                val drawW = region.regionWidth * scale
+                val drawH = region.regionHeight * scale
 
                 // Rysowanie grafiki na ekranie
                 batch.draw(
-                    region,
-                    // Wyznaczamy lewy dolny róg grafiki,
-                    // odejmując połowę szerokości i wysokości od środka kafelka.
-                    center.x - tileWidth / 2f, center.y - tileHeight / 2f, tileWidth, tileHeight
+                    HexMask.of(region),
+                    center.x - drawW / 2f,
+                    center.y - drawH / 2f,
+                    drawW,
+                    drawH
                 )
             }
         } finally {
@@ -180,15 +203,14 @@ class WorldRenderer(
                     continue
                 }
 
-                // Tworzymy klucz cache na podstawie właściciela i typu jednostki.
-                val key = unit.civilization.id to unit.definition.id
-
                 /*
                     Funkcja najpierw sprawdza własną podręczną mapę unitAnimations.
                     Jeśli animacja już tam jest, bierze ją od razu.
                     Jeśli nie ma jej jeszcze w pamięci podręcznej, pobiera ją z assets
                  */
-                val animation = unitAnimations.getOrPut(key) {
+                val animation = stateAnimations.getOrPut(
+                    Triple(unit.civilization.id, unit.definition.id, UnitAnimation.IDLE)
+                ) {
                     assets.unitAnimation(
                         unit.civilization.id, unit.definition.id, UnitAnimation.IDLE.id
                     )
@@ -206,6 +228,151 @@ class WorldRenderer(
                     region, center.x - unitSize / 2f, center.y - unitSize / 2f, unitSize, unitSize
                 )
             }
+        } finally {
+            batch.end()
+        }
+    }
+
+    /**
+     * Rysuje na ekranie widoczne miasta, dekoracje i jednostki w jednym przebiegu.
+     *
+     * Miasta rysowane są pod pozostałymi obiektami. Dekoracje (posortowane od tyłu do przodu)
+     * są scalane w locie z jednostkami po współrzędnej Y stóp, aby zachować poprawną głębię.
+     *
+     * @param cities lista miast do wyrenderowania.
+     * @param decorations lista dekoracji posortowana malejąco po współrzędnej Y stóp.
+     * @param units lista jednostek do wyrenderowania.
+     * @param camera kamera określająca aktualny obszar widzenia na mapie.
+     * @param hexSize promień heksagonu (odległość od środka do wierzchołka)
+     *                wyrażony w jednostkach świata gry.
+     * @param stateTime całkowity czas animacji (w sekundach) służący do wybrania odpowiedniej klatki.
+     * @param fadeOccluders określa, czy dekoracje zasłaniające jednostki mają być półprzezroczyste.
+     * @param isTileVisible opcjonalny filtr widoczności kafelka (np. dla mgły wojny).
+     */
+    fun renderWorldObjects(
+        cities: List<CitySprite>,
+        decorations: List<DecorationSprite>,
+        units: List<UnitSprite>,
+        camera: GameCamera,
+        hexSize: Float,
+        stateTime: Float,
+        fadeOccluders: Boolean,
+        isTileVisible: (Hexagon) -> Boolean = { true }
+    ) {
+        require(hexSize > 0f)
+
+        val pixelScale = sqrt(3f) * hexSize / TILE_TEXTURE_WIDTH_PX
+        val unitSize = sqrt(3f) * hexSize
+        val halfWidth = camera.viewportWidth * camera.zoom / 2f
+        val halfHeight = camera.viewportHeight * camera.zoom / 2f
+        val cameraLeft = camera.position.x - halfWidth
+        val cameraRight = camera.position.x + halfWidth
+        val cameraBottom = camera.position.y - halfHeight
+        val cameraTop = camera.position.y + halfHeight
+
+        // Sortujemy jednostki od najwyższego Y (najdalej od kamery), aby scalić je z dekoracjami.
+        val sorted = units.sortedByDescending { it.y }
+        var next = 0
+
+        fun drawUnit(u: UnitSprite) {
+            if (!isVisible(
+                    u.x,
+                    u.y,
+                    unitSize,
+                    unitSize,
+                    cameraLeft,
+                    cameraRight,
+                    cameraBottom,
+                    cameraTop
+                )
+            ) return
+            val anim = if (u.moving) UnitAnimation.MOVE else UnitAnimation.IDLE
+            val region = stateAnimations.getOrPut(Triple(u.civilizationId, u.unitTypeId, anim)) {
+                assets.unitAnimation(u.civilizationId, u.unitTypeId, anim.id)
+            }
+                .getKeyFrame(stateTime)
+            // Przy ruchu w lewo odbijamy sprite w poziomie (ujemna szerokość rysowania).
+            if (u.flipX) batch.draw(
+                region,
+                u.x + unitSize / 2f,
+                u.y - unitSize / 2f,
+                -unitSize,
+                unitSize
+            )
+            else batch.draw(region, u.x - unitSize / 2f, u.y - unitSize / 2f, unitSize, unitSize)
+        }
+
+        // Sprawdza, czy prostokąt dekoracji nachodzi na korpus (~60% rozmiaru) narysowanej jednostki.
+        fun occludesDrawnUnit(left: Float, bottom: Float, right: Float, top: Float): Boolean {
+            val half = unitSize * 0.3f
+            for (i in 0 until next) {
+                val u = sorted[i]
+                if (u.x + half > left && u.x - half < right && u.y + half > bottom && u.y - half < top) return true
+            }
+            return false
+        }
+
+        batch.projectionMatrix = camera.combined
+        batch.begin()
+        try {
+            // Miasta rysujemy w pierwszej kolejności pod wszystkimi pozostałymi obiektami.
+            for (city in cities) {
+                if (!isTileVisible(city.tile)) continue
+                val c = axialToWorld(city.tile, hexSize, worldPosition)
+                val region = cityAnimations.getOrPut(city.civilizationId to city.level) {
+                    assets.cityAnimation(city.civilizationId, city.level)
+                }
+                    .getKeyFrame(stateTime)
+                val w = unitSize
+                val h = unitSize * region.regionHeight / region.regionWidth
+                if (!isVisible(
+                        c.x,
+                        c.y,
+                        w,
+                        h,
+                        cameraLeft,
+                        cameraRight,
+                        cameraBottom,
+                        cameraTop
+                    )
+                ) continue
+                batch.draw(region, c.x - w / 2f, c.y - h / 2f, w, h)
+            }
+
+            // Dekoracje i jednostki przeplatamy według pozycji stóp (algorytm malarza).
+            for (sprite in decorations) {
+                // Jednostki leżące "za" bieżącą dekoracją (wyższe Y stóp) rysujemy przed nią.
+                while (next < sorted.size && sorted[next].y - UNIT_FOOT_OFFSET * hexSize > sprite.footY) {
+                    drawUnit(sorted[next++])
+                }
+
+                if (!isTileVisible(sprite.tile)) continue
+
+                val frames = decorationFrames.getOrPut(sprite.decorationId) {
+                    assets.decorationFrames(sprite.decorationId)
+                }
+                val region = frames[Math.floorMod(sprite.variant, frames.size)]
+                val width = region.regionWidth * pixelScale
+                val height = region.regionHeight * pixelScale
+                if (!isVisible(
+                        sprite.footX, sprite.footY + height / 2f, width, height,
+                        cameraLeft, cameraRight, cameraBottom, cameraTop
+                    )
+                ) continue
+
+                // Przygaszamy dekorację, jeśli zasłania narysowaną wcześniej jednostkę.
+                val faded = fadeOccluders && occludesDrawnUnit(
+                    sprite.footX - width / 2f,
+                    sprite.footY,
+                    sprite.footX + width / 2f,
+                    sprite.footY + height
+                )
+                if (faded) batch.setColor(1f, 1f, 1f, 0.5f)
+                batch.draw(region, sprite.footX - width / 2f, sprite.footY, width, height)
+                if (faded) batch.setColor(Color.WHITE)
+            }
+            // reszta jednostek (w modelu A: wszystkie)
+            while (next < sorted.size) drawUnit(sorted[next++])
         } finally {
             batch.end()
         }
@@ -309,6 +476,8 @@ class WorldRenderer(
      * animacje z aktualnych atlasów.
      */
     fun onAssetsRebuilt() {
-        unitAnimations.clear()
+        stateAnimations.clear()
+        cityAnimations.clear()
+        decorationFrames.clear()
     }
 }

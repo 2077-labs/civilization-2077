@@ -1,6 +1,7 @@
 package com.Labs2077.civgame.client.assets
 
 import com.Labs2077.civgame.client.assets.audio.SfxId
+import com.Labs2077.civgame.client.decoration.DecorationId
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -41,7 +42,7 @@ interface AssetProvider {
         mode: Animation.PlayMode = Animation.PlayMode.LOOP,
     ): Animation<TextureRegion>
 
-    fun terrain(
-        id: TerrainDefinitionId,
-    ): TextureRegion
+    fun terrain(id: TerrainDefinitionId): TextureRegion
+
+    fun decorationFrames(id: DecorationId): Array<out TextureRegion>
 }

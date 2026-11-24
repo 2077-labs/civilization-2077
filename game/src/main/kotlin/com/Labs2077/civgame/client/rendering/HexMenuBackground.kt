@@ -28,13 +28,12 @@ class HexMenuBackground(
 
     // Dostępne tekstury terenu z common.atlas.
     private val terrainRegions = listOf(
-        "city_ruins",
+        "old_city_ruins",
         "crystal_mountains",
-        "deep_water",
-        "desert_terrain",
+        "water",
+        "desert",
         "radiation_zone",
-        "scrap_field",
-        "shallow_water",
+        "scrapyard",
         "toxic_swamp"
     ).map { terrainId ->
         val texture = assets.terrain(TerrainDefinitionId(terrainId))

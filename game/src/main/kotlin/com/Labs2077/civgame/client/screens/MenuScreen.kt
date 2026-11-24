@@ -5,7 +5,6 @@ import com.Labs2077.civgame.CivGame
 import com.Labs2077.civgame.client.ui.ColorSwatchButton
 import com.Labs2077.civgame.client.ui.UiScreen
 import com.Labs2077.civgame.client.units.requiredAnimations
-import com.Labs2077.civgame.engine.PlayerSetup
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup
@@ -260,52 +259,46 @@ class MenuScreen(
      */
     private fun startGame() {
 
-        // Nie pozwalamy rozpocząć gry, jeśli gracze mają ten sam kolor.
         if (!colorSelection.canStart) {
             return
         }
 
-        // Tworzymy konfigurację wszystkich wybranych graczy.
-        val playerSetups = (0 until settings.playerCount).map { player ->
-            PlayerSetup(
-                id = player,
-                name = "Gracz ${player + 1}",
-                colorRgb = colorSelection.selectedColor(player),
-            )
-        }
-
-        // Tworzymy cywilizacje z kolorami wybranymi przez graczy.
-        val civilizations = playerSetups.map { setup ->
+        val civilizations = (0 until settings.playerCount).map { playerIndex ->
             Civilization(
                 player = Player(),
-                color = com.labs2077.civilization.core.models.Color(setup.colorRgb),
+                color = com.labs2077.civilization.core.models.Color(
+                    colorSelection.selectedColor(playerIndex)
+                ),
                 cities = emptyList(),
                 units = emptyList(),
                 resources = CivilizationResources(),
             )
         }
 
-        // Wypieczenie atlasu jednostek i miast dla każdego gracza.
         game.assets.startGame(civilizations)
 
-        // Sprawdzamy, czy każda jednostka z reguł gry ma grafikę.
-        val unitTypes = game.unitRuleset.definitions
-
-        val requiredAssets = unitTypes.mapValues { (_, unitType) ->
-            unitType.requiredAnimations()
-                .map { it.id }
+        val requiredAssets = game.unitRuleset.definitions.mapValues { (_, unitType) ->
+            unitType.requiredAnimations().map { it.id }
         }
 
         val missingAssets = game.assets.missingArt(requiredAssets)
+        val missingDecorations = game.assets.missingDecorations(
+            game.decorationRuleset.decorationIds
+        )
 
         if (missingAssets.isNotEmpty()) {
             val text = "Brak grafik: " + missingAssets.joinToString(", ")
             messageLabel.setText(text)
             Gdx.app.error("Assets", text)
             return
+        } else if (missingDecorations.isNotEmpty()) {
+            val text = "Brak grafik dekoracji: " + missingDecorations.joinToString(", ")
+            messageLabel.setText(text)
+            Gdx.app.error("Assets", text)
+            return
         }
 
-        switchTo(GameScreen(game, civilizations, settings))
+        switchTo(GameScreen(game, civilizations))
     }
 }
 

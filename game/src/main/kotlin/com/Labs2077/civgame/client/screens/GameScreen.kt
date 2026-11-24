@@ -1,207 +1,354 @@
-
 package com.Labs2077.civgame.client.screens
 
 import com.Labs2077.civgame.CivGame
+import com.Labs2077.civgame.client.decoration.DecorationPlanner
 import com.Labs2077.civgame.client.input.MapInputController
+import com.Labs2077.civgame.client.rendering.CitySprite
+import com.Labs2077.civgame.client.rendering.DecorationLayer
+import com.Labs2077.civgame.client.rendering.HexLayout
+import com.Labs2077.civgame.client.rendering.UnitSprite
 import com.Labs2077.civgame.client.rendering.WorldRenderer
 import com.Labs2077.civgame.client.rendering.camera.GameCamera
 import com.Labs2077.civgame.client.ui.UiScreen
-import com.Labs2077.civgame.client.units.UnitAnimation
-import com.Labs2077.civgame.engine.MapTile
-import com.badlogic.gdx.graphics.g2d.Animation
-import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.labs2077.civilization.core.map_generation.ClusterMapGenerator
+import com.labs2077.civilization.core.map_generation.MapGenerationConfig
+import com.labs2077.civilization.core.map_generation.MapGenerator
 import com.labs2077.civilization.core.models.City
 import com.labs2077.civilization.core.models.Civilization
 import com.labs2077.civilization.core.models.CivilizationId
 import com.labs2077.civilization.core.models.Hexagon
 import com.labs2077.civilization.core.models.HexagonGrid
-import com.labs2077.civilization.core.models.TerrainDefinitionId
+import com.labs2077.civilization.core.models.Terrain
 import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
+import kotlin.math.max
+import kotlin.random.Random
 
 /**
- * MOCK gry na UiScreen: pokazuje, że wypieczone tekstury działają.
+ * Stan pomocniczy jednostki spacerującej po mapie demonstracyjnej (wyłącznie na potrzeby demo, bez silnika).
  *
- * Dla graczy rysuje ich czołgi i miasta w odpowiednich kolorach.
- * Docelowo w tym miejscu stoi HexMapScreen, a ta klasa znika.
+ * Przechowuje aktualną ścieżkę po siatce heksagonalnej oraz postęp interpolacji między kafelkami,
+ * co pozwala przetestować animację ruchu oraz sortowanie głębokości względem dekoracji.
+ *
+ * @property civilizationId identyfikator cywilizacji.
+ * @property unitTypeId identyfikator definicji jednostki z [CivGame.unitRuleset].
+ * @property rng niezależny generator losowy dla tej jednostki (wybór celu i czasu postoju).
  */
-class GameScreen(
-    game: CivGame,
-    private val initialCivilizations: List<Civilization>,
-    private val settings: NewGameSettings = NewGameSettings(),
-) : UiScreen(game) {
+private class Walker(
+    val civilizationId: CivilizationId,
+    val unitTypeId: UnitDefinitionId,
+    start: Hexagon,
+    val rng: Random
+) {
+    var tile: Hexagon = start
+    var path: List<Hexagon> = emptyList()
 
-    private lateinit var tanks: Map<CivilizationId, Animation<TextureRegion>>
+    /** Indeks bieżącego odcinka na liście [path]. */
+    var step = 0
+
+    /** Postęp interpolacji między kafelkiem [step] a [step] + 1 w zakresie 0..1. */
+    var t = 0f
+
+    /** Pozostały czas postoju (w sekundach) przed wylosowaniem kolejnej trasy. */
+    var wait = rng.nextFloat() * 2f
+
+    /** Czy sprite jednostki powinien być odbity w poziomie (kierunek w lewo). */
+    var flipX = false
+    val isMoving: Boolean get() = path.isNotEmpty()
+}
+
+/**
+ * Prezentuje działanie renderowania: wyświetla siatkę heksagonalną z losowymi skupiskami terenów,
+ * warstwę dekoracji generowaną przez [DecorationPlanner] i [DecorationLayer], miasta cywilizacji
+ * oraz jednostki poruszające się po mapie z uwzględnieniem przesłaniania przez dekoracje.
+ *
+ *
+ * TODO: Docelowo ekran zostanie zastąpiony właściwym ekranem rozgrywki zasilanym stanem z silnika gry.
+ */
+class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiScreen(game) {
+    private companion object {
+        const val MAP_WIDTH = 14
+        const val MAP_HEIGHT = 10
+        const val MAP_SEED = 77L
+        const val WALKER_COUNT = 6
+
+        /** Prędkość poruszania się jednostek demo wyrażona w kafelkach na sekundę. */
+        const val WALK_SPEED = 1.4f
+
+        /** Maksymalna liczba kroków w pojedynczej losowanej ścieżce. */
+        const val MAX_PATH_STEPS = 8
+    }
+
+    /** Całkowity czas działania ekranu w sekundach — służy do wybierania klatek animacji. */
+    private var time = 0f
+
+    /** Promień heksagonu (odległość od środka do wierzchołka) w jednostkach świata gry. */
+    private val hexSize = 3f
+
+    private val worldCamera = GameCamera(viewportWidth = 40f, viewportHeight = 22.5f)
+    private val worldRenderer = WorldRenderer(game.assets)
+
+    /** TODO: Domyślnie oczywiście mapa generowana w silniku i jedynie wykorzystywana w ekranie gry */
+    private val mapGenerator: MapGenerator = ClusterMapGenerator()
+    private val worldMap: HexagonGrid<Terrain> = mapGenerator.generate(
+        config = MapGenerationConfig(MAP_WIDTH, MAP_HEIGHT, MAP_SEED),
+        terrains = game.terrainRuleset
+    )
+    private val worldTiles = worldMap.toList()
+
+    /** Lista wszystkich przechodnich współrzędnych mapy (używana do rozmieszczania miast i losowania tras). */
+    private val passableList: List<Hexagon> =
+        worldTiles.filter { it.definition.passable }
+            .map { it.position }
+            .also { check(it.isNotEmpty()) { "Demo mapa nie ma żadnego przechodniego kafelka" } }
+
+    /** Zbiór przechodnich współrzędnych dla szybkiego sprawdzania podczas walidacji ścieżki. */
+    private val passable: Set<Hexagon> = passableList.toSet()
 
     // Jednostka aktualnie zaznaczona przez gracza.
     private var selectedUnit: Unit? = null
 
     // Etykieta wyświetlająca informację o zaznaczonej jednostce.
     private lateinit var selectionLabel: Label
-    private lateinit var cities: Map<CivilizationId, Animation<TextureRegion>>
 
-    private var time = 0f
-
-    private val worldCamera = GameCamera(
-        viewportWidth = 40f,
-        viewportHeight = 22.5f
-    )
-
-    private val worldRenderer = WorldRenderer(game.assets)
-    private val hexSize = 3f
-
-    private val demoMap = HexagonGrid(
-        width = 3,
-        height = 3,
-        tiles = arrayOf(
-            MapTile(Hexagon(0, 0), TerrainDefinitionId("crystal_mountains")),
-            MapTile(Hexagon(1, 0), TerrainDefinitionId("toxic_swamp")),
-            MapTile(Hexagon(2, 0), TerrainDefinitionId("radiation_zone")),
-
-            MapTile(Hexagon(0, 1), TerrainDefinitionId("crystal_mountains")),
-            MapTile(Hexagon(1, 1), TerrainDefinitionId("toxic_swamp")),
-            MapTile(Hexagon(2, 1), TerrainDefinitionId("radiation_zone")),
-
-            MapTile(Hexagon(-1, 2), TerrainDefinitionId("crystal_mountains")),
-            MapTile(Hexagon(0, 2), TerrainDefinitionId("toxic_swamp")),
-            MapTile(Hexagon(1, 2), TerrainDefinitionId("radiation_zone"))
-        )
-    )
-
-    private val demoTiles = demoMap.toList()
-
-    init {
-        initialCivilizations.forEachIndexed { index, civilization ->
-
-            val unit = Unit(
-                definition = game.unitRuleset.definitions[UnitDefinitionId("tank")]!!,
-                civilization = civilization,
-                position = demoTiles[index % demoTiles.size].position,
-            )
-
+    /*
+     * Miasta startowe cywilizacji: pierwsza cywilizacja trafia na początek listy przechodnich
+     * kafelków, a ostatnia na jej koniec, aby rozsunąć miasta na mapie.
+     */
+    private val civilizations: List<Civilization> =
+        initialCivilizations.onEachIndexed { index, civilization ->
+            val position =
+                passableList[index * (passableList.size - 1) / max(
+                    1,
+                    initialCivilizations.size - 1
+                )]
             val city = City(
                 civilization = civilization,
-                name = "Miasto ${civilization.id}",
-                level = game.cityLevelRuleset.levels[0],
-                position = demoTiles[(index + 4) % demoTiles.size].position,
+                name = "Miasto ${index + 1}",
+                level = game.cityLevelRuleset.initial,
+                position = position
             )
-
-            civilization.add(unit)
             civilization.add(city)
         }
+
+    /** Statyczne sprite'y miast przekazywane do [WorldRenderer.renderWorldObjects]. */
+    private val citySprites = civilizations.flatMap { civ ->
+        civ.cities.map { CitySprite(civ.id, it.level.level, it.position) }
     }
 
-    private var civilizations: List<Civilization> = initialCivilizations
+    /** Jednostki demonstracyjne rozdzielone cyklicznie pomiędzy cywilizacje i mobilne typy z rulesetu. */
+    private val walkers: List<Walker> = run {
+        val rng = Random(MAP_SEED + 1)
+        val types = game.unitRuleset.definitions.values.filter { it.movement > 0 }
+        List(WALKER_COUNT) { i ->
+            Walker(
+                civilizationId = civilizations[i % civilizations.size].id,
+                unitTypeId = types[i % types.size].id,
+                start = passableList[rng.nextInt(passableList.size)],
+                rng = Random(rng.nextLong())
+            )
+        }
+    }
+
+    // TODO: docelowo ziarno pochodzi z ustawień nowej gry lub wczytanego zapisu
+    private var mapSeed = 2077L
+
+    /** Posortowana warstwa dekoracji; przebudowywana wyłącznie przy zmianie mapy lub seeda, nie w render(). */
+    private var decorationSprites = buildDecorations()
+
+    /** Określa, czy dekoracje stojące przed jednostką mają być przygaszane (półprzezroczyste). */
+    private var fadeOccluders = true
+
+    // Robocze wektory wielokrotnego użytku, żeby nie alokować co klatke.
+    private val tmpA = Vector2()
+    private val tmpB = Vector2()
+
+    private lateinit var fadeButton: TextButton
+
+    init {
+        // Ustawiamy kamerę na geometrycznym środku wygenerowanej mapy.
+        val center = Vector2()
+        var sumX = 0f
+        var sumY = 0f
+        worldTiles.forEach {
+            HexLayout.axialToWorld(it.position, hexSize, center)
+            sumX += center.x
+            sumY += center.y
+        }
+        worldCamera.moveTo(sumX / worldTiles.size, sumY / worldTiles.size)
+        worldCamera.changeZoom(1.4f)
+    }
 
     /**
-     * Oblicza poziomą pozycję podglądu gracza.
-     *
-     * Dla dwóch graczy zachowujemy dotychczasowy odstęp.
-     * Przy większej liczbie graczy zmniejszamy odstępy,
-     * aby elementy mieściły się na ekranie.
+     * Planuje rozmieszczenie dekoracji dla aktualnej mapy i zamienia plan na listę posortowaną
+     * algorytmem malarza (od tyłu do przodu). Pola zajęte przez miasta są pomijane.
      */
-    private fun playerPreviewX(index: Int): Float {
-        val playerCount = initialCivilizations.size
+    private fun buildDecorations() = DecorationLayer.build(
+        plan = DecorationPlanner.planMap(
+            tiles = worldTiles,
+            ruleset = game.decorationRuleset,
+            mapSeed = mapSeed,
+            suppressed = citySprites.map { it.tile }
+                .toSet()
+        ),
+        hexSize = hexSize
+    )
 
-        if (playerCount <= 1) {
-            return 140f
+    /**
+     * Buduje losową trasę po sąsiednich przechodnich kafelkach (bez natychmiastowego zawracania).
+     * Jeśli jednostka jest otoczona nieprzechodnim terenem, chwilę odczekuje.
+     */
+    private fun pickPath(w: Walker) {
+        val steps = w.rng.nextInt(2, MAX_PATH_STEPS + 1)
+        val path = mutableListOf(w.tile)
+
+        repeat(steps) {
+            val current = path.last()
+            val previous = path.getOrNull(path.size - 2)
+            val candidates = current.neighbors()
+                .filter { it in passable && it != previous }
+            if (candidates.isEmpty()) return@repeat
+            path += candidates.random(w.rng)
         }
 
-        val spacing = minOf(
-            560f,
-            960f / (playerCount - 1)
-        )
-
-        return 140f + index * spacing
+        if (path.size >= 2) {
+            w.path = path
+            w.step = 0
+            w.t = 0f
+        } else {
+            w.wait = 1f
+        }
     }
 
-    override fun build(root: Table) {
-
-        // Animacje tworzymy raz, nie w render().
-        tanks = civilizations.associate {
-            it.id to game.assets.unitAnimation(
-                it.id,
-                UnitDefinitionId("tank"),
-                UnitAnimation.IDLE.id
-            )
-        }
-
-        cities = civilizations.associate {
-            it.id to game.assets.cityAnimation(it.id, 1)
-        }
-
-        val menuButton = TextButton("Menu", skin).apply {
-            pad(10f, 30f, 10f, 30f)
-            onClick {
-                switchTo(MainMenuScreen(game))
+    /**
+     * Aktualizuje stany ruchu i postoju wszystkich jednostek demonstracyjnych.
+     *
+     * @param delta czas od poprzedniej klatki w sekundach
+     */
+    private fun updateWalkers(delta: Float) {
+        for (w in walkers) {
+            if (!w.isMoving) {
+                w.wait -= delta
+                if (w.wait <= 0f) pickPath(w)
+                continue
+            }
+            w.t += delta * WALK_SPEED
+            while (w.t >= 1f && w.isMoving) {
+                w.t -= 1f
+                w.step++
+                if (w.step >= w.path.size - 1) {
+                    w.tile = w.path.last()
+                    w.path = emptyList()
+                    w.step = 0
+                    w.t = 0f
+                    w.wait = 0.5f + w.rng.nextFloat() * 1.5f
+                }
             }
         }
+    }
 
-        root.pad(30f)
-            .top()
+    /**
+     * Buduje listę [UnitSprite] w bieżących pozycjach świata na podstawie interpolacji
+     * między środkami sąsiednich kafelków (docelowo pozycję powinna dostarczyć warstwa animacji ruchu silnika).
+     */
+    private fun unitSprites(): List<UnitSprite> = walkers.map { w ->
+        val from = w.path.getOrNull(w.step) ?: w.tile
+        val to = w.path.getOrNull(w.step + 1) ?: from
+        HexLayout.axialToWorld(from, hexSize, tmpA)
+        HexLayout.axialToWorld(to, hexSize, tmpB)
+        val dx = tmpB.x - tmpA.x
+        // Obracamy sprite w stronę ruchu, a przy ruchu pionowym zachowujemy ostatni zwrot.
+        if (dx > 0.01f) w.flipX = false else if (dx < -0.01f) w.flipX = true
+        UnitSprite(
+            civilizationId = w.civilizationId,
+            unitTypeId = w.unitTypeId,
+            x = tmpA.x + dx * w.t,
+            y = tmpA.y + (tmpB.y - tmpA.y) * w.t,
+            moving = w.isMoving,
+            flipX = w.flipX
+        )
+    }
 
-        root.add(label("GameScreen (mock). Tu będzie HexMapScreen."))
-            .expandX()
-            .left()
+    /** Synchronizuje etykietę przycisku przesłaniania z aktualną wartością flagi [fadeOccluders]. */
+    private fun refreshButtons() {
+        fadeButton.setText("Półprzezroczyste przeszkody: " + if (fadeOccluders) "TAK" else "NIE")
+    }
 
-        root.add(menuButton)
-            .right()
-            .row()
-
-        // Wypełnia resztę ekranu, resztę rysuje drawBackground().
-        root.add()
-            .expand()
-            .row()
-
-        // Nazwy graczy pod czołgami.
-        civilizations.forEachIndexed { index, civilization ->
-
-            stage.addActor(
-                label("Gracz ${index + 1}").apply {
-                    setPosition(playerPreviewX(index), 270f)
-                }
-            )
+    /** Buduje górny pasek narzędziowy Scene2D nad obszarem renderowanej mapy. */
+    override fun build(root: Table) {
+        val menuButton = TextButton("Menu", skin).apply {
+            pad(10f, 30f, 10f, 30f)
+            onClick { switchTo(MenuScreen(game)) }
         }
-
+        fadeButton = TextButton("", skin).apply {
+            pad(10f, 20f, 10f, 20f)
+            onClick {
+                fadeOccluders = !fadeOccluders
+                refreshButtons()
+            }
+        }
+        val seedButton = TextButton("Nowy seed dekoracji", skin).apply {
+            pad(10f, 20f, 10f, 20f)
+            onClick {
+                mapSeed = Random.nextLong()
+                decorationSprites = buildDecorations()
+            }
+        }
         selectionLabel = label("Nie wybrano jednostki").apply {
             setPosition(30f, 30f)
         }
+        refreshButtons()
+
+        val buttons = Table().apply {
+            add(fadeButton).padRight(10f)
+            add(seedButton).padRight(10f)
+            add(menuButton)
+        }
+
+
+        root.pad(30f)
+            .top()
+        root.add(buttons)
+            .colspan(3)
+            .left()
+            .padTop(10f)
+            .row()
+        root.add()
+            .expand()
+            .row()
 
         stage.addActor(selectionLabel)
     }
 
     override fun update(delta: Float) {
         time += delta
+        updateWalkers(delta)
     }
 
     override fun onResize(width: Int, height: Int) {
         if (width == 0 || height == 0) return
-
+        // Dopasowujemy wysokość widoku kamery świata do proporcji okna, utrzymując stałą szerokość logiczną.
         worldCamera.viewportWidth = 40f
-        worldCamera.viewportHeight =
-            worldCamera.viewportWidth * height.toFloat() / width.toFloat()
-
+        worldCamera.viewportHeight = worldCamera.viewportWidth * height.toFloat() / width.toFloat()
         worldCamera.update()
     }
 
     override fun onResume() {
+        // Po utracie kontekstu OpenGL atlasy są odbudowywane, więc czyścimy cache animacji w rendererze.
         worldRenderer.onAssetsRebuilt()
-
-        cities = civilizations.associate {
-            it.id to game.assets.cityAnimation(it.id, 1)
-        }
     }
 
     override fun configureInputProcessors() {
+        // Stage jest rejestrowany w UiScreen jako pierwszy, więc UI przechwytuje kliknięcia przed gestami mapy.
         inputs.addProcessor(
             MapInputController(worldCamera) { screenX, screenY ->
                 selectUnitAt(screenX, screenY)
-            }
-        )
+            })
     }
 
     /**
@@ -215,17 +362,13 @@ class GameScreen(
         // Zamieniamy współrzędne ekranu na współrzędne świata gry.
         val worldPosition = worldCamera.unproject(
             Vector3(
-                screenX.toFloat(),
-                screenY.toFloat(),
-                0f
+                screenX.toFloat(), screenY.toFloat(), 0f
             )
         )
 
         // Zamieniamy pozycję świata na współrzędne heksagonu.
         val hexCoordinate = worldRenderer.worldToAxial(
-            worldPosition.x,
-            worldPosition.y,
-            hexSize
+            worldPosition.x, worldPosition.y, hexSize
         )
 
         // Sprawdzamy, czy na wskazanym heksie znajduje się jednostka.
@@ -236,7 +379,6 @@ class GameScreen(
 
         // Aktualizujemy informację wyświetlaną na ekranie.
         val unit = selectedUnit
-
         selectionLabel.setText(
             if (unit != null) {
                 "Wybrano jednostke ${unit.id} (gracz ${unit.civilization.id})"
@@ -247,62 +389,25 @@ class GameScreen(
     }
 
     override fun drawBackground(delta: Float) {
-
         /*
          * Zachowujemy kolejność warstw:
-         * najpierw teren, następnie jednostki, a na końcu
-         * dodatkowe elementy demonstracyjne.
-         *
-         * Dzięki temu jednostki są rysowane nad kafelkami terenu.
+         * najpierw kafelki terenu, a następnie obiekty świata (miasta, dekoracje i jednostki)
+         * scalane w jednym przebiegu z sortowaniem po osi Y.
          */
-
-        worldRenderer.renderTiles(
-            tiles = demoMap,
-            camera = worldCamera,
-            hexSize = hexSize
-        )
-
-        worldRenderer.renderUnits(
-            units = civilizations.flatMap { it.units },
+        worldRenderer.renderTiles(tiles = worldMap, camera = worldCamera, hexSize = hexSize)
+        worldRenderer.renderWorldObjects(
+            cities = citySprites,
+            decorations = decorationSprites,
+            units = unitSprites(),
             camera = worldCamera,
             hexSize = hexSize,
-            stateTime = time
+            stateTime = time,
+            fadeOccluders = fadeOccluders
         )
-
-        // TODO: dodać rysowanie miast.
-        drawWorld { batch ->
-
-            civilizations.forEachIndexed { index, civilization ->
-
-                val x = playerPreviewX(index)
-
-                val tank = tanks.getValue(civilization.id)
-                    .getKeyFrame(time)
-
-                batch.draw(
-                    tank,
-                    x,
-                    300f,
-                    tank.regionWidth * 3f,
-                    tank.regionHeight * 3f
-                )
-
-                val city = cities.getValue(civilization.id)
-                    .getKeyFrame(time)
-
-                batch.draw(
-                    city,
-                    x,
-                    20f,
-                    city.regionWidth * 2f,
-                    city.regionHeight * 2f
-                )
-            }
-        }
     }
 
     override fun hide() {
-        // worldRenderer.dispose()
+        worldRenderer.dispose()
         super.hide()
     }
 }

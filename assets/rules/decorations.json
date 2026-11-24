@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "1",
+  "terrains": [
+    {
+      "terrainId": "water",
+      "chance": 0.30,
+      "minCount": 1,
+      "maxCount": 2,
+      "rules": [
+        {
+          "decorationId": "water_buoy",
+          "weight": 4,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "water_wreck",
+          "weight": 1,
+          "maxPerTile": 1
+        }
+      ]
+    },
+    {
+      "terrainId": "desert",
+      "chance": 0.65,
+      "minCount": 1,
+      "maxCount": 2,
+      "rules": [
+        {
+          "decorationId": "desert_rock",
+          "weight": 6,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "desert_bones",
+          "weight": 3,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "desert_cactus",
+          "weight": 3,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "desert_debris",
+          "weight": 2,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "desert_pole",
+          "weight": 1,
+          "maxPerTile": 1
+        }
+      ]
+    },
+    {
+      "terrainId": "scrapyard",
+      "chance": 0.95,
+      "minCount": 2,
+      "maxCount": 5,
+      "rules": [
+        {
+          "decorationId": "scrap_plates",
+          "weight": 6,
+          "maxPerTile": 3
+        },
+        {
+          "decorationId": "scrap_barrel",
+          "weight": 4,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "scrap_car",
+          "weight": 2,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "scrap_heap",
+          "weight": 1,
+          "maxPerTile": 1
+        }
+      ]
+    },
+    {
+      "terrainId": "old_city_ruins",
+      "chance": 0.95,
+      "minCount": 2,
+      "maxCount": 5,
+      "rules": [
+        {
+          "decorationId": "ruins_rubble",
+          "weight": 6,
+          "maxPerTile": 3
+        },
+        {
+          "decorationId": "ruins_wall",
+          "weight": 4,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "ruins_sign",
+          "weight": 2,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "ruins_tower",
+          "weight": 1,
+          "maxPerTile": 1
+        }
+      ]
+    },
+    {
+      "terrainId": "crystal_mountains",
+      "chance": 0.95,
+      "minCount": 2,
+      "maxCount": 5,
+      "rules": [
+        {
+          "decorationId": "crystal_shard",
+          "weight": 6,
+          "maxPerTile": 3
+        },
+        {
+          "decorationId": "crystal_cluster",
+          "weight": 4,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "crystal_spire",
+          "weight": 2,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "crystal_peak",
+          "weight": 1,
+          "maxPerTile": 1
+        }
+      ]
+    },
+    {
+      "terrainId": "toxic_swamp",
+      "chance": 0.90,
+      "minCount": 2,
+      "maxCount": 4,
+      "rules": [
+        {
+          "decorationId": "swamp_sludge",
+          "weight": 6,
+          "maxPerTile": 3
+        },
+        {
+          "decorationId": "swamp_pipe",
+          "weight": 3,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "swamp_tree",
+          "weight": 2,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "swamp_mushroom",
+          "weight": 2,
+          "maxPerTile": 1
+        }
+      ]
+    },
+    {
+      "terrainId": "radiation_zone",
+      "chance": 0.85,
+      "minCount": 1,
+      "maxCount": 4,
+      "rules": [
+        {
+          "decorationId": "rad_crack",
+          "weight": 6,
+          "maxPerTile": 3
+        },
+        {
+          "decorationId": "rad_barrel",
+          "weight": 4,
+          "maxPerTile": 2
+        },
+        {
+          "decorationId": "rad_sign",
+          "weight": 2,
+          "maxPerTile": 1
+        },
+        {
+          "decorationId": "rad_crystal",
+          "weight": 2,
+          "maxPerTile": 1
+        }
+      ]
+    }
+  ]
+}
