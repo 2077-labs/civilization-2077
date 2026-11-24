@@ -1,8 +1,11 @@
 package com.labs2077.civilization.engine.handlers
 
 import com.labs2077.civilization.core.api.commands.MoveUnitCommand
+import com.labs2077.civilization.core.api.errors.MoveUnitDestinationNotPassableError
 import com.labs2077.civilization.core.api.errors.MoveUnitDestinationOccupiedError
+import com.labs2077.civilization.core.api.errors.MoveUnitDestinationOutOfBounds
 import com.labs2077.civilization.core.api.errors.MoveUnitDestinationTooFarAwayError
+import com.labs2077.civilization.core.api.errors.NotEnoughMovementPointsError
 import com.labs2077.civilization.core.api.errors.UnitNotFoundError
 import com.labs2077.civilization.core.api.errors.UnitNotOwnedError
 import com.labs2077.civilization.core.models.Error
@@ -24,7 +27,9 @@ internal class MoveUnitCommandHandler(context: Context, state: GameState) :
             return error
         }
 
-        val movementCost = 0  // TODO: Pobrać z terenu koszt ruchu.
+        val terrain = state.map.tiles[command.destination]
+        val movementCost = terrain.definition.movementCost
+
         emitAll(unit.moveTo(command.destination, movementCost))
 
         return null
@@ -41,18 +46,25 @@ internal class MoveUnitCommandHandler(context: Context, state: GameState) :
         if (destination !in unit.position.neighbors()) {
             return MoveUnitDestinationTooFarAwayError(unit.id, destination)
         }
-        // Jednostka musi mieć wystarczającą ilość punktów ruchu.
-//        if (false) {
-//            // TODO: Sprawdzić, czy jednostka ma wystarczającą ilość punktów ruchu.
-//            return NotEnoughMovementPointsError(unit.id, 0)
-//        }
 
-        // Jednostka nie może wejść na nieosiągalne pole,
-        // ani kolidować z innymi jednostkami po wykonaniu ruchu.
-//        if (false) {
-//            // TODO: Sprawdzić, czy pole jest osiągalne.
-//            return MoveUnitDestinationNotPassableError(unit.id, terrain)
-//        }
+        // Jednostka nie może wejść na nieosiągalne pole
+        // oraz musi posiadać wystarczającą ilość punktów ruchu.
+        val terrainMap = state.map.tiles
+
+        if (!terrainMap.contains(destination)) {
+            return MoveUnitDestinationOutOfBounds(unit.id, destination)
+        }
+
+        val terrain = terrainMap[destination].definition
+
+        if (terrain.passable) {
+            return MoveUnitDestinationNotPassableError(unit.id, destination, terrain.id)
+        }
+        if (unit.movement < terrain.movementCost) {
+            return NotEnoughMovementPointsError(unit.id, terrain.movementCost)
+        }
+
+        // Jednostka nie może kolidować z innymi jednostkami po wykonaniu ruchu.
         if (state.findUnitsByPosition(destination)
                 .isNotEmpty()
         ) {
@@ -61,10 +73,6 @@ internal class MoveUnitCommandHandler(context: Context, state: GameState) :
 
         return null
     }
-}
-
-internal fun GameState.getTerrainByPosition(position: Hexagon): Terrain {
-    return map.tiles[position]
 }
 
 internal fun GameState.findUnitById(unitId: UnitId): Unit? {
