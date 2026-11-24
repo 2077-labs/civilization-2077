@@ -6,5 +6,5 @@ import com.labs2077.civilization.core.models.Error
 import com.labs2077.civilization.core.models.Hexagon
 import com.labs2077.civilization.core.models.UnitId
 
-class MoveUnitDestinationTooFarAwayError(val unitId: UnitId, val destination: Hexagon) :
+data class MoveUnitDestinationTooFarAwayError(val unitId: UnitId, val destination: Hexagon) :
     Error("Miejsce docelowe znajduje się zbyt daleko jednostki: $unitId (cel = $destination).")
