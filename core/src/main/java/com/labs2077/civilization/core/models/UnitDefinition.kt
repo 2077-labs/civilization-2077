@@ -23,14 +23,14 @@ data class UnitDefinition(
     val defense: Int,
 
     val health: Int,
-    val movement: Int,
+    val movement: Double,
     val vision: Int,
 
     val abilities: Set<UnitAbility> = emptySet(),
 
     val cost: Resources,
     /** Koszt utrzymania ponoszony przez cywilizację na początku każdej tury. */
-    val upkeep: CivilizationResources,
+    val upkeep: CivilizationResources = CivilizationResources(),
     /** Lista rodzajów budynków, które są wymagane do odblokowania rekrutacji jednostki danego typu. */
     val requiredBuildingTypeIds: Set<BuildingDefinitionId> = emptySet(),
     /** Limit jednostek danego typu w jednej cywilizacji. Wartość `null` oznacza brak limitu. */

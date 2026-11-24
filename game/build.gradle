@@ -6,6 +6,8 @@ dependencies {
   implementation projects.engine
   implementation projects.client
 
+  implementation libs.kotlinx.coroutines.core
+
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"

@@ -3,7 +3,7 @@ package com.labs2077.civilization.core.models
 /**
  * Reprezentuje jednolitą mapę heksagonów na planie prostokąta o zadanym rozmiarze.
  */
-class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : Iterable<Cell> {
+open class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: List<Cell>) : Iterable<Cell> {
 
     init {
         require(width > 0) { "Szerokość mapy musi być dodatnia." }
@@ -11,20 +11,13 @@ class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : I
         require(tiles.size == width * height) { "Ilość kafelków musi być równa iloczynowi szerokości i wysokości." }
     }
 
-    private val tiles: Array<Cell> = tiles.copyOf()
+    protected val tiles: MutableList<Cell> = tiles.toMutableList()
 
     /**
      * Pobiera wartość komórki na wskazanych współrzędnych.
      */
     operator fun get(at: Hexagon): Cell {
         return tiles[at.toIndex()]
-    }
-
-    /**
-     * Ustawia wartość komórki na wskazanych współrzędnych.
-     */
-    operator fun set(at: Hexagon, value: Cell) {
-        tiles[at.toIndex()] = value
     }
 
     /**
@@ -39,13 +32,13 @@ class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : I
     /**
      * Konwertuje współrzędne komórki na indeks kolumny.
      */
-    private val Hexagon.column: Int
+    protected val Hexagon.column: Int
         get() = q + r / 2
 
     /**
      * Konwertuje współrzędne komórki na indeks w jednowymiarowej tablicy komórek.
      */
-    private fun Hexagon.toIndex(): Int {
+    protected fun Hexagon.toIndex(): Int {
         if (!this@HexagonGrid.contains(this)) {
             throw IndexOutOfBoundsException("Współrzędna $this znajduje się poza obszarem mapy.")
         }
@@ -118,5 +111,31 @@ class HexagonGrid<Cell>(val width: Int, val height: Int, tiles: Array<Cell>) : I
             }
             return coordinate(this % width, this / width)
         }
+
+        fun <Cell> create(width: Int, height: Int, init: (Hexagon) -> Cell): HexagonGrid<Cell> {
+            val tiles = List(width * height) {
+                init(it.toHexagon(width, height))
+            }
+            return HexagonGrid(width, height, tiles)
+        }
+    }
+
+    fun toHexagonGrid(): HexagonGrid<Cell> {
+        return HexagonGrid(width, height, tiles)
+    }
+
+    fun toMutableHexagonGrid(): MutableHexagonGrid<Cell> {
+        return MutableHexagonGrid(width, height, tiles)
+    }
+}
+
+class MutableHexagonGrid<Cell>(width: Int, height: Int, tiles: List<Cell>) :
+    HexagonGrid<Cell>(width, height, tiles) {
+
+    /**
+     * Ustawia wartość komórki na wskazanych współrzędnych.
+     */
+    operator fun set(at: Hexagon, value: Cell) {
+        tiles[at.toIndex()] = value
     }
 }
