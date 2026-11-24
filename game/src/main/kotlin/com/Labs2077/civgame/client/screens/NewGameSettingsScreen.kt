@@ -170,16 +170,22 @@ class NewGameSettingsScreen(
 
         val playerCountRow = Table()
 
-        (2..8).forEachIndexed { index, count ->
+        // Wszystkie miejsca są widoczne, ale aktywne jest tylko miejsce nr 2.
+        (2..8).forEach { count ->
 
-            val button = TextButton(count.toString(), skin)
+            val button = TextButton(count.toString(), skin).apply {
+                isDisabled = count != 2
+            }
 
-            playerCountGroup.add(button)
+            if (count == 2) {
+                playerCountGroup.add(button)
+            }
+
             playerCountButtons[count] = button
 
             button.onChecked { checked ->
                 if (checked) {
-                    selectedPlayerCount = count
+                    selectedPlayerCount = 2
                     updatePlayerCountSelection()
                 }
             }
@@ -188,17 +194,11 @@ class NewGameSettingsScreen(
                 .width(46f)
                 .height(40f)
                 .pad(4f)
-
-            // Przenosimy ostatnie trzy przyciski do drugiego rzędu.
-            if (index == 3) {
-                playerCountRow.row()
-            }
         }
 
         playersSection.add(playerCountRow)
             .left()
             .row()
-
         playerCountSummaryLabel = label(
             "",
             color = Color.LIGHT_GRAY
@@ -430,3 +430,6 @@ class NewGameSettingsScreen(
         switchTo(MenuScreen(game, settings))
     }
 }
+
+
+

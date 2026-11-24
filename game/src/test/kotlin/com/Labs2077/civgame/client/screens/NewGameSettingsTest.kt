@@ -1,5 +1,4 @@
-
-package com.Labs2077.civgame.client.screens
+﻿package com.Labs2077.civgame.client.screens
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -21,21 +20,19 @@ class NewGameSettingsTest {
         val settings = NewGameSettings(
             worldSize = WorldSizeOption.LARGE,
             seed = 12345L,
-            playerCount = 4
+            playerCount = 2
         )
 
         assertEquals(WorldSizeOption.LARGE, settings.worldSize)
         assertEquals(12345L, settings.seed)
-        assertEquals(4, settings.playerCount)
+        assertEquals(2, settings.playerCount)
     }
 
     @Test
-    fun allSupportedPlayerCountsShouldBeAccepted() {
-        for (count in 2..8) {
-            val settings = NewGameSettings(playerCount = count)
+    fun onlyTwoPlayersShouldBeAccepted() {
+        val settings = NewGameSettings(playerCount = 2)
 
-            assertEquals(count, settings.playerCount)
-        }
+        assertEquals(2, settings.playerCount)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -45,7 +42,7 @@ class NewGameSettingsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun playerCountAboveMaximumShouldBeRejected() {
-        NewGameSettings(playerCount = 9)
+        NewGameSettings(playerCount = 3)
     }
 
     @Test

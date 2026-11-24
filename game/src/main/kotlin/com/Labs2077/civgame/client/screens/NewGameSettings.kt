@@ -1,4 +1,4 @@
-package com.Labs2077.civgame.client.screens
+﻿package com.Labs2077.civgame.client.screens
 
 enum class WorldSizeOption(
     val displayName: String,
@@ -16,8 +16,8 @@ data class NewGameSettings(
     val playerCount: Int = 2,
 ) {
     init {
-        require(playerCount in 2..8) {
-            "Liczba graczy musi wynosić od 2 do 8."
+        require(playerCount == 2) {
+            "Gra obsługuje obecnie dokładnie 2 graczy."
         }
     }
 }

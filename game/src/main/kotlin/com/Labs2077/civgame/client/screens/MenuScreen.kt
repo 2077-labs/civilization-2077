@@ -16,6 +16,8 @@ import com.labs2077.civilization.core.models.Civilization
 import com.labs2077.civilization.core.models.CivilizationResources
 import com.labs2077.civilization.core.models.Player
 
+private const val MAX_PLAYER_SLOTS = 8
+
 /**
  * Menu wyboru kolorów dla wszystkich graczy.
  *
@@ -72,7 +74,7 @@ class MenuScreen(
         }
 
         val subtitle = label(
-            "Wybierz kolor dla każdego gracza.",
+            "Wybierz kolor dla dwóch graczy. Pozostałe miejsca są zablokowane.",
             color = Color.LIGHT_GRAY
         )
 
@@ -91,19 +93,26 @@ class MenuScreen(
         // Siatka paneli graczy.
         val playersGrid = Table()
 
-        for (player in 0 until settings.playerCount) {
+        // Pokazujemy osiem miejsc, ale dostępne są tylko dwa.
+        for (player in 0 until MAX_PLAYER_SLOTS) {
+
+            val isAvailable = player < settings.playerCount
 
             val playerPanel = Table(skin).apply {
                 background = skin.newDrawable(
                     "white",
-                    Color(0.10f, 0.12f, 0.18f, 1f)
+                    if (isAvailable) {
+                        Color(0.10f, 0.12f, 0.18f, 1f)
+                    } else {
+                        Color(0.07f, 0.08f, 0.12f, 1f)
+                    }
                 )
                 pad(12f)
             }
 
             val playerTitle = label(
                 "GRACZ ${player + 1}",
-                color = Color.CYAN
+                color = if (isAvailable) Color.CYAN else Color.GRAY
             ).apply {
                 setFontScale(1.1f)
             }
@@ -113,27 +122,33 @@ class MenuScreen(
                 .padBottom(10f)
                 .row()
 
-            playerPanel.add(colorRow(player))
-                .center()
-                .row()
+            if (isAvailable) {
+                // Aktywne miejsce - można wybrać kolor.
+                playerPanel.add(colorRow(player))
+                    .center()
+                    .row()
+            } else {
+                // Zablokowane miejsce - wyszarzone.
+                playerPanel.add(
+                    label("GRACZ ${player + 1}", color = Color.GRAY)
+                ).center()
+            }
 
             playersGrid.add(playerPanel)
                 .width(250f)
-                .height(165f)
+                .height(if (isAvailable) 165f else 125f)
                 .pad(6f)
 
-            // Po czterech graczach rozpoczynamy kolejny rząd.
             if ((player + 1) % 4 == 0) {
                 playersGrid.row()
             }
         }
-
+        // Komunikat o wyborze kolorów.
         panel.add(playersGrid)
             .colspan(2)
             .center()
+            .padBottom(8f)
             .row()
-
-        // Komunikat o wyborze kolorów.
         panel.add(messageLabel)
             .colspan(2)
             .width(700f)
@@ -293,3 +308,10 @@ class MenuScreen(
         switchTo(GameScreen(game, civilizations, settings))
     }
 }
+
+
+
+
+
+
+
