@@ -60,14 +60,13 @@ internal class Engine(
     }
 
     private fun <T> MutableSharedFlow<T>.tryEmitAll(collection: Collection<T>) {
-        println("emitting alll.....")
-        collection.forEach { println(tryEmit(value = it)) }
+        collection.forEach { tryEmit(value = it) }
     }
 }
 
 fun createEngine(state: GameState): GameEngine {
     val registry = CommandHandlerFactoryRegistry().apply {
-        add(GreetingCommand::class, ::GreetingCommandHandler)
+        add(GreetingCommand::class) { _, _ -> GreetingCommandHandler() }
         add(MoveUnitCommand::class, ::MoveUnitCommandHandler)
     }
     return Engine(state, registry)

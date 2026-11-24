@@ -1,5 +1,6 @@
 package com.labs2077.civilization.engine.handlers
 
+import com.labs2077.civilization.core.api.Event
 import com.labs2077.civilization.core.api.commands.MoveUnitCommand
 import com.labs2077.civilization.core.api.errors.MoveUnitDestinationNotPassableError
 import com.labs2077.civilization.core.api.errors.MoveUnitDestinationOccupiedError
@@ -8,31 +9,34 @@ import com.labs2077.civilization.core.api.errors.MoveUnitDestinationTooFarAwayEr
 import com.labs2077.civilization.core.api.errors.NotEnoughMovementPointsError
 import com.labs2077.civilization.core.api.errors.UnitNotFoundError
 import com.labs2077.civilization.core.api.errors.UnitNotOwnedError
+import com.labs2077.civilization.core.common.Result
 import com.labs2077.civilization.core.models.Error
 import com.labs2077.civilization.core.models.GameState
 import com.labs2077.civilization.core.models.Hexagon
 import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitId
 import com.labs2077.civilization.engine.Context
-import com.labs2077.civilization.engine.dispatch.BaseCommandHandler
+import com.labs2077.civilization.engine.dispatch.CommandHandler
 
-internal class MoveUnitCommandHandler(context: Context, state: GameState) :
-    BaseCommandHandler<MoveUnitCommand>(context, state) {
+internal class MoveUnitCommandHandler(val context: Context, val state: GameState) :
+    CommandHandler<MoveUnitCommand> {
 
-    override fun execute(command: MoveUnitCommand): Error? {
+    override fun handle(command: MoveUnitCommand): Result<List<Event>, Error> {
         val unit = state.findUnitById(command.unitId) //
-            ?: return UnitNotFoundError(command.unitId)
+            ?: return Result.Error(UnitNotFoundError(command.unitId))
 
         validate(unit, command.destination)?.let { error ->
-            return error
+            return Result.Error(error)
         }
 
         val terrain = state.map.tiles[command.destination]
         val movementCost = terrain.definition.movementCost
 
-        emitAll(unit.moveTo(command.destination, movementCost))
+        val events = mutableListOf<Event>()
 
-        return null
+        events.addAll(unit.moveTo(command.destination, movementCost))
+
+        return Result.Success(events)
     }
 
     private fun validate(unit: Unit, destination: Hexagon): Error? {

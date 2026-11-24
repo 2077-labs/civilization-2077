@@ -47,7 +47,7 @@ class ClusterMapGenerator : MapGenerator {
             }
         }
 
-        val tiles = Array(config.width * config.height) { i ->
+        val tiles = List(config.width * config.height) { i ->
             val pos = HexagonGrid.coordinate(i % config.width, i / config.width)
             // Każdemu polu przypisujemy teren ogniska o najmniejszej zaburzonej odległości.
             val definition =
