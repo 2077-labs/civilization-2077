@@ -61,18 +61,19 @@ internal class MoveUnitCommandHandler(val context: Context, val state: GameState
 
         val terrain = terrainMap[destination].definition
 
-        if (terrain.passable) {
+        if (!terrain.passable) {
             return MoveUnitDestinationNotPassableError(unit.id, destination, terrain.id)
         }
+
         if (unit.movement < terrain.movementCost) {
             return NotEnoughMovementPointsError(unit.id, terrain.movementCost)
         }
 
         // Jednostka nie może kolidować z innymi jednostkami po wykonaniu ruchu.
-        if (state.findUnitsByPosition(destination)
-                .isNotEmpty()
-        ) {
-            return MoveUnitDestinationOccupiedError(unit.id, destination)
+        val units = state.findUnitsByPosition(destination)
+
+        if (units.isNotEmpty()) {
+            return MoveUnitDestinationOccupiedError(unit.id, destination, units)
         }
 
         return null
