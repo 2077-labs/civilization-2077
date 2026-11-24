@@ -11,13 +11,18 @@ import com.labs2077.civilization.core.models.PlayerId
 import com.labs2077.civilization.engine.dispatch.CommandHandlerFactoryRegistry
 import com.labs2077.civilization.engine.handlers.GreetingCommandHandler
 import com.labs2077.civilization.engine.handlers.MoveUnitCommandHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import com.labs2077.civilization.core.api.Engine as GameEngine
-import com.labs2077.civilization.engine.State as GameState
 
 internal class Engine(
-    private val state: GameState,
+    override val state: GameState, // TODO: To ponownie stanie się prywatne po wprowadzeniu mgły wojny.
     private val registry: CommandHandlerFactoryRegistry,
 ) : GameEngine {
+
+    // TODO: Zdarzenia będą musiały być filtrowane + raczej powstanie jakiś ClientView/PlayerView który będzie wystawiał listę eventów dla gracza.
+    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 64)
+    override val events get() = _events.asSharedFlow()
 
     override fun dispatch(playerId: PlayerId, command: Command): Result<List<Event>, Error> {
         val factory = requireNotNull(registry.get(command::class)) {
@@ -27,7 +32,13 @@ internal class Engine(
         val context = createContext(playerId)
         val handler = factory.create(context, state)
 
-        return handler.handle(command)
+        val result = handler.handle(command)
+
+        if (result is Result.Success) {
+            _events.tryEmitAll(result.value)
+        }
+
+        return result
     }
 
     private fun createContext(playerId: PlayerId): Context = with(state) {
@@ -46,6 +57,11 @@ internal class Engine(
         }
 
         Context(player, civilization)
+    }
+
+    private fun <T> MutableSharedFlow<T>.tryEmitAll(collection: Collection<T>) {
+        println("emitting alll.....")
+        collection.forEach { println(tryEmit(value = it)) }
     }
 }
 
