@@ -6,6 +6,7 @@ import com.labs2077.civilization.core.api.commands.GreetingCommand
 import com.labs2077.civilization.core.api.commands.MoveUnitCommand
 import com.labs2077.civilization.core.common.Result
 import com.labs2077.civilization.core.models.Error
+import com.labs2077.civilization.core.models.GameState
 import com.labs2077.civilization.core.models.PlayerId
 import com.labs2077.civilization.engine.dispatch.CommandHandlerFactoryRegistry
 import com.labs2077.civilization.engine.handlers.GreetingCommandHandler
@@ -48,10 +49,10 @@ internal class Engine(
     }
 }
 
-fun createEngine(): GameEngine {
+fun createEngine(state: GameState): GameEngine {
     val registry = CommandHandlerFactoryRegistry().apply {
         add(GreetingCommand::class, ::GreetingCommandHandler)
         add(MoveUnitCommand::class, ::MoveUnitCommandHandler)
     }
-    return Engine(GameState(), registry)
+    return Engine(state, registry)
 }

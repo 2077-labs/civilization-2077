@@ -1,22 +1,21 @@
-package com.labs2077.civilization.engine
+package com.labs2077.civilization.core.models
 
-import com.labs2077.civilization.core.models.Civilization
-import com.labs2077.civilization.core.models.CivilizationId
-import com.labs2077.civilization.core.models.Player
-import com.labs2077.civilization.core.models.PlayerId
-
-internal class State(
+class GameState(
+    map: TerrainMap,
     players: List<Player> = emptyList(),
     civilizations: List<Civilization> = emptyList(),
 ) {
+    private val _map = map
     private val _players = mutableMapOf<PlayerId, Player>()
     private val _civilizations = mutableMapOf<CivilizationId, Civilization>()
 
     init {
+        // TODO: Test if all entities fit on the map.
         players.forEach(::add)
         civilizations.forEach(::add)
     }
 
+    val map: TerrainMap get() = _map
     val players: List<Player> get() = _players.values.toList()
     val civilizations: List<Civilization> get() = _civilizations.values.toList()
 

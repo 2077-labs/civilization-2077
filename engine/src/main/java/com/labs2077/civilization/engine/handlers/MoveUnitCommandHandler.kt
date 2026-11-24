@@ -6,14 +6,14 @@ import com.labs2077.civilization.core.api.errors.MoveUnitDestinationTooFarAwayEr
 import com.labs2077.civilization.core.api.errors.UnitNotFoundError
 import com.labs2077.civilization.core.api.errors.UnitNotOwnedError
 import com.labs2077.civilization.core.models.Error
+import com.labs2077.civilization.core.models.GameState
 import com.labs2077.civilization.core.models.Hexagon
 import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitId
 import com.labs2077.civilization.engine.Context
-import com.labs2077.civilization.engine.State
 import com.labs2077.civilization.engine.dispatch.BaseCommandHandler
 
-internal class MoveUnitCommandHandler(context: Context, state: State) :
+internal class MoveUnitCommandHandler(context: Context, state: GameState) :
     BaseCommandHandler<MoveUnitCommand>(context, state) {
 
     override fun execute(command: MoveUnitCommand): Error? {
@@ -63,13 +63,17 @@ internal class MoveUnitCommandHandler(context: Context, state: State) :
     }
 }
 
-internal fun State.findUnitById(unitId: UnitId): Unit? {
+internal fun GameState.getTerrainByPosition(position: Hexagon): Terrain {
+    return map.tiles[position]
+}
+
+internal fun GameState.findUnitById(unitId: UnitId): Unit? {
     return civilizations.firstNotNullOfOrNull { civilization ->
         civilization.units.firstOrNull { it.id == unitId }
     }
 }
 
-internal fun State.findUnitsByPosition(position: Hexagon): List<Unit> {
+internal fun GameState.findUnitsByPosition(position: Hexagon): List<Unit> {
     val result = mutableListOf<Unit>()
     civilizations.forEach { civilization ->
         civilization.units.filterTo(result) { it.position == position }

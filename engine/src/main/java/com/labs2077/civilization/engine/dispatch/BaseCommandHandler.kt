@@ -4,11 +4,11 @@ import com.labs2077.civilization.core.api.Command
 import com.labs2077.civilization.core.api.Event
 import com.labs2077.civilization.core.common.Result
 import com.labs2077.civilization.core.models.Error
+import com.labs2077.civilization.core.models.GameState
 import com.labs2077.civilization.engine.Context
-import com.labs2077.civilization.engine.State
 
 internal abstract class BaseCommandHandler<C : Command>(
-    val context: Context, val state: State
+    val context: Context, val state: GameState,
 ) : CommandHandler<C> {
 
     private val events = mutableListOf<Event>()
