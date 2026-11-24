@@ -16,7 +16,7 @@ class Unit(
     val civilization: Civilization,
     position: Hexagon,
     health: Int = definition.health,
-    movement: Int = definition.movement,
+    movement: Double = definition.movement,
 ) {
     var position: Hexagon = position
         private set
@@ -26,9 +26,9 @@ class Unit(
             field = value.coerceIn(0..definition.health)
         }
 
-    var movement: Int = 0
+    var movement: Double = 0.0
         private set(value) {
-            field = value.coerceIn(0..definition.movement)
+            field = value.coerceIn(0.0..definition.movement)
         }
 
     init {
@@ -45,7 +45,7 @@ class Unit(
     val isAlive: Boolean
         get() = health > 0
 
-    fun moveTo(destination: Hexagon, cost: Int): List<Event> {
+    fun moveTo(destination: Hexagon, cost: Double): List<Event> {
         require(destination in position.neighbors()) {
             "Miejsce docelowe znajduje się zbyt daleko jednostki: $id (cel = $destination)."
         }

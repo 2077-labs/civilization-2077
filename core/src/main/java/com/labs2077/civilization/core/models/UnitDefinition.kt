@@ -23,7 +23,7 @@ data class UnitDefinition(
     val defense: Int,
 
     val health: Int,
-    val movement: Int,
+    val movement: Double,
     val vision: Int,
 
     val abilities: Set<UnitAbility> = emptySet(),

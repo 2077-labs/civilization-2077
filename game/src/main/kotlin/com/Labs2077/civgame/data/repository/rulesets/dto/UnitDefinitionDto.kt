@@ -30,7 +30,7 @@ internal data class UnitDefinitionV1Dto(
     val canAttackAfterMoving: Boolean = true,
     val defense: Int,
     val maxHp: Int,
-    val movement: Int,
+    val movement: Double,
     val vision: Int,
     val abilities: List<UnitAbilityV1Dto>,
     val cost: ResourcesV1Dto,
