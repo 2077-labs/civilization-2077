@@ -1,4 +1,4 @@
-﻿package com.Labs2077.civgame.client.screens
+package com.Labs2077.civgame.client.screens
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -67,5 +67,64 @@ class MenuColorSelectionTest {
     @Test(expected = IllegalArgumentException::class)
     fun invalidInitialColorIndexThrowsException() {
         MenuColorSelection(initialColorIndices = listOf(0, 100))
+    }
+    @Test
+    fun eightPlayersCanStartWithDifferentColors() {
+        val selection = MenuColorSelection(
+            initialColorIndices = (0 until 8).toList()
+        )
+
+        assertTrue(selection.canStart)
+
+        for (player in 0 until 8) {
+            assertEquals(player, selection.selectedColorIndex(player))
+        }
+    }
+
+    @Test
+    fun duplicateColorAmongEightPlayersPreventsStarting() {
+        val selection = MenuColorSelection(
+            initialColorIndices = (0 until 8).toList()
+        )
+
+        selection.selectColor(7, 0)
+
+        assertFalse(selection.canStart)
+
+        selection.selectColor(7, 7)
+
+        assertTrue(selection.canStart)
+    }
+
+    @Test
+    fun initialDuplicateColorsPreventStarting() {
+        val selection = MenuColorSelection(
+            initialColorIndices = listOf(0, 0)
+        )
+
+        assertFalse(selection.canStart)
+    }
+
+    @Test
+    fun paletteIsCopiedOnConstruction() {
+        val originalPalette = mutableListOf(0x112233, 0x445566)
+
+        val selection = MenuColorSelection(
+            palette = originalPalette,
+            initialColorIndices = listOf(0, 1)
+        )
+
+        originalPalette[0] = 0xAABBCC
+        originalPalette.clear()
+
+        assertEquals(0x112233, selection.selectedColor(0))
+        assertEquals(0x445566, selection.selectedColor(1))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun readingSelectedColorForInvalidPlayerThrowsException() {
+        val selection = MenuColorSelection()
+
+        selection.selectedColorIndex(2)
     }
 }
