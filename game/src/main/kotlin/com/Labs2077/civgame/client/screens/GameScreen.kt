@@ -22,8 +22,7 @@ import com.labs2077.civilization.core.models.City
 import com.labs2077.civilization.core.models.Civilization
 import com.labs2077.civilization.core.models.CivilizationId
 import com.labs2077.civilization.core.models.Hexagon
-import com.labs2077.civilization.core.models.HexagonGrid
-import com.labs2077.civilization.core.models.Terrain
+import com.labs2077.civilization.core.models.TerrainMap
 import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
 import kotlin.math.max
@@ -95,11 +94,11 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
 
     /** TODO: Domyślnie oczywiście mapa generowana w silniku i jedynie wykorzystywana w ekranie gry */
     private val mapGenerator: MapGenerator = ClusterMapGenerator()
-    private val worldMap: HexagonGrid<Terrain> = mapGenerator.generate(
+    private val worldMap: TerrainMap = mapGenerator.generate(
         config = MapGenerationConfig(MAP_WIDTH, MAP_HEIGHT, MAP_SEED),
         terrains = game.terrainRuleset
     )
-    private val worldTiles = worldMap.toList()
+    private val worldTiles = worldMap.tiles.toList()
 
     /** Lista wszystkich przechodnich współrzędnych mapy (używana do rozmieszczania miast i losowania tras). */
     private val passableList: List<Hexagon> =
@@ -394,7 +393,7 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
          * najpierw kafelki terenu, a następnie obiekty świata (miasta, dekoracje i jednostki)
          * scalane w jednym przebiegu z sortowaniem po osi Y.
          */
-        worldRenderer.renderTiles(tiles = worldMap, camera = worldCamera, hexSize = hexSize)
+        worldRenderer.renderTiles(tiles = worldTiles, camera = worldCamera, hexSize = hexSize)
         worldRenderer.renderWorldObjects(
             cities = citySprites,
             decorations = decorationSprites,

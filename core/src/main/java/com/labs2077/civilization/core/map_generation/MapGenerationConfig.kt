@@ -1,7 +1,6 @@
 package com.labs2077.civilization.core.map_generation
 
-import com.labs2077.civilization.core.models.HexagonGrid
-import com.labs2077.civilization.core.models.Terrain
+import com.labs2077.civilization.core.models.TerrainMap
 import com.labs2077.civilization.core.models.TerrainRuleset
 
 /** Parametry tworzenia nowej mapy (docelowo przekazywane z menu nowej gry). */
@@ -21,5 +20,5 @@ data class MapGenerationConfig(
  * terenu na podstawie konfiguracji i zestawu reguł terenów.
  */
 fun interface MapGenerator {
-    fun generate(config: MapGenerationConfig, terrains: TerrainRuleset): HexagonGrid<Terrain>
+    fun generate(config: MapGenerationConfig, terrains: TerrainRuleset): TerrainMap
 }

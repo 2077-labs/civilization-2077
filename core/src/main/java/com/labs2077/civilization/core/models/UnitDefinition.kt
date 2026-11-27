@@ -21,6 +21,8 @@ data class UnitDefinition(
     /** Niektóre jednostki (np. artyleria rakietowa) nie mogą atakować w turze, w której się wcześniej poruszyły. */
     val canAttackAfterMoving: Boolean = true,
     val defense: Int,
+    /** Jednostki pancerne (pojazd opancerzony, czołg, mech) otrzymują podwójne obrażenia od jednostek dystansowych. */
+    val isArmored: Boolean = false,
 
     val health: Int,
     val movement: Double,

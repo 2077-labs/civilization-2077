@@ -3,6 +3,7 @@ package com.labs2077.civilization.core.map_generation
 import com.labs2077.civilization.core.models.HexagonGrid
 import com.labs2077.civilization.core.models.Terrain
 import com.labs2077.civilization.core.models.TerrainDefinition
+import com.labs2077.civilization.core.models.TerrainMap
 import com.labs2077.civilization.core.models.TerrainRuleset
 import kotlin.random.Random
 
@@ -35,7 +36,7 @@ class ClusterMapGenerator : MapGenerator {
     override fun generate(
         config: MapGenerationConfig,
         terrains: TerrainRuleset,
-    ): HexagonGrid<Terrain> {
+    ): TerrainMap {
         val rng = Random(config.seed)
         // Najpierw dla każdego terenu losujemy kilka punktów centralnych, wokół których będą się
         // tworzyć skupiska danego terenu.
@@ -54,7 +55,9 @@ class ClusterMapGenerator : MapGenerator {
                 centers.minBy { (_, c) -> c.distanceTo(pos) + rng.nextFloat() * DISTANCE_NOISE_AMPLITUDE }.first
             Terrain(definition = definition, position = pos)
         }
-        return HexagonGrid(config.width, config.height, tiles)
+        return TerrainMap(
+            HexagonGrid(config.width, config.height, tiles)
+        )
     }
 
     /**
