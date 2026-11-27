@@ -90,6 +90,7 @@
         "metals": 0,
         "crystals": 0
       },
+      "armored": true,
       "abilities": [
         "ATTACK"
       ],
@@ -115,6 +116,7 @@
         "metals": 0,
         "crystals": 1
       },
+      "armored": true,
       "abilities": [
         "ATTACK"
       ],
@@ -138,6 +140,7 @@
         "food": 0,
         "crystals": 20
       },
+      "armored": true,
       "upkeep": {
         "metals": 0,
         "crystals": 1
@@ -164,6 +167,7 @@
         "food": 0,
         "crystals": 60
       },
+      "armored": true,
       "upkeep": {
         "metals": 0,
         "crystals": 2
