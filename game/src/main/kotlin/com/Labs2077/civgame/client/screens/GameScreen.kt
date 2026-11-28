@@ -28,6 +28,8 @@ import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
 import kotlin.math.max
 import kotlin.random.Random
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 
 /**
  * Stan pomocniczy jednostki spacerującej po mapie demonstracyjnej (wyłącznie na potrzeby demo, bez silnika).
@@ -138,7 +140,7 @@ class GameScreen(game: CivGame, initialCivilizations: List<Civilization>) : UiSc
 
     /** Statyczne sprite'y miast przekazywane do [WorldRenderer.renderWorldObjects]. */
     private val citySprites = civilizations.flatMap { civ ->
-        civ.cities.map { CitySprite(civ.id, it.level.level, it.position) }
+        civ.cities.map { CitySprite(it) }
     }
 
     /** Jednostki demonstracyjne rozdzielone cyklicznie pomiędzy cywilizacje i mobilne typy z rulesetu. */
