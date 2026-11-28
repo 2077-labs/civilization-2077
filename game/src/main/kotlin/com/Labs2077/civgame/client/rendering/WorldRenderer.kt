@@ -17,11 +17,16 @@ import com.labs2077.civilization.core.models.Terrain
 import com.labs2077.civilization.core.models.Unit
 import com.labs2077.civilization.core.models.UnitDefinitionId
 import kotlin.math.sqrt
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 
 class WorldRenderer(
     private val assets: AssetProvider
 ) {
     private val batch = PolygonSpriteBatch()
+    private val cityBadgeRenderer = ShapeRenderer()
+    private val previousCityLevelFontColor = Color()
+    private val cityLevelLayout = GlyphLayout()
     private val worldPosition = Vector2()
 
     /*
@@ -48,6 +53,21 @@ class WorldRenderer(
 
         /** Stopy jednostki leżą tyle (w hexSize) poniżej środka kafelka. Do strojenia. */
         const val UNIT_FOOT_OFFSET = 0.35f
+
+        const val CITY_LEVEL_BADGE_RADIUS = 0.18f
+        const val CITY_LEVEL_BADGE_OFFSET = 0.43f
+
+        /** Większa wartość = grubsza ramka. */
+        const val CITY_LEVEL_BADGE_BORDER_RATIO = 0.25f
+
+        /** Wysokość cyfry jako wielokrotność promienia plakietki */
+        const val CITY_LEVEL_DIGIT_HEIGHT_RATIO = 1.15f
+
+        /** Przesunięcie dla efektu pogrubienia cyfry */
+        const val CITY_LEVEL_DIGIT_BOLD_RATIO = 0.06f
+
+        /** Korekta poziomego centrowania cyfry - rekompensuje asymetryczny bearing fontu */
+        const val CITY_LEVEL_DIGIT_X_BIAS = 0.05f
     }
 
     /**
@@ -137,6 +157,105 @@ class WorldRenderer(
         }
     }
 
+
+    private fun renderCityLevelBadges(
+        cities: List<CitySprite>,
+        camera: GameCamera,
+        hexSize: Float,
+        isTileVisible: (Hexagon) -> Boolean
+    ) {
+        val radius = hexSize * CITY_LEVEL_BADGE_RADIUS
+        val borderThickness = radius * CITY_LEVEL_BADGE_BORDER_RATIO
+        val outerRadius = radius + borderThickness
+        val offset = hexSize * CITY_LEVEL_BADGE_OFFSET
+
+        // Tło plakietki i złota obwódka w jednym przebiegu: najpierw większe, wypełnione
+        // złote koło, a na nim mniejsze ciemne koło. Widoczny pierścień ma grubość
+        // dokładnie (outerRadius - radius)
+        cityBadgeRenderer.projectionMatrix = camera.combined
+        cityBadgeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+
+        try {
+            for (city in cities) {
+                if (!isTileVisible(city.tile)) continue
+
+                val center = axialToWorld(city.tile, hexSize, worldPosition)
+                val badgeX = center.x + offset
+                val badgeY = center.y + offset
+
+                cityBadgeRenderer.setColor(0.92f, 0.78f, 0.42f, 1f)
+                cityBadgeRenderer.circle(badgeX, badgeY, outerRadius, 24)
+
+                cityBadgeRenderer.setColor(0.055f, 0.065f, 0.085f, 0.96f)
+                cityBadgeRenderer.circle(badgeX, badgeY, radius, 24)
+            }
+        } finally {
+            cityBadgeRenderer.end()
+        }
+
+        // Przygotowanie czcionki
+        val font = assets.uiFont
+
+        val previousScaleX = font.data.scaleX
+        val previousScaleY = font.data.scaleY
+        val previousUseIntegerPositions = font.usesIntegerPositions()
+        previousCityLevelFontColor.set(font.color)
+
+        // Skala liczona dynamicznie: wysokość cyfry ma być proporcjonalna do promienia
+        // plakietki (a więc i do hexSize), zamiast opierać się na zgadniętej stałej.
+        // font.data.capHeight to wysokość wielkiej litery w pikselach bitmapy,
+        // niezależna od aktualnie ustawionej skali.
+        val targetDigitHeight = radius * CITY_LEVEL_DIGIT_HEIGHT_RATIO
+        val fontScale = targetDigitHeight / font.data.capHeight
+        font.data.setScale(fontScale)
+        font.setColor(Color.WHITE)
+        // Wyłączamy zaokrąglanie pozycji glifów do liczb całkowitych - rysujemy w świecie
+        // gry (camera.combined).
+        // useIntegerPositions = true potrafi przy małej skali skolapsować szerokość
+        // glifu do zera i całkowicie ukryć tekst.
+        font.setUseIntegerPositions(false)
+
+        val boldOffset = targetDigitHeight * CITY_LEVEL_DIGIT_BOLD_RATIO
+
+        // Przygotowanie rysowania tekstu
+        batch.projectionMatrix = camera.combined
+        batch.begin()
+
+        try {
+            for (city in cities) {
+                if (!isTileVisible(city.tile)) continue
+
+                val center = axialToWorld(city.tile, hexSize, worldPosition)
+                val badgeX = center.x + offset
+                val badgeY = center.y + offset
+
+                // Pobranie aktualnego poziomu miasta
+                val levelText = city.level.toString()
+
+                // Obliczenie wymiarów tekstu
+                cityLevelLayout.setText(font, levelText)
+
+                // Wyśrodkowanie numeru w plakietce
+                val textX = badgeX - cityLevelLayout.width / 2f - targetDigitHeight * CITY_LEVEL_DIGIT_X_BIAS
+                val textY = badgeY + cityLevelLayout.height / 2f
+
+                // Tekst dorysowany kilkukrotnie z małym przesunięciem
+                // w czterech kierunkach pogrubia kreski cyfry bez osobnego, pogrubionego fontu.
+                font.draw(batch, levelText, textX - boldOffset, textY)
+                font.draw(batch, levelText, textX + boldOffset, textY)
+                font.draw(batch, levelText, textX, textY - boldOffset)
+                font.draw(batch, levelText, textX, textY + boldOffset)
+                font.draw(batch, levelText, textX, textY)
+            }
+        } finally {
+            batch.end()
+
+            // Przywrócenie poprzednich ustawień czcionki
+            font.setColor(previousCityLevelFontColor)
+            font.data.setScale(previousScaleX, previousScaleY)
+            font.setUseIntegerPositions(previousUseIntegerPositions)
+        }
+    }
     /**
      * Rysuje na ekranie wszystkie żywe i widoczne jednostki.
      * @param units zbiór jednostek do wyrenderowania
@@ -376,6 +495,7 @@ class WorldRenderer(
         } finally {
             batch.end()
         }
+        renderCityLevelBadges(cities, camera, hexSize, isTileVisible)
     }
 
     /**
@@ -417,7 +537,9 @@ class WorldRenderer(
         // Wyznaczenie pionowych granic prostokąta obiektu.
         // Od środka obiektu odejmujemy lub dodajemy połowę jego wysokości.
         val objectBottom = centerY - objectHeight / 2f
-        val objectTop = centerY + objectHeight / 2f/*
+        val objectTop = centerY + objectHeight / 2f
+
+        /*
             Sprawdzamy, czy prostokąt obiektu przecina się
             z prostokątem widocznego obszaru kamery.
          */
@@ -465,6 +587,7 @@ class WorldRenderer(
 
     fun dispose() {
         batch.dispose()
+        cityBadgeRenderer.dispose()
     }
 
     /**
